@@ -48,8 +48,8 @@ def definir_camp(x, y, z):
 # ==============================================================
 # 2. CONFIGURACIÓ DEL DOMINI ESPACIAL
 # ==============================================================
-LIM = 2       # Límits de l'eix (des de -LIM fins a LIM)
-PUNTS = 5    # Densitat de vectors (resolució de la graella)
+LIM = 5       # Límits de l'eix (des de -LIM fins a LIM)
+PUNTS = 10    # Densitat de vectors (resolució de la graella)
 
 # ==============================================================
 # 3. MOTOR DE RENDERITZAT (No cal tocar-lo)
@@ -65,19 +65,34 @@ def create_vector_field():
     # Obtenim les velocitats a cada punt cridant a la teva funció
     u, v, w = definir_camp(x, y, z)
 
-    # --- 1. Camp Vectorial ---
+    # --- 1. Camp Vectorial Complet i Separats ---
     # En 3D utilitzem Cone. Com has vist, Arrow no existeix en 3D a Plotly.
-    trace_camp = go.Cone(
-        x=x.flatten(),
-        y=y.flatten(),
-        z=z.flatten(),
-        u=u.flatten(),
-        v=v.flatten(),
-        w=w.flatten(),
-        colorscale='Viridis',
-        sizemode="absolute",
-        sizeref=0.6, # Reduït perquè en haver-hi més fletxes no es solapin
-        name='Camp de Fluids'
+    trace_camp_all = go.Cone(
+        x=x.flatten(), y=y.flatten(), z=z.flatten(),
+        u=u.flatten(), v=v.flatten(), w=w.flatten(),
+        colorscale='Viridis', sizemode="absolute", sizeref=0.6,
+        name='Camp Complet', visible=True
+    )
+    
+    trace_camp_x = go.Cone(
+        x=x.flatten(), y=y.flatten(), z=z.flatten(),
+        u=u.flatten(), v=np.zeros_like(v.flatten()), w=np.zeros_like(w.flatten()),
+        colorscale='Reds', sizemode="absolute", sizeref=0.6,
+        name='Només X', visible=False
+    )
+    
+    trace_camp_y = go.Cone(
+        x=x.flatten(), y=y.flatten(), z=z.flatten(),
+        u=np.zeros_like(u.flatten()), v=v.flatten(), w=np.zeros_like(w.flatten()),
+        colorscale='Greens', sizemode="absolute", sizeref=0.6,
+        name='Només Y', visible=False
+    )
+    
+    trace_camp_z = go.Cone(
+        x=x.flatten(), y=y.flatten(), z=z.flatten(),
+        u=np.zeros_like(u.flatten()), v=np.zeros_like(v.flatten()), w=w.flatten(),
+        colorscale='Blues', sizemode="absolute", sizeref=0.6,
+        name='Només Z', visible=False
     )
 
     # --- 2. Vectors Base (x, y, z) de mòdul 1 ---
@@ -103,7 +118,13 @@ def create_vector_field():
         name='Puntes Base'
     )
 
-    fig = go.Figure(data=[trace_base_lines, trace_base_cons, trace_camp])
+    fig = go.Figure(data=[
+        trace_base_lines, trace_base_cons,   # Sempre visibles
+        trace_camp_all,                      # Mostrar tot (per defecte)
+        trace_camp_x,                        # Només component u
+        trace_camp_y,                        # Només component v
+        trace_camp_z                         # Només component w
+    ])
 
     fig.update_layout(
         title="Simulador de Camps de Fluids 3D",
@@ -111,7 +132,30 @@ def create_vector_field():
             xaxis_title='Eix X',
             yaxis_title='Eix Y',
             zaxis_title='Eix Z'
-        )
+        ),
+        updatemenus=[
+            dict(
+                type="buttons",
+                direction="down",
+                x=0.01,
+                y=0.99,
+                showactive=True,
+                buttons=list([
+                    dict(label="Totes les components",
+                         method="update",
+                         args=[{"visible": [True, True, True, False, False, False]}]),
+                    dict(label="Només Component X (u)",
+                         method="update",
+                         args=[{"visible": [True, True, False, True, False, False]}]),
+                    dict(label="Només Component Y (v)",
+                         method="update",
+                         args=[{"visible": [True, True, False, False, True, False]}]),
+                    dict(label="Només Component Z (w)",
+                         method="update",
+                         args=[{"visible": [True, True, False, False, False, True]}]),
+                ]),
+            )
+        ]
     )
 
     # Exportem a HTML i obrim
