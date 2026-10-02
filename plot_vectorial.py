@@ -49,7 +49,7 @@ def definir_camp(x, y, z):
 # 2. CONFIGURACIÓ DEL DOMINI ESPACIAL
 # ==============================================================
 LIM = 2       # Límits de l'eix (des de -LIM fins a LIM)
-PUNTS = 6     # Densitat de vectors (resolució de la graella)
+PUNTS = 12    # Densitat de vectors (resolució de la graella)
 
 # ==============================================================
 # 3. MOTOR DE RENDERITZAT (No cal tocar-lo)
@@ -76,7 +76,7 @@ def create_vector_field():
         w=w.flatten(),
         colorscale='Viridis',
         sizemode="absolute",
-        sizeref=0.5,
+        sizeref=0.2, # Reduït perquè en haver-hi més fletxes no es solapin
         name='Camp de Fluids'
     )
 
