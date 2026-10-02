@@ -1,5 +1,7 @@
 import plotly.graph_objects as go
 import numpy as np
+import webbrowser
+import os
 
 def create_vector_field():
     # Creem una graella de punts 3D
@@ -35,10 +37,24 @@ def create_vector_field():
         )
     )
 
-    # Guardem la figura en un arxiu HTML interactiu i l'obrim
-    # auto_open=True farà que s'obri automàticament al navegador web.
-    fig.write_html("camp_vectorial.html", auto_open=True)
-    print("S'ha generat el plot interactiu a 'camp_vectorial.html' i s'obrirà al teu navegador.")
+    # Guardem la figura en un arxiu HTML interactiu sense auto-obrir
+    html_file = "camp_vectorial.html"
+    fig.write_html(html_file, auto_open=False)
+    file_path = os.path.abspath(html_file)
+    
+    # Forcem l'obertura a Google Chrome
+    try:
+        chrome_path = 'C:/Program Files/Google/Chrome/Application/chrome.exe %s'
+        webbrowser.get(chrome_path).open('file://' + file_path)
+    except webbrowser.Error:
+        try:
+            chrome_path_x86 = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
+            webbrowser.get(chrome_path_x86).open('file://' + file_path)
+        except webbrowser.Error:
+            print("No s'ha pogut trobar Google Chrome. S'obrirà amb el navegador per defecte.")
+            webbrowser.open('file://' + file_path)
+
+    print(f"S'ha generat el plot interactiu a '{html_file}' i s'ha intentat obrir a Chrome.")
 
 if __name__ == "__main__":
     create_vector_field()
