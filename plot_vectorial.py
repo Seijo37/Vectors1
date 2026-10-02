@@ -45,17 +45,17 @@ def create_vector_field():
     file_path = html_file
     
     # Forcem l'obertura a Google Chrome
+    import subprocess
     try:
-        chrome_path = 'C:/Program Files/Google/Chrome/Application/chrome.exe %s'
-        webbrowser.get(chrome_path).open('file://' + file_path)
-    except webbrowser.Error:
+        # 'start "" chrome' és la manera robusta a Windows d'obrir-ho
+        subprocess.run(f'start "" chrome "{file_path}"', shell=True, check=True)
+    except Exception:
+        print("No s'ha pogut obrir Chrome. S'intentarà obrir l'arxiu per defecte...")
         try:
-            chrome_path_x86 = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
-            webbrowser.get(chrome_path_x86).open('file://' + file_path)
-        except webbrowser.Error:
-            print("No s'ha pogut trobar Google Chrome. S'obrirà amb el navegador per defecte.")
+            os.startfile(file_path) # A Windows això obre l'arxiu amb el programa associat
+        except Exception:
+            import webbrowser
             webbrowser.open('file://' + file_path)
-
     print(f"S'ha generat el plot interactiu a '{html_file}' i s'ha intentat obrir a Chrome.")
 
 if __name__ == "__main__":
