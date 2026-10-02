@@ -70,7 +70,7 @@ def create_vector_field():
     trace_camp_all = go.Cone(
         x=x.flatten(), y=y.flatten(), z=z.flatten(),
         u=u.flatten(), v=v.flatten(), w=w.flatten(),
-        colorscale='Viridis', sizemode="absolute", sizeref=0.6,
+        colorscale='Viridis', sizemode="absolute", sizeref=1,
         name='Camp Complet', visible=True
     )
     
