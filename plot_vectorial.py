@@ -1,22 +1,54 @@
 import plotly.graph_objects as go
 import numpy as np
-import webbrowser
 import os
+import subprocess
 
+# ==============================================================
+# 1. DEFINEIX EL TEU CAMP VECTORIAL AQUÍ (Equacions de Fluids)
+# ==============================================================
+def definir_camp(x, y, z):
+    """
+    Escriu aquí les teves equacions.
+    x, y, z són les coordenades de l'espai.
+    Retorna u, v, w (les components X, Y, Z del vector velocitat).
+    """
+    # Exemple de Camp Rotacional:
+    u = -y
+    v = x
+    w = z * 0.5
+    
+    # Pots provar a descomentar (i comentar l'anterior) aquest Exemple de Font en 3D:
+    # r3 = (x**2 + y**2 + z**2)**1.5
+    # # Evitem la divisió per zero a l'origen posant un valor petit
+    # r3[r3 == 0] = 1e-5
+    # u = x / r3
+    # v = y / r3
+    # w = z / r3
+
+    return u, v, w
+
+# ==============================================================
+# 2. CONFIGURACIÓ DEL DOMINI ESPACIAL
+# ==============================================================
+LIM = 2       # Límits de l'eix (des de -LIM fins a LIM)
+PUNTS = 6     # Densitat de vectors (resolució de la graella)
+
+# ==============================================================
+# 3. MOTOR DE RENDERITZAT (No cal tocar-lo)
+# ==============================================================
 def create_vector_field():
     # Creem una graella de punts 3D
     x, y, z = np.meshgrid(
-        np.linspace(-2, 2, 5),
-        np.linspace(-2, 2, 5),
-        np.linspace(-2, 2, 5)
+        np.linspace(-LIM, LIM, PUNTS),
+        np.linspace(-LIM, LIM, PUNTS),
+        np.linspace(-LIM, LIM, PUNTS)
     )
 
-    # Definim el camp vectorial (per exemple, un camp rotacional)
-    u = -y
-    v = x
-    w = z * 0.5  # Moviment a l'eix z
+    # Obtenim les velocitats a cada punt cridant a la teva funció
+    u, v, w = definir_camp(x, y, z)
 
-    # --- Camp Vectorial Original ---
+    # --- 1. Camp Vectorial ---
+    # En 3D utilitzem Cone. Com has vist, Arrow no existeix en 3D a Plotly.
     trace_camp = go.Cone(
         x=x.flatten(),
         y=y.flatten(),
@@ -27,23 +59,21 @@ def create_vector_field():
         colorscale='Viridis',
         sizemode="absolute",
         sizeref=0.5,
-        name='Camp'
+        name='Camp de Fluids'
     )
 
-    # --- Vectors Base de Mòdul 1 (i, j, k) en negre ---
-    # Per fer fletxes ("arrows") en 3D a Plotly s'ha de combinar una línia amb un Con a la punta.
-    # Línies des de l'origen fins a (1,0,0), (0,1,0), i (0,0,1)
+    # --- 2. Vectors Base (x, y, z) de mòdul 1 ---
+    # Per simular Arrows dibuixem el cos del vector (línia) i la punta (Con).
     trace_base_lines = go.Scatter3d(
         x=[0, 1, None, 0, 0, None, 0, 0],
         y=[0, 0, None, 0, 1, None, 0, 0],
         z=[0, 0, None, 0, 0, None, 0, 1],
         mode='lines',
         line=dict(color='black', width=6),
-        name='Línies Base',
+        name='Base i, j, k',
         showlegend=False
     )
     
-    # Puntes (fletxes) negres situades a (1,0,0), (0,1,0), (0,0,1)
     trace_base_cons = go.Cone(
         x=[1, 0, 0], y=[0, 1, 0], z=[0, 0, 1],
         u=[1, 0, 0], v=[0, 1, 0], w=[0, 0, 1],
@@ -51,14 +81,14 @@ def create_vector_field():
         showscale=False,
         sizemode="absolute",
         sizeref=0.15,
-        anchor="tip", # La punta acaba just a la coordenada exacta
+        anchor="tip",
         name='Puntes Base'
     )
 
     fig = go.Figure(data=[trace_base_lines, trace_base_cons, trace_camp])
 
     fig.update_layout(
-        title="Camp Vectorial 3D (Interactiu)",
+        title="Simulador de Camps de Fluids 3D",
         scene=dict(
             xaxis_title='Eix X',
             yaxis_title='Eix Y',
@@ -66,26 +96,22 @@ def create_vector_field():
         )
     )
 
-    # Guardem la figura en un arxiu HTML interactiu sense auto-obrir
+    # Exportem a HTML i obrim
     script_dir = os.path.dirname(os.path.abspath(__file__))
     html_file = os.path.join(script_dir, "camp_vectorial.html")
-    
     fig.write_html(html_file, auto_open=False)
-    file_path = html_file
     
-    # Forcem l'obertura a Google Chrome
-    import subprocess
     try:
-        # 'start "" chrome' és la manera robusta a Windows d'obrir-ho
-        subprocess.run(f'start "" chrome "{file_path}"', shell=True, check=True)
+        subprocess.run(f'start "" chrome "{html_file}"', shell=True, check=True)
     except Exception:
-        print("No s'ha pogut obrir Chrome. S'intentarà obrir l'arxiu per defecte...")
+        print("No s'ha pogut obrir Chrome. S'obrirà amb el navegador per defecte...")
         try:
-            os.startfile(file_path) # A Windows això obre l'arxiu amb el programa associat
+            os.startfile(html_file)
         except Exception:
             import webbrowser
-            webbrowser.open('file://' + file_path)
-    print(f"S'ha generat el plot interactiu a '{html_file}' i s'ha intentat obrir a Chrome.")
+            webbrowser.open('file://' + html_file)
+            
+    print(f"Plot interactiu generat a '{html_file}'.")
 
 if __name__ == "__main__":
     create_vector_field()
