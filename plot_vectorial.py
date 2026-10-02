@@ -16,7 +16,8 @@ def create_vector_field():
     v = x
     w = z * 0.5  # Moviment a l'eix z
 
-    fig = go.Figure(data=go.Cone(
+    # --- Camp Vectorial Original ---
+    trace_camp = go.Cone(
         x=x.flatten(),
         y=y.flatten(),
         z=z.flatten(),
@@ -25,8 +26,36 @@ def create_vector_field():
         w=w.flatten(),
         colorscale='Viridis',
         sizemode="absolute",
-        sizeref=0.5
-    ))
+        sizeref=0.5,
+        name='Camp'
+    )
+
+    # --- Vectors Base de Mòdul 1 (i, j, k) en negre ---
+    # Per fer fletxes ("arrows") en 3D a Plotly s'ha de combinar una línia amb un Con a la punta.
+    # Línies des de l'origen fins a (1,0,0), (0,1,0), i (0,0,1)
+    trace_base_lines = go.Scatter3d(
+        x=[0, 1, None, 0, 0, None, 0, 0],
+        y=[0, 0, None, 0, 1, None, 0, 0],
+        z=[0, 0, None, 0, 0, None, 0, 1],
+        mode='lines',
+        line=dict(color='black', width=6),
+        name='Línies Base',
+        showlegend=False
+    )
+    
+    # Puntes (fletxes) negres situades a (1,0,0), (0,1,0), (0,0,1)
+    trace_base_cons = go.Cone(
+        x=[1, 0, 0], y=[0, 1, 0], z=[0, 0, 1],
+        u=[1, 0, 0], v=[0, 1, 0], w=[0, 0, 1],
+        colorscale=[[0, 'black'], [1, 'black']],
+        showscale=False,
+        sizemode="absolute",
+        sizeref=0.15,
+        anchor="tip", # La punta acaba just a la coordenada exacta
+        name='Puntes Base'
+    )
+
+    fig = go.Figure(data=[trace_base_lines, trace_base_cons, trace_camp])
 
     fig.update_layout(
         title="Camp Vectorial 3D (Interactiu)",
