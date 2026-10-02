@@ -12,7 +12,7 @@ def definir_camp(x, y, z):
     Utilitza 'eval' per calcular els vectors a partir del text.
     """
     print("\n" + "="*50)
-    print(" 🛠️  SIMULADOR DE FLUIDS 3D - ENTRADA DE DADES")
+    print(" *** SIMULADOR DE FLUIDS 3D - ENTRADA DE DADES ***")
     print("="*50)
     print("Introdueix les fórmules per a cada component.")
     print("Usa les variables 'x', 'y', 'z'.")
@@ -49,7 +49,7 @@ def definir_camp(x, y, z):
 # 2. CONFIGURACIÓ DEL DOMINI ESPACIAL
 # ==============================================================
 LIM = 2       # Límits de l'eix (des de -LIM fins a LIM)
-PUNTS = 12    # Densitat de vectors (resolució de la graella)
+PUNTS = 5    # Densitat de vectors (resolució de la graella)
 
 # ==============================================================
 # 3. MOTOR DE RENDERITZAT (No cal tocar-lo)
@@ -76,7 +76,7 @@ def create_vector_field():
         w=w.flatten(),
         colorscale='Viridis',
         sizemode="absolute",
-        sizeref=0.2, # Reduït perquè en haver-hi més fletxes no es solapin
+        sizeref=0.6, # Reduït perquè en haver-hi més fletxes no es solapin
         name='Camp de Fluids'
     )
 
