@@ -8,24 +8,42 @@ import subprocess
 # ==============================================================
 def definir_camp(x, y, z):
     """
-    Escriu aquí les teves equacions.
-    x, y, z són les coordenades de l'espai.
-    Retorna u, v, w (les components X, Y, Z del vector velocitat).
+    Sol·licita a l'usuari que introdueixi les equacions des de la terminal.
+    Utilitza 'eval' per calcular els vectors a partir del text.
     """
-    # Exemple de Camp Rotacional:
-    u = -y
-    v = x
-    w = z * 0.5
+    print("\n" + "="*50)
+    print(" 🛠️  SIMULADOR DE FLUIDS 3D - ENTRADA DE DADES")
+    print("="*50)
+    print("Introdueix les fórmules per a cada component.")
+    print("Usa les variables 'x', 'y', 'z'.")
+    print("Pots utilitzar 'np' per a funcions (ex: np.sin(x), x**2, np.sqrt(z)).")
+    print("(Si ho deixes en blanc, s'utilitzarà l'exemple per defecte)")
+    print("-" * 50)
     
-    # Pots provar a descomentar (i comentar l'anterior) aquest Exemple de Font en 3D:
-    # r3 = (x**2 + y**2 + z**2)**1.5
-    # # Evitem la divisió per zero a l'origen posant un valor petit
-    # r3[r3 == 0] = 1e-5
-    # u = x / r3
-    # v = y / r3
-    # w = z / r3
-
-    return u, v, w
+    eq_u = input("u(x, y, z) = ") or "-y"
+    eq_v = input("v(x, y, z) = ") or "x"
+    eq_w = input("w(x, y, z) = ") or "z * 0.5"
+    
+    print("\nProcessant i generant el gràfic...")
+    
+    # Ambient segur per avaluar expressions amb només les nostres variables
+    locals_dict = {'x': x, 'y': y, 'z': z, 'np': np}
+    
+    try:
+        u = eval(eq_u, {"__builtins__": None}, locals_dict)
+        v = eval(eq_v, {"__builtins__": None}, locals_dict)
+        w = eval(eq_w, {"__builtins__": None}, locals_dict)
+        
+        # Si l'usuari posa un número constant (ex: "0"), ho convertim a una matriu de la mateixa mida
+        if isinstance(u, (int, float)): u = np.full_like(x, float(u))
+        if isinstance(v, (int, float)): v = np.full_like(y, float(v))
+        if isinstance(w, (int, float)): w = np.full_like(z, float(w))
+        
+        return u, v, w
+    except Exception as e:
+        print(f"\n[!] Error a l'avaluar les equacions: {e}")
+        print("    -> Es carregarà el camp per defecte (-y, x, z*0.5).")
+        return -y, x, z * 0.5
 
 # ==============================================================
 # 2. CONFIGURACIÓ DEL DOMINI ESPACIAL
