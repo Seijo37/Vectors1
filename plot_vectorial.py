@@ -38,9 +38,11 @@ def create_vector_field():
     )
 
     # Guardem la figura en un arxiu HTML interactiu sense auto-obrir
-    html_file = "camp_vectorial.html"
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    html_file = os.path.join(script_dir, "camp_vectorial.html")
+    
     fig.write_html(html_file, auto_open=False)
-    file_path = os.path.abspath(html_file)
+    file_path = html_file
     
     # Forcem l'obertura a Google Chrome
     try:
