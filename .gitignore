@@ -1,2 +1,3 @@
-# Ignorar tots els arxius html generats
-*.html
+# Ignorar plots html temporals generats per Plotly
+camp_vectorial.html
+
