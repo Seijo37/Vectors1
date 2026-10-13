@@ -1,1019 +1,1170 @@
 <!doctype html>
 <html lang="ca">
-
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Simulador de Camps Vectorials 3D — Dinàmica de Flux i Xarxes</title>
-  <link rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --ink: #0f172a;
-      --muted: #475569;
-      --border: #e2e8f0;
-      --primary: #059669;
-      /* Verd inspirat en l'estil acadèmic */
-      --primary-hover: #047857;
-      --accent: #2563eb;
-      --danger: #dc2626;
-    }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador de Mecànica de Fluids — Camps Vectorials, Potencial i Funció de Corrent</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
+<style>
+  :root {
+    --bg: #f8fafc;
+    --card-bg: #ffffff;
+    --ink: #0f172a;
+    --muted: #475569;
+    --border: #e2e8f0;
+    --primary: #059669; /* Verd UAB / Estat Sòlid */
+    --primary-hover: #047857;
+    --accent: #2563eb;
+    --accent-light: #eff6ff;
+    --warning: #d97706;
+    --danger: #dc2626;
+  }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
 
-    body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      background: var(--bg);
-      color: var(--ink);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+  header.capcalera {
+    background: #ffffff;
+    border-bottom: 1px solid var(--border);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  }
+  .cap-titol {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .cap-titol h1 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .cap-titol span {
+    font-size: 0.8rem;
+    color: var(--muted);
+    background: #e2e8f0;
+    padding: 2px 8px;
+    border-radius: 12px;
+  }
 
-    /* Capçalera estil UAB / Estat Sòlid */
-    header.capcalera {
-      background: #ffffff;
-      border-bottom: 1px solid var(--border);
-      padding: 12px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-    }
+  main.main-content {
+    display: grid;
+    grid-template-columns: 350px 1fr 310px;
+    gap: 14px;
+    padding: 14px;
+    flex: 1;
+    height: calc(100vh - 58px);
+    overflow: hidden;
+  }
 
-    .cap-titol {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .cap-titol h1 {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--ink);
-    }
-
-    .cap-titol span {
-      font-size: 0.82rem;
-      color: var(--muted);
-      background: #e2e8f0;
-      padding: 2px 8px;
-      border-radius: 12px;
-    }
-
-    /* Layout de 3 columnes */
+  @media (max-width: 1180px) {
     main.main-content {
-      display: grid;
-      grid-template-columns: 320px 1fr 300px;
-      gap: 16px;
-      padding: 16px;
-      flex: 1;
-      height: calc(100vh - 65px);
-      overflow: hidden;
-    }
-
-    @media (max-width: 1100px) {
-      main.main-content {
-        grid-template-columns: 300px 1fr;
-        overflow-y: auto;
-        height: auto;
-      }
-
-      .right-panel {
-        display: none;
-      }
-    }
-
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 14px;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
-      margin-bottom: 12px;
-    }
-
-    .card-title {
-      font-size: 0.88rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--muted);
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    /* Panell de controls (esquerra) */
-    .controls-panel {
+      grid-template-columns: 330px 1fr;
       overflow-y: auto;
-      padding-right: 4px;
+      height: auto;
     }
+    .right-panel { display: none; }
+  }
 
-    .form-group {
-      margin-bottom: 10px;
-    }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    margin-bottom: 10px;
+  }
+  .card-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 
-    .form-group label {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--ink);
-      margin-bottom: 4px;
-    }
+  .controls-panel {
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  .form-group {
+    margin-bottom: 8px;
+  }
+  .form-group label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 3px;
+  }
+  .form-group label span.val {
+    color: var(--primary);
+    font-family: monospace;
+  }
+  input[type="text"], select {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.83rem;
+    font-family: monospace;
+    background: #fff;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  input[type="text"]:focus, select:focus {
+    border-color: var(--primary);
+  }
+  input[type="range"] {
+    width: 100%;
+    accent-color: var(--primary);
+  }
+  .btn-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+  }
+  button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--primary-hover); }
+  button.secondary {
+    background: #e2e8f0;
+    color: var(--ink);
+  }
+  button.secondary:hover { background: #cbd5e1; }
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    margin-bottom: 5px;
+    cursor: pointer;
+  }
 
-    .form-group label span.val {
-      color: var(--primary);
-      font-family: monospace;
-    }
+  /* Selector de mode tabs */
+  .mode-selector {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+  .mode-btn {
+    background: #f1f5f9;
+    color: var(--muted);
+    font-size: 0.76rem;
+    padding: 6px 4px;
+    text-align: center;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .mode-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
 
-    input[type="text"],
-    select {
-      width: 100%;
-      padding: 6px 10px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.85rem;
-      font-family: monospace;
-      background: #fff;
-      outline: none;
-      transition: border-color 0.15s;
-    }
+  /* Panell central 3D */
+  .center-panel {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: #090d16;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  #webgl-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+  .overlay-info {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background: rgba(15, 23, 42, 0.8);
+    color: #e2e8f0;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    backdrop-filter: blur(4px);
+    pointer-events: none;
+    line-height: 1.4;
+  }
+  .overlay-legend {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(15, 23, 42, 0.8);
+    color: #e2e8f0;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.74rem;
+    backdrop-filter: blur(4px);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    pointer-events: none;
+  }
+  .legend-bar {
+    width: 120px;
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(to right, #3b82f6, #10b981, #f59e0b, #ef4444);
+  }
+  .legend-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: monospace;
+    font-size: 0.7rem;
+    color: #94a3b8;
+  }
 
-    input[type="text"]:focus,
-    select:focus {
-      border-color: var(--primary);
-    }
+  /* Constraints Card */
+  .constraint-box {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 0.77rem;
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+  .constraint-box.valid {
+    border-left: 4px solid var(--primary);
+  }
+  .constraint-box.warning {
+    border-left: 4px solid var(--warning);
+    background: #fffbeb;
+  }
+  .constraint-box.danger {
+    border-left: 4px solid var(--danger);
+    background: #fef2f2;
+  }
 
-    input[type="range"] {
-      width: 100%;
-      accent-color: var(--primary);
-    }
+  .right-panel {
+    overflow-y: auto;
+  }
+  .readout-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.81rem;
+  }
+  .readout-table tr {
+    border-bottom: 1px solid var(--border);
+  }
+  .readout-table td {
+    padding: 5px 0;
+  }
+  .readout-table td.lbl {
+    color: var(--muted);
+  }
+  .readout-table td.val {
+    text-align: right;
+    font-family: monospace;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+  .badge-success { background: #dcfce7; color: #15803d; }
+  .badge-warning { background: #fef3c7; color: #b45309; }
+  .badge-danger { background: #fee2e2; color: #b91c1c; }
+  .badge-info { background: #dbeafe; color: #1d4ed8; }
 
-    .btn-row {
-      display: flex;
-      gap: 6px;
-      margin-top: 6px;
-    }
-
-    button {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-
-    button:hover {
-      background: var(--primary-hover);
-    }
-
-    button.secondary {
-      background: #e2e8f0;
-      color: var(--ink);
-    }
-
-    button.secondary:hover {
-      background: #cbd5e1;
-    }
-
-    .checkbox-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.82rem;
-      margin-bottom: 6px;
-      cursor: pointer;
-    }
-
-    /* Panell central (Visualització 3D) */
-    .center-panel {
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      background: #090d16;
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-    }
-
-    #webgl-container {
-      width: 100%;
-      height: 100%;
-      position: relative;
-    }
-
-    .overlay-info {
-      position: absolute;
-      bottom: 12px;
-      left: 12px;
-      background: rgba(15, 23, 42, 0.75);
-      color: #e2e8f0;
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 0.76rem;
-      backdrop-filter: blur(4px);
-      pointer-events: none;
-      line-height: 1.4;
-    }
-
-    .overlay-legend {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: rgba(15, 23, 42, 0.75);
-      color: #e2e8f0;
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      backdrop-filter: blur(4px);
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      pointer-events: none;
-    }
-
-    .legend-bar {
-      width: 120px;
-      height: 8px;
-      border-radius: 4px;
-      background: linear-gradient(to right, #3b82f6, #10b981, #f59e0b, #ef4444);
-    }
-
-    .legend-labels {
-      display: flex;
-      justify-content: space-between;
-      font-family: monospace;
-      font-size: 0.7rem;
-      color: #94a3b8;
-    }
-
-    /* Panell dret (Lectures físiques) */
-    .right-panel {
-      overflow-y: auto;
-    }
-
-    .readout-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.82rem;
-    }
-
-    .readout-table tr {
-      border-bottom: 1px solid var(--border);
-    }
-
-    .readout-table td {
-      padding: 6px 0;
-    }
-
-    .readout-table td.lbl {
-      color: var(--muted);
-    }
-
-    .readout-table td.val {
-      text-align: right;
-      font-family: monospace;
-      font-weight: 600;
-      color: var(--ink);
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 0.72rem;
-      font-weight: 600;
-    }
-
-    .badge-success {
-      background: #dcfce7;
-      color: #15803d;
-    }
-
-    .badge-warning {
-      background: #fef3c7;
-      color: #b45309;
-    }
-
-    .badge-info {
-      background: #dbeafe;
-      color: #1d4ed8;
-    }
-
-    .theory-text {
-      font-size: 0.82rem;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-
-    .theory-text p {
-      margin-bottom: 8px;
-    }
-
-    .theory-text code {
-      background: #f1f5f9;
-      padding: 2px 4px;
-      border-radius: 4px;
-      font-size: 0.8rem;
-      color: #0f172a;
-    }
-  </style>
+  .theory-text {
+    font-size: 0.81rem;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+  .theory-text p { margin-bottom: 6px; }
+  .theory-text code {
+    background: #f1f5f9;
+    padding: 1px 4px;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    color: #0f172a;
+    font-family: monospace;
+  }
+</style>
 </head>
-
 <body>
 
-  <header class="capcalera">
-    <div class="cap-titol">
-      <h1>Simulador Interactiu de Camps Vectorials 3D</h1>
-      <span>Inspirat en els mètodes d'Estat Sòlid</span>
-    </div>
-    <div style="font-size: 0.82rem; color: var(--muted);">
-      Control 3D: Clic esquerre (Rotar) · Roda (Zoom) · Clic dret (Desplaçar)
-    </div>
-  </header>
+<header class="capcalera">
+  <div class="cap-titol">
+    <h1>Simulador de Fluids: Potencial & Funció de Corrent</h1>
+    <span>Física de Fluids i Estat Sòlid</span>
+  </div>
+  <div style="font-size: 0.82rem; color: var(--muted);">
+    Control 3D: Clic esquerre (Rotar) · Roda (Zoom) · Clic dret (Desplaçar)
+  </div>
+</header>
 
-  <main class="main-content">
-    <!-- ═══ Columna Esquerra: Controls i Equacions ═══ -->
-    <aside class="controls-panel">
-      <div class="card">
-        <div class="card-title">Presets de Camps</div>
-        <div class="form-group">
-          <select id="selPreset">
-            <option value="vortex">1. Vòrtex Cilíndric (Rotacional pur)</option>
-            <option value="font">2. Font 3D (Divergència pura)</option>
-            <option value="dipol">3. Camp Dipolar (Magnètic / Elèctric)</option>
-            <option value="ona">4. Ona viatgera transversal (t)</option>
-            <option value="sella">5. Punt de Sella (Flux hiperbòlic)</option>
-            <option value="helicoide">6. Flux Helicoidal (Cargol 3D)</option>
-            <option value="custom">-- Camp Personalitzat --</option>
-          </select>
-        </div>
+<main class="main-content">
+  <!-- ═══ Columna Esquerra: Entrades i Equacions ═══ -->
+  <aside class="controls-panel">
+    
+    <!-- Presets dels Problemes de Fluids -->
+    <div class="card">
+      <div class="card-title">Exercicis de Fluids (Problemes)</div>
+      <div class="form-group">
+        <select id="selPreset">
+          <optgroup label="Exercicis del Full de Fluids">
+            <option value="ex12">Ex 12: Flux Hiperbòlic u=(ax, -ay)</option>
+            <option value="ex13">Ex 13: Vòrtex rígid u=(-3y, 3x)</option>
+            <option value="ex16_irrot">Ex 16: Flux lineal irrotacional (α=3, β=2)</option>
+            <option value="ex16_rot">Ex 16: Flux lineal amb vorticitat (α=3, β=0)</option>
+            <option value="ex04_cilindre">Ex 4: Flux al voltant de cilindre/protuberància</option>
+            <option value="ex15_t">Ex 15: Flux no estacionari u=x(1+2t), v=y</option>
+          </optgroup>
+          <optgroup label="Camps Clàssics">
+            <option value="font_2d">Font plana 2D (Divergència pura)</option>
+            <option value="dipol_2d">Dipol pla (Font + Embornal)</option>
+            <option value="vortex_lliure">Vòrtex lliure (Irrotacional r > 0)</option>
+            <option value="custom">-- Personalitzat --</option>
+          </optgroup>
+        </select>
+      </div>
+    </div>
+
+    <!-- Mode d'Entrada -->
+    <div class="card">
+      <div class="card-title">Mode de Formulació</div>
+      <div class="mode-selector">
+        <div class="mode-btn" data-mode="components">1. Components (u, v, w)</div>
+        <div class="mode-btn active" data-mode="potencial">2. Potencial φ(x,y)</div>
+        <div class="mode-btn" data-mode="corrent">3. Corrent ψ(x,y)</div>
+        <div class="mode-btn" data-mode="ambdues">4. Conjunt (φ i ψ)</div>
       </div>
 
-      <div class="card">
-        <div class="card-title">Equacions del Camp v(x, y, z, t)</div>
+      <!-- Formulari: Potencial φ -->
+      <div id="formPotencial">
         <div class="form-group">
-          <label>Component u(x, y, z, t) [X]:</label>
-          <input type="text" id="eqU" value="-y">
+          <label>Funció Potencial φ(x, y, t):</label>
+          <input type="text" id="eqPhi" value="1.5 * (x*x - y*y)">
         </div>
-        <div class="form-group">
-          <label>Component v(x, y, z, t) [Y]:</label>
-          <input type="text" id="eqV" value="x">
-        </div>
-        <div class="form-group">
-          <label>Component w(x, y, z, t) [Z]:</label>
-          <input type="text" id="eqW" value="0.2 * z">
-        </div>
-        <div class="btn-row">
-          <button id="btnActualitzar" style="flex:1;">Actualitzar Camp</button>
-        </div>
-        <p style="font-size:0.72rem; color:var(--muted); margin-top:6px;">
-          Pots utilitzar: <code>sin</code>, <code>cos</code>, <code>sqrt</code>, <code>exp</code>, <code>pow</code>,
-          <code>PI</code>, i paràmetres <code>x, y, z, t</code>.
+        <p style="font-size:0.72rem; color:var(--muted);">
+          Velocitats: <code>u = ∂φ/∂x</code>, <code>v = ∂φ/∂y</code>.
         </p>
       </div>
 
-      <div class="card">
-        <div class="card-title">Paràmetres de la Xarxa</div>
+      <!-- Formulari: Corrent ψ -->
+      <div id="formCorrent" style="display:none;">
         <div class="form-group">
-          <label>Resolució de la xarxa: <span class="val" id="valRes">7</span></label>
-          <input type="range" id="slRes" min="4" max="11" step="1" value="7">
+          <label>Funció de Corrent ψ(x, y, t):</label>
+          <input type="text" id="eqPsi" value="3.0 * x * y">
+        </div>
+        <p style="font-size:0.72rem; color:var(--muted);">
+          Velocitats: <code>u = ∂ψ/∂y</code>, <code>v = -∂ψ/∂x</code>.
+        </p>
+      </div>
+
+      <!-- Formulari: Components Directes -->
+      <div id="formComponents" style="display:none;">
+        <div class="form-group">
+          <label>u(x, y, z, t):</label>
+          <input type="text" id="eqU" value="3.0 * x">
         </div>
         <div class="form-group">
-          <label>Escala dels vectors: <span class="val" id="valEscala">0.8</span></label>
-          <input type="range" id="slEscala" min="0.1" max="2.5" step="0.1" value="0.8">
+          <label>v(x, y, z, t):</label>
+          <input type="text" id="eqV" value="-3.0 * y">
         </div>
         <div class="form-group">
-          <label>Velocitat partícules: <span class="val" id="valVelPart">1.0</span></label>
-          <input type="range" id="slVelPart" min="0.1" max="3.0" step="0.1" value="1.0">
-        </div>
-        <div class="form-group">
-          <label>Pla de tall Z: <span class="val" id="valTall">Inactiu</span></label>
-          <input type="range" id="slTall" min="-5" max="5" step="0.2" value="0">
+          <label>w(x, y, z, t):</label>
+          <input type="text" id="eqW" value="0">
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-title">Capes de Visualització</div>
-        <label class="checkbox-row">
-          <input type="checkbox" id="chkParticules" checked> Mostrar Partícules de Flux (Tracers)
-        </label>
-        <label class="checkbox-row">
-          <input type="checkbox" id="chkVectors" checked> Mostrar Graella de Vectors 3D
-        </label>
-        <label class="checkbox-row">
-          <input type="checkbox" id="chkPlaTall"> Filtrar per Pla de tall Z
-        </label>
-        <label class="checkbox-row">
-          <input type="checkbox" id="chkCaixa" checked> Mostrar Caixa i Eixos
-        </label>
-        <div class="btn-row" style="margin-top:10px;">
-          <button id="btnPlay" class="secondary" style="flex:1;">Pausa Animació</button>
-          <button id="btnResetCam" class="secondary">Restablir Càmera</button>
-        </div>
+      <!-- Botó actualitzar -->
+      <div class="btn-row">
+        <button id="btnActualitzar" style="flex:1;">Actualitzar Camp & Constraints</button>
       </div>
-    </aside>
 
-    <!-- ═══ Columna Central: Visualització 3D Interactiva ═══ -->
-    <div class="center-panel">
-      <div id="webgl-container"></div>
-      <div class="overlay-info">
-        <div><strong>Domini:</strong> [-5, 5]³</div>
-        <div><strong>Vectors:</strong> <span id="infoNumVectors">343</span> | <strong>Traçadors:</strong> <span
-            id="infoNumPart">1500</span></div>
-        <div><strong>Temps de simulació (t):</strong> <span id="infoTemps">0.00</span> s</div>
-      </div>
-      <div class="overlay-legend">
-        <span>Magnitud |v|</span>
-        <div class="legend-bar"></div>
-        <div class="legend-labels">
-          <span>0</span>
-          <span id="legMax">|v|max</span>
-        </div>
+      <!-- Variables polars admeses -->
+      <div style="font-size:0.71rem; color:var(--muted); margin-top:6px; background:#f1f5f9; padding:5px 7px; border-radius:4px;">
+        Pots usar coordenades polars directament: <code>r</code> (radi) i <code>th</code> (angle θ), a més de <code>sin, cos, atan2, sqrt, pow, t</code>.
       </div>
     </div>
 
-    <!-- ═══ Columna Dreta: Anàlisi Física en Temps Real ═══ -->
-    <aside class="right-panel">
-      <div class="card">
-        <div class="card-title">Anàlisi Física (Centre [0,0,0])</div>
-        <table class="readout-table">
-          <tr>
-            <td class="lbl">Mòdul |v| centre:</td>
-            <td class="val" id="readVMod">0.00</td>
-          </tr>
-          <tr>
-            <td class="lbl">Divergència ∇·v:</td>
-            <td class="val" id="readDiv">0.00</td>
-          </tr>
-          <tr>
-            <td class="lbl">Comportament:</td>
-            <td class="val" id="readDivTipus"><span class="badge badge-success">Incompressible</span></td>
-          </tr>
-          <tr>
-            <td class="lbl">Rotacional |∇×v|:</td>
-            <td class="val" id="readRot">0.00</td>
-          </tr>
-          <tr>
-            <td class="lbl">Vorticitat:</td>
-            <td class="val" id="readRotTipus"><span class="badge badge-info">Irrotacional</span></td>
-          </tr>
-          <tr>
-            <td class="lbl">Mòdul màxim xarxa:</td>
-            <td class="val" id="readVMax">0.00</td>
-          </tr>
-        </table>
+    <!-- Constraints en temps real per formulació -->
+    <div class="card">
+      <div class="card-title">Constraints de Formulació</div>
+      <div id="constraintFeedback" class="constraint-box valid">
+        Calculant condicions...
       </div>
+    </div>
 
-      <div class="card theory-box">
-        <div class="card-title">Metodologia (com a Estat Sòlid)</div>
-        <div class="theory-text">
-          <p><strong>1. Traçadors de corrent (Partícules):</strong> A diferència d'un plot estàtic, les partícules
-            integren l'equació de moviment <code>dr/dt = v(r, t)</code> pas a pas a 60 fps, mostrant el transport real
-            del fluid o camp.</p>
-          <p><strong>2. Codificació cromàtica:</strong> Cada vector i partícula adopta un color del gradient segons la
-            seva velocitat respecte al màxim del domini.</p>
-          <p><strong>3. Pla de tall:</strong> El filtre permet aïllar una capa 2D per inspeccionar l'estructura interna
-            sense saturació visual.</p>
-          <p><strong>4. Operadors diferencials:</strong> Es calculen numèricament amb diferències finites centrades al
-            voltant del punt d'inspecció.</p>
-        </div>
+    <!-- Paràmetres de la Xarxa -->
+    <div class="card">
+      <div class="card-title">Xarxa & Visualització</div>
+      <div class="form-group">
+        <label>Densitat de vectors: <span class="val" id="valRes">8</span></label>
+        <input type="range" id="slRes" min="4" max="14" step="1" value="8">
       </div>
-    </aside>
-  </main>
+      <div class="form-group">
+        <label>Escala vectors: <span class="val" id="valEscala">0.8</span></label>
+        <input type="range" id="slEscala" min="0.1" max="2.5" step="0.1" value="0.8">
+      </div>
+      <div class="form-group">
+        <label>Velocitat partícules: <span class="val" id="valVelPart">1.0</span></label>
+        <input type="range" id="slVelPart" min="0.1" max="3.0" step="0.1" value="1.0">
+      </div>
+      <div class="form-group">
+        <label>Pla de tall Z: <span class="val" id="valTall">0.0</span></label>
+        <input type="range" id="slTall" min="-5" max="5" step="0.2" value="0">
+      </div>
+      <label class="checkbox-row">
+        <input type="checkbox" id="chkParticules" checked> Partícules traçadores (Línies de corrent)
+      </label>
+      <label class="checkbox-row">
+        <input type="checkbox" id="chkVectors" checked> Graella de vectors
+      </label>
+      <label class="checkbox-row">
+        <input type="checkbox" id="chkPlaTall"> Filtrar per pla de tall Z
+      </label>
+      <div class="btn-row" style="margin-top:6px;">
+        <button id="btnPlay" class="secondary" style="flex:1;">Pausa Animació</button>
+        <button id="btnResetCam" class="secondary">Càmera 2D / 3D</button>
+      </div>
+    </div>
+  </aside>
 
-  <!-- Biblioteques Three.js (exactament com a simetria_3d.js d'estat_solid) -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <!-- ═══ Columna Central: Visualitzador 3D Interactiu ═══ -->
+  <div class="center-panel">
+    <div id="webgl-container"></div>
+    <div class="overlay-info">
+      <div><strong>Domini:</strong> [-5, 5]² (Pla XY) | <strong>Temps t:</strong> <span id="infoTemps">0.00</span> s</div>
+      <div><strong>Traçadors de corrent:</strong> <span id="infoNumPart">1500</span> partícules a 60 fps</div>
+      <div id="infoModeTxt" style="color:#38bdf8; font-weight:600;">Mode: Potencial φ(x,y)</div>
+    </div>
+    <div class="overlay-legend">
+      <span>Magnitud |v|</span>
+      <div class="legend-bar"></div>
+      <div class="legend-labels">
+        <span>0</span>
+        <span id="legMax">|v|max</span>
+      </div>
+    </div>
+  </div>
 
-  <script>
-    (function () {
-      'use strict';
+  <!-- ═══ Columna Dreta: Anàlisi Física de l'Exercici ═══ -->
+  <aside class="right-panel">
+    <div class="card">
+      <div class="card-title">Lectures Físiques (Punt [1, 1])</div>
+      <table class="readout-table">
+        <tr>
+          <td class="lbl">Velocitat u [1,1]:</td>
+          <td class="val" id="readU">0.00</td>
+        </tr>
+        <tr>
+          <td class="lbl">Velocitat v [1,1]:</td>
+          <td class="val" id="readV">0.00</td>
+        </tr>
+        <tr>
+          <td class="lbl">Mòdul |v| [1,1]:</td>
+          <td class="val" id="readMod">0.00</td>
+        </tr>
+        <tr>
+          <td class="lbl">Divergència ∇·v:</td>
+          <td class="val" id="readDiv">0.00</td>
+        </tr>
+        <tr>
+          <td class="lbl">Incompressibilitat:</td>
+          <td class="val" id="readDivBadge"><span class="badge badge-success">Sí</span></td>
+        </tr>
+        <tr>
+          <td class="lbl">Vorticitat ωz (∇×v):</td>
+          <td class="val" id="readRot">0.00</td>
+        </tr>
+        <tr>
+          <td class="lbl">Irrotacionalitat:</td>
+          <td class="val" id="readRotBadge"><span class="badge badge-success">Sí</span></td>
+        </tr>
+      </table>
+    </div>
 
-      // --- CONFIGURACIÓ GLOBAL I ESTAT ---
-      const LIM = 5.0; // Domini [-5, 5]
-      let state = {
-        res: 7,
-        escala: 0.8,
-        velPart: 1.0,
-        tallZ: 0.0,
-        filtrarTall: false,
-        mostrarParticules: true,
-        mostrarVectors: true,
-        mostrarCaixa: true,
-        animant: true,
-        t: 0.0
-      };
+    <div class="card theory-box">
+      <div class="card-title">Teoria de Constraints</div>
+      <div class="theory-text">
+        <p><strong>1. Funció Potencial φ:</strong>
+        Requereix que el camp sigui <code>irrotacional (∇×v = 0)</code>. Perquè a més sigui <code>incompressible (∇·v = 0)</code>, φ ha de satisfer l'<strong>equació de Laplace</strong>: <code>∇²φ = 0</code>.</p>
+        
+        <p><strong>2. Funció de Corrent ψ:</strong>
+        El camp és <code>incompressible</code> per definició (ja que <code>∂u/∂x + ∂v/∂y = ∂²ψ/∂x∂y - ∂²ψ/∂y∂x = 0</code>). La vorticitat ve donada per <code>ωz = -∇²ψ</code>. Si <code>∇²ψ = 0</code>, el flux és a més irrotacional.</p>
 
-      // Preset definitions
-      const PRESETS = {
-        vortex: { u: "-y", v: "x", w: "0.2 * z" },
-        font: { u: "x", v: "y", w: "z" },
-        dipol: {
-          u: "(3 * x * z) / pow(x*x + y*y + z*z + 0.5, 2.5)",
-          v: "(3 * y * z) / pow(x*x + y*y + z*z + 0.5, 2.5)",
-          w: "(2*z*z - x*x - y*y) / pow(x*x + y*y + z*z + 0.5, 2.5)"
-        },
-        ona: { u: "sin(z - 2*t)", v: "cos(z - 2*t)", w: "0" },
-        sella: { u: "x", v: "-y", w: "0" },
-        helicoide: { u: "-y + 0.2*x", v: "x + 0.2*y", w: "1.0" },
-        custom: { u: "-y", v: "x", w: "0.2 * z" }
-      };
+        <p><strong>3. Cauchy-Riemann (φ i ψ):</strong>
+        Quan el flux és potencial i incompressible, <code>u = ∂φ/∂x = ∂ψ/∂y</code> i <code>v = ∂φ/∂y = -∂ψ/∂x</code>. Les corbes <code>φ=ct</code> i <code>ψ=ct</code> són <strong>ortogonals</strong> arreu.</p>
+      </div>
+    </div>
+  </aside>
+</main>
 
-      // Compilador de funcions matemàtiques segures en JS
-      let campU = (x, y, z, t) => -y;
-      let campV = (x, y, z, t) => x;
-      let campW = (x, y, z, t) => 0.2 * z;
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
-      function compilarEquacio(str) {
-        try {
-          // Reemplacem funcions comunes per Math.*
-          let codi = str
-            .replace(/\bsin\b/g, 'Math.sin')
-            .replace(/\bcos\b/g, 'Math.cos')
-            .replace(/\btan\b/g, 'Math.tan')
-            .replace(/\bsqrt\b/g, 'Math.sqrt')
-            .replace(/\bexp\b/g, 'Math.exp')
-            .replace(/\bpow\b/g, 'Math.pow')
-            .replace(/\babs\b/g, 'Math.abs')
-            .replace(/\bPI\b/g, 'Math.PI');
-          return new Function('x', 'y', 'z', 't', `return (${codi});`);
-        } catch (e) {
-          console.error("Error compilant equació:", str, e);
-          return () => 0;
-        }
+<script>
+(function() {
+  'use strict';
+
+  const LIM = 5.0;
+  let currentMode = 'potencial'; // 'components', 'potencial', 'corrent', 'ambdues'
+
+  let state = {
+    res: 8,
+    escala: 0.8,
+    velPart: 1.0,
+    tallZ: 0.0,
+    filtrarTall: false,
+    mostrarParticules: true,
+    mostrarVectors: true,
+    animant: true,
+    t: 0.0
+  };
+
+  // Presets configurats per als exercicis de Fluids
+  const PRESETS = {
+    ex12: {
+      mode: 'ambdues',
+      phi: '1.5 * (x*x - y*y)',
+      psi: '3.0 * x * y',
+      u: '3.0 * x', v: '-3.0 * y', w: '0',
+      desc: "Problema 12: Flux hiperbòlic amb a=3. Trajectòries: x*y = ct."
+    },
+    ex13: {
+      mode: 'corrent',
+      psi: '1.5 * (x*x + y*y)',
+      phi: '0',
+      u: '-3.0 * y', v: '3.0 * x', w: '0',
+      desc: "Problema 13: Camp u=(-3y, 3x). Té funció de corrent, però rotacional ω=6 (NO té potencial)."
+    },
+    ex16_irrot: {
+      mode: 'ambdues',
+      phi: '1.5*x*x + 2*x*y - 1.5*y*y',
+      psi: 'y*y + 3*x*y - x*x',
+      u: '3*x + 2*y', v: '2*x - 3*y', w: '0',
+      desc: "Problema 16 (Irrotacional): α=3, β=2. Incompressible i irrotacional (flux potencial)."
+    },
+    ex16_rot: {
+      mode: 'corrent',
+      psi: 'y*y + 3*x*y',
+      phi: '',
+      u: '3*x + 2*y', v: '-3*y', w: '0',
+      desc: "Problema 16 (Rotacional): α=3, β=0. Incompressible (té ψ), però ωz = -2 (no té φ)."
+    },
+    ex04_cilindre: {
+      mode: 'ambdues',
+      phi: '(r*r + 16/(r*r + 0.1)) * cos(2*th)',
+      psi: '(r*r - 16/(r*r + 0.1)) * sin(2*th)',
+      u: '', v: '', w: '0',
+      desc: "Problema 4: Flux al voltant d'un semicercle/cilindre (radi a=2) amb φ(∞)=A r² cos(2θ)."
+    },
+    ex15_t: {
+      mode: 'components',
+      u: 'x * (1 + 2*t)', v: 'y', w: '0',
+      phi: '', psi: '',
+      desc: "Problema 15: Flux no estacionari u=x(1+2t), v=y. Línies de corrent diferents de trajectòries."
+    },
+    font_2d: {
+      mode: 'ambdues',
+      phi: '2.0 * Math.log(r + 0.05)',
+      psi: '2.0 * th',
+      u: '', v: '', w: '0',
+      desc: "Font puntual 2D: Línies de corrent radials, equipotencials circulars."
+    },
+    dipol_2d: {
+      mode: 'ambdues',
+      phi: '4.0 * x / (r*r + 0.2)',
+      psi: '-4.0 * y / (r*r + 0.2)',
+      u: '', v: '', w: '0',
+      desc: "Dipol 2D: Superposició de font i embornal."
+    },
+    vortex_lliure: {
+      mode: 'ambdues',
+      phi: '3.0 * th',
+      psi: '-3.0 * Math.log(r + 0.1)',
+      u: '', v: '', w: '0',
+      desc: "Vòrtex lliure (irrotacional a r>0, ψ=-Γ/(2π) ln r)."
+    }
+  };
+
+  // Compilador matemàtic tolerant amb suport de coordenades polars
+  function compilarExpressio(str) {
+    if (!str || !str.trim()) return () => 0;
+    try {
+      let codi = str
+        .replace(/\bsin\b/g, 'Math.sin')
+        .replace(/\bcos\b/g, 'Math.cos')
+        .replace(/\btan\b/g, 'Math.tan')
+        .replace(/\bsqrt\b/g, 'Math.sqrt')
+        .replace(/\bexp\b/g, 'Math.exp')
+        .replace(/\bpow\b/g, 'Math.pow')
+        .replace(/\babs\b/g, 'Math.abs')
+        .replace(/\bPI\b/g, 'Math.PI')
+        .replace(/\blog\b/g, 'Math.log')
+        .replace(/\batan2\b/g, 'Math.atan2');
+      
+      return new Function('x', 'y', 'z', 't', `
+        const r = Math.sqrt(x*x + y*y);
+        const th = Math.atan2(y, x);
+        const theta = th;
+        return (${codi});
+      `);
+    } catch(e) {
+      console.warn("Error de compilació:", str, e);
+      return () => 0;
+    }
+  }
+
+  let funcPhi = compilarExpressio("1.5 * (x*x - y*y)");
+  let funcPsi = compilarExpressio("3.0 * x * y");
+  let funcU = (x,y,z,t) => 0;
+  let funcV = (x,y,z,t) => 0;
+  let funcW = (x,y,z,t) => 0;
+
+  // Derivació numèrica per diferències finites d'alta precisió
+  const H = 0.001;
+
+  function evaluarCamp(x, y, z, t) {
+    let u = 0, v = 0, w = 0;
+
+    if (currentMode === 'components') {
+      try {
+        u = funcU(x, y, z, t) || 0;
+        v = funcV(x, y, z, t) || 0;
+        w = funcW(x, y, z, t) || 0;
+      } catch(e) {}
+    } else if (currentMode === 'potencial') {
+      // u = ∂φ/∂x, v = ∂φ/∂y
+      try {
+        u = (funcPhi(x + H, y, z, t) - funcPhi(x - H, y, z, t)) / (2 * H);
+        v = (funcPhi(x, y + H, z, t) - funcPhi(x, y - H, z, t)) / (2 * H);
+        w = 0;
+      } catch(e) {}
+    } else if (currentMode === 'corrent') {
+      // u = ∂ψ/∂y, v = -∂ψ/∂x
+      try {
+        u = (funcPsi(x, y + H, z, t) - funcPsi(x, y - H, z, t)) / (2 * H);
+        v = -(funcPsi(x + H, y, z, t) - funcPsi(x - H, y, z, t)) / (2 * H);
+        w = 0;
+      } catch(e) {}
+    } else if (currentMode === 'ambdues') {
+      // Mitjana / Verificació conjunta
+      try {
+        const uPhi = (funcPhi(x + H, y, z, t) - funcPhi(x - H, y, z, t)) / (2 * H);
+        const vPhi = (funcPhi(x, y + H, z, t) - funcPhi(x, y - H, z, t)) / (2 * H);
+        u = uPhi;
+        v = vPhi;
+        w = 0;
+      } catch(e) {}
+    }
+
+    // Netejar valors NaN o Infs
+    if (!isFinite(u)) u = 0;
+    if (!isFinite(v)) v = 0;
+    if (!isFinite(w)) w = 0;
+
+    return { u, v, w };
+  }
+
+  // --- VERIFICACIÓ DE CONSTRAINTS ---
+  function verificarConstraints() {
+    const feedbackEl = document.getElementById('constraintFeedback');
+    const t = state.t;
+    const testPoints = [
+      { x: 1, y: 1 },
+      { x: 2, y: 0.5 },
+      { x: -1, y: 2 }
+    ];
+
+    if (currentMode === 'potencial') {
+      // Constraint: El camp és irrotacional per definició (u=∇φ).
+      // Laplacià ∇²φ = ∂²φ/∂x² + ∂²φ/∂y² = ∂u/∂x + ∂v/∂y ha de ser 0 per ser incompressible.
+      let maxLap = 0;
+      for (let p of testPoints) {
+        const d2x = (funcPhi(p.x + H, p.y, 0, t) - 2*funcPhi(p.x, p.y, 0, t) + funcPhi(p.x - H, p.y, 0, t)) / (H * H);
+        const d2y = (funcPhi(p.x, p.y + H, 0, t) - 2*funcPhi(p.x, p.y, 0, t) + funcPhi(p.x, p.y - H, 0, t)) / (H * H);
+        const lap = Math.abs(d2x + d2y);
+        if (lap > maxLap) maxLap = lap;
       }
 
-      function actualitzarFuncionsCamp() {
-        campU = compilarEquacio(document.getElementById('eqU').value);
-        campV = compilarEquacio(document.getElementById('eqV').value);
-        campW = compilarEquacio(document.getElementById('eqW').value);
-        reconstruirGraellaVectors();
+      if (maxLap < 0.05) {
+        feedbackEl.className = 'constraint-box valid';
+        feedbackEl.innerHTML = `<strong>Constraint Satisfeta:</strong> ∇²φ = 0 (Laplace).<br>El flux és <strong>incompressible</strong> i <strong>irrotacional</strong>. Existeix funció de corrent ψ conjugada.`;
+      } else {
+        feedbackEl.className = 'constraint-box warning';
+        feedbackEl.innerHTML = `<strong>Atenció:</strong> ∇²φ ≠ 0 (Laplacià no nul: ${maxLap.toFixed(2)}).<br>El camp és irrotacional (u=∇φ), però <strong>compressíble</strong> (té fonts/embornals distribuïts).`;
+      }
+    } else if (currentMode === 'corrent') {
+      // Constraint: Incompressible per definició (u=∂ψ/∂y, v=-∂ψ/∂x).
+      // Vorticitat: ωz = -∇²ψ. Si ∇²ψ = 0, és irrotacional.
+      let maxLap = 0;
+      for (let p of testPoints) {
+        const d2x = (funcPsi(p.x + H, p.y, 0, t) - 2*funcPsi(p.x, p.y, 0, t) + funcPsi(p.x - H, p.y, 0, t)) / (H * H);
+        const d2y = (funcPsi(p.x, p.y + H, 0, t) - 2*funcPsi(p.x, p.y, 0, t) + funcPsi(p.x, p.y - H, 0, t)) / (H * H);
+        const lap = Math.abs(d2x + d2y);
+        if (lap > maxLap) maxLap = lap;
+      }
+
+      if (maxLap < 0.05) {
+        feedbackEl.className = 'constraint-box valid';
+        feedbackEl.innerHTML = `<strong>Constraint Satisfeta:</strong> ∇²ψ = 0 (Vorticitat nul·la).<br>Flux <strong>incompressible</strong> i <strong>irrotacional</strong>. Admet funció potencial φ.`;
+      } else {
+        feedbackEl.className = 'constraint-box warning';
+        feedbackEl.innerHTML = `<strong>Flux amb Vorticitat:</strong> ωz = -∇²ψ ≠ 0 (Vorticitat: ~${maxLap.toFixed(2)}).<br>Incompressible per construcció, però té rotacional (com el vòrtex de l'Ex 13). <strong>No admet potencial φ</strong>.`;
+      }
+    } else if (currentMode === 'ambdues') {
+      // Cauchy-Riemann: ∂φ/∂x = ∂ψ/∂y  i  ∂φ/∂y = -∂ψ/∂x
+      let crDiff = 0;
+      for (let p of testPoints) {
+        const dPhi_dx = (funcPhi(p.x + H, p.y, 0, t) - funcPhi(p.x - H, p.y, 0, t)) / (2 * H);
+        const dPhi_dy = (funcPhi(p.x, p.y + H, 0, t) - funcPhi(p.x, p.y - H, 0, t)) / (2 * H);
+        const dPsi_dx = (funcPsi(p.x + H, p.y, 0, t) - funcPsi(p.x - H, p.y, 0, t)) / (2 * H);
+        const dPsi_dy = (funcPsi(p.x, p.y + H, 0, t) - funcPsi(p.x, p.y - H, 0, t)) / (2 * H);
+
+        const diff1 = Math.abs(dPhi_dx - dPsi_dy);
+        const diff2 = Math.abs(dPhi_dy + dPsi_dx);
+        if (diff1 + diff2 > crDiff) crDiff = diff1 + diff2;
+      }
+
+      if (crDiff < 0.08) {
+        feedbackEl.className = 'constraint-box valid';
+        feedbackEl.innerHTML = `<strong>Condicions de Cauchy-Riemann Verificades!</strong><br>∂φ/∂x = ∂ψ/∂y i ∂φ/∂y = -∂ψ/∂x.<br>Les línies de corrent (ψ=ct) i equipotencials (φ=ct) són <strong>ortogonals</strong>.`;
+      } else {
+        feedbackEl.className = 'constraint-box danger';
+        feedbackEl.innerHTML = `<strong>Discrepància Cauchy-Riemann:</strong> Error de ~${crDiff.toFixed(2)}.<br>Les funcions φ i ψ introduïdes no descriuen el mateix camp fluid!`;
+      }
+    } else {
+      feedbackEl.className = 'constraint-box valid';
+      feedbackEl.innerHTML = `<strong>Mode Components Lliures:</strong> Sense restriccions a priori. Es calculen ∇·v i ∇×v directament sobre la graella.`;
+    }
+  }
+
+  // --- MOTOR 3D THREE.JS ---
+  const container = document.getElementById('webgl-container');
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x090d16);
+
+  const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+  camera.position.set(0, 0, 16); // Vista frontal inicial 2D de fluids
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  renderer.setPixelRatio(window.devicePixelRatio || 1);
+  container.appendChild(renderer.domElement);
+
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.05;
+
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
+  scene.add(ambientLight);
+  const dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
+  dirLight.position.set(10, 15, 10);
+  scene.add(dirLight);
+
+  // Eixos i delimitador
+  const boxGroup = new THREE.Group();
+  const boxGeo = new THREE.BoxGeometry(LIM * 2, LIM * 2, 0.1);
+  const boxEdges = new THREE.EdgesGeometry(boxGeo);
+  boxGroup.add(new THREE.LineSegments(boxEdges, new THREE.LineBasicMaterial({ color: 0x334155, opacity: 0.6, transparent: true })));
+  boxGroup.add(new THREE.AxesHelper(LIM + 0.5));
+  scene.add(boxGroup);
+
+  // Grups de vectors
+  const vectorsGroup = new THREE.Group();
+  scene.add(vectorsGroup);
+  let vectorMeshes = [];
+  let maxVModulGlobal = 1.0;
+
+  function reconstruirGraellaVectors() {
+    while (vectorsGroup.children.length > 0) {
+      vectorsGroup.remove(vectorsGroup.children[0]);
+    }
+    vectorMeshes = [];
+
+    const n = state.res;
+    const step = (LIM * 2) / (n - 1);
+    const coords = [];
+    for (let i = 0; i < n; i++) coords.push(-LIM + i * step);
+
+    const coneGeo = new THREE.ConeGeometry(0.12, 0.45, 8);
+    coneGeo.translate(0, 0.225, 0);
+
+    const lineGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(0, 1, 0)
+    ]);
+
+    // Graella plana (Z=0 per defecte a fluids 2D)
+    for (let xi of coords) {
+      for (let yi of coords) {
+        const zi = 0;
+        const arrowObj = new THREE.Group();
+        arrowObj.position.set(xi, yi, zi);
+
+        const cone = new THREE.Mesh(coneGeo, new THREE.MeshLambertMaterial({ color: 0x10b981 }));
+        cone.name = "cone";
+
+        const line = new THREE.Line(lineGeo, new THREE.LineBasicMaterial({ color: 0x10b981 }));
+        line.name = "line";
+
+        arrowObj.add(line);
+        arrowObj.add(cone);
+        arrowObj.userData = { ox: xi, oy: yi, oz: zi };
+
+        vectorsGroup.add(arrowObj);
+        vectorMeshes.push(arrowObj);
+      }
+    }
+
+    actualitzarPosicionsVectors();
+  }
+
+  function getVelocitatColor(tNorm) {
+    const t = Math.max(0, Math.min(1, tNorm));
+    let r = 0, g = 0, b = 0;
+    if (t < 0.25) {
+      const f = t / 0.25;
+      r = 0.2 * (1 - f); g = 0.4 + 0.5 * f; b = 0.9 + 0.1 * f;
+    } else if (t < 0.5) {
+      const f = (t - 0.25) / 0.25;
+      r = 0.1 + 0.2 * f; g = 0.9; b = 1.0 - 0.8 * f;
+    } else if (t < 0.75) {
+      const f = (t - 0.5) / 0.25;
+      r = 0.3 + 0.7 * f; g = 0.9 - 0.3 * f; b = 0.1;
+    } else {
+      const f = (t - 0.75) / 0.25;
+      r = 1.0; g = 0.6 * (1 - f); b = 0.1 * (1 - f);
+    }
+    return new THREE.Color(r, g, b);
+  }
+
+  function actualitzarPosicionsVectors() {
+    let maxMod = 0.001;
+
+    for (let i = 0; i < vectorMeshes.length; i++) {
+      const m = vectorMeshes[i];
+      const p = m.userData;
+      const v = evaluarCamp(p.ox, p.oy, p.oz, state.t);
+      const mod = Math.sqrt(v.u*v.u + v.v*v.v + v.w*v.w);
+      if (mod > maxMod) maxMod = mod;
+      m.userData.u = v.u;
+      m.userData.v = v.v;
+      m.userData.w = v.w;
+      m.userData.mod = mod;
+    }
+
+    maxVModulGlobal = maxMod;
+    document.getElementById('legMax').textContent = maxMod.toFixed(2);
+
+    for (let i = 0; i < vectorMeshes.length; i++) {
+      const m = vectorMeshes[i];
+      const p = m.userData;
+      const mod = p.mod;
+
+      m.visible = state.mostrarVectors;
+
+      if (mod < 0.0001) {
+        m.scale.set(0.001, 0.001, 0.001);
+        continue;
+      }
+
+      const dir = new THREE.Vector3(p.u, p.v, p.w).normalize();
+      const up = new THREE.Vector3(0, 1, 0);
+      m.quaternion.setFromUnitVectors(up, dir);
+
+      const lenNorm = mod / maxMod;
+      const len = Math.max(0.15, lenNorm * state.escala * 1.6);
+      m.scale.set(1, len, 1);
+
+      const cone = m.getObjectByName("cone");
+      if (cone) cone.position.y = 1.0;
+
+      const col = getVelocitatColor(lenNorm);
+      cone.material.color = col;
+      m.getObjectByName("line").material.color = col;
+    }
+  }
+
+  // --- TRAÇADORS DE PARTÍCULES (LÍNIES DE CORRENT) ---
+  const NUM_PART = 1500;
+  const partGeo = new THREE.BufferGeometry();
+  const partPos = new Float32Array(NUM_PART * 3);
+  const partCol = new Float32Array(NUM_PART * 3);
+  const partVides = new Float32Array(NUM_PART);
+
+  function resetParticula(i) {
+    partPos[i * 3 + 0] = (Math.random() - 0.5) * LIM * 1.95;
+    partPos[i * 3 + 1] = (Math.random() - 0.5) * LIM * 1.95;
+    partPos[i * 3 + 2] = (Math.random() - 0.5) * 0.4; // Lleugera dispersió Z
+    partVides[i] = Math.random() * 180 + 40;
+  }
+
+  for (let i = 0; i < NUM_PART; i++) resetParticula(i);
+
+  partGeo.setAttribute('position', new THREE.BufferAttribute(partPos, 3));
+  partGeo.setAttribute('color', new THREE.BufferAttribute(partCol, 3));
+
+  const partMat = new THREE.PointsMaterial({
+    size: 0.16,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.85
+  });
+  const partPoints = new THREE.Points(partGeo, partMat);
+  scene.add(partPoints);
+
+  function actualitzarParticules(dt) {
+    const pos = partGeo.attributes.position.array;
+    const col = partGeo.attributes.color.array;
+    const step = dt * state.velPart * 2.2;
+
+    for (let i = 0; i < NUM_PART; i++) {
+      const idx = i * 3;
+      let px = pos[idx + 0];
+      let py = pos[idx + 1];
+      let pz = pos[idx + 2];
+
+      partVides[i]--;
+
+      if (partVides[i] <= 0 || Math.abs(px) > LIM || Math.abs(py) > LIM) {
+        resetParticula(i);
+        px = pos[idx + 0];
+        py = pos[idx + 1];
+        pz = pos[idx + 2];
+      }
+
+      const v = evaluarCamp(px, py, pz, state.t);
+      pos[idx + 0] += v.u * step;
+      pos[idx + 1] += v.v * step;
+      pos[idx + 2] += v.w * step;
+
+      const mod = Math.sqrt(v.u*v.u + v.v*v.v + v.w*v.w);
+      const c = getVelocitatColor(mod / (maxVModulGlobal || 1));
+      col[idx + 0] = c.r;
+      col[idx + 1] = c.g;
+      col[idx + 2] = c.b;
+    }
+
+    partGeo.attributes.position.needsUpdate = true;
+    partGeo.attributes.color.needsUpdate = true;
+  }
+
+  // --- LECTURES FÍSIQUES EN TEMPS REAL ---
+  function actualitzarLecturesFisiques() {
+    const x0 = 1.0, y0 = 1.0, z0 = 0.0;
+    const t = state.t;
+
+    const v0 = evaluarCamp(x0, y0, z0, t);
+    const mod0 = Math.sqrt(v0.u*v0.u + v0.v*v0.v + v0.w*v0.w);
+
+    const v_xplus = evaluarCamp(x0 + H, y0, z0, t);
+    const v_xminus = evaluarCamp(x0 - H, y0, z0, t);
+    const v_yplus = evaluarCamp(x0, y0 + H, z0, t);
+    const v_yminus = evaluarCamp(x0, y0 - H, z0, t);
+
+    const du_dx = (v_xplus.u - v_xminus.u) / (2 * H);
+    const dv_dy = (v_yplus.v - v_yminus.v) / (2 * H);
+    const div = du_dx + dv_dy;
+
+    const dv_dx = (v_xplus.v - v_xminus.v) / (2 * H);
+    const du_dy = (v_yplus.u - v_yminus.u) / (2 * H);
+    const rotZ = dv_dx - du_dy;
+
+    document.getElementById('readU').textContent = v0.u.toFixed(2);
+    document.getElementById('readV').textContent = v0.v.toFixed(2);
+    document.getElementById('readMod').textContent = mod0.toFixed(2);
+    document.getElementById('readDiv').textContent = div.toFixed(2);
+    document.getElementById('readRot').textContent = rotZ.toFixed(2);
+
+    const divBadge = document.getElementById('readDivBadge');
+    if (Math.abs(div) < 0.08) {
+      divBadge.innerHTML = '<span class="badge badge-success">Incompressible</span>';
+    } else {
+      divBadge.innerHTML = `<span class="badge badge-warning">${div > 0 ? 'Expansió' : 'Compressió'}</span>`;
+    }
+
+    const rotBadge = document.getElementById('readRotBadge');
+    if (Math.abs(rotZ) < 0.08) {
+      rotBadge.innerHTML = '<span class="badge badge-success">Irrotacional</span>';
+    } else {
+      rotBadge.innerHTML = '<span class="badge badge-danger">Vòrtex (Rot ≠ 0)</span>';
+    }
+  }
+
+  // --- RECOMPILACIÓ I SINCRONITZACIÓ DE MODES ---
+  function actualitzarTotesFuncions() {
+    funcPhi = compilarExpressio(document.getElementById('eqPhi').value);
+    funcPsi = compilarExpressio(document.getElementById('eqPsi').value);
+    funcU = compilarExpressio(document.getElementById('eqU').value);
+    funcV = compilarExpressio(document.getElementById('eqV').value);
+    funcW = compilarExpressio(document.getElementById('eqW').value);
+
+    verificarConstraints();
+    reconstruirGraellaVectors();
+    actualitzarLecturesFisiques();
+  }
+
+  function canviarMode(mode) {
+    currentMode = mode;
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.mode === mode);
+    });
+
+    const fPot = document.getElementById('formPotencial');
+    const fCor = document.getElementById('formCorrent');
+    const fComp = document.getElementById('formComponents');
+    const infoMode = document.getElementById('infoModeTxt');
+
+    fPot.style.display = (mode === 'potencial' || mode === 'ambdues') ? 'block' : 'none';
+    fCor.style.display = (mode === 'corrent' || mode === 'ambdues') ? 'block' : 'none';
+    fComp.style.display = (mode === 'components') ? 'block' : 'none';
+
+    if (mode === 'potencial') infoMode.textContent = "Mode: Funció Potencial φ(x,y)";
+    else if (mode === 'corrent') infoMode.textContent = "Mode: Funció de Corrent ψ(x,y)";
+    else if (mode === 'ambdues') infoMode.textContent = "Mode: Conjunt Harmònic (φ i ψ)";
+    else infoMode.textContent = "Mode: Components Directes (u, v, w)";
+
+    actualitzarTotesFuncions();
+  }
+
+  // --- EVENTS DELS CONTROLS ---
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => canviarMode(btn.dataset.mode));
+  });
+
+  document.getElementById('selPreset').addEventListener('change', e => {
+    const val = e.target.value;
+    if (val !== 'custom' && PRESETS[val]) {
+      const p = PRESETS[val];
+      canviarMode(p.mode);
+      if (p.phi !== undefined) document.getElementById('eqPhi').value = p.phi;
+      if (p.psi !== undefined) document.getElementById('eqPsi').value = p.psi;
+      if (p.u !== undefined) document.getElementById('eqU').value = p.u;
+      if (p.v !== undefined) document.getElementById('eqV').value = p.v;
+      if (p.w !== undefined) document.getElementById('eqW').value = p.w;
+      actualitzarTotesFuncions();
+    }
+  });
+
+  document.getElementById('btnActualitzar').addEventListener('click', () => {
+    actualitzarTotesFuncions();
+  });
+
+  document.getElementById('slRes').addEventListener('input', e => {
+    state.res = parseInt(e.target.value);
+    document.getElementById('valRes').textContent = state.res;
+    reconstruirGraellaVectors();
+  });
+
+  document.getElementById('slEscala').addEventListener('input', e => {
+    state.escala = parseFloat(e.target.value);
+    document.getElementById('valEscala').textContent = state.escala.toFixed(1);
+    actualitzarPosicionsVectors();
+  });
+
+  document.getElementById('slVelPart').addEventListener('input', e => {
+    state.velPart = parseFloat(e.target.value);
+    document.getElementById('valVelPart').textContent = state.velPart.toFixed(1);
+  });
+
+  document.getElementById('chkParticules').addEventListener('change', e => {
+    state.mostrarParticules = e.target.checked;
+    partPoints.visible = state.mostrarParticules;
+  });
+
+  document.getElementById('chkVectors').addEventListener('change', e => {
+    state.mostrarVectors = e.target.checked;
+    vectorsGroup.visible = state.mostrarVectors;
+  });
+
+  document.getElementById('btnPlay').addEventListener('click', e => {
+    state.animant = !state.animant;
+    e.target.textContent = state.animant ? 'Pausa Animació' : 'Reprendre Animació';
+  });
+
+  let camVista2D = true;
+  document.getElementById('btnResetCam').addEventListener('click', () => {
+    if (camVista2D) {
+      camera.position.set(11, 10, 14); // Vista isomètrica 3D
+      camVista2D = false;
+    } else {
+      camera.position.set(0, 0, 16); // Vista frontal 2D
+      camVista2D = true;
+    }
+    camera.lookAt(0, 0, 0);
+    controls.target.set(0, 0, 0);
+  });
+
+  window.addEventListener('resize', () => {
+    camera.aspect = container.clientWidth / container.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(container.clientWidth, container.clientHeight);
+  });
+
+  // --- BUCLE PRINCIPAL (requestAnimationFrame) ---
+  let lastTime = performance.now();
+  function loop(currentTime) {
+    requestAnimationFrame(loop);
+
+    const dt = Math.min(0.05, (currentTime - lastTime) / 1000);
+    lastTime = currentTime;
+
+    if (state.animant) {
+      state.t += dt;
+      document.getElementById('infoTemps').textContent = state.t.toFixed(2);
+
+      // Si hi ha dependència temporal 't', actualitzem vectors
+      const eqTxt = document.getElementById('eqPhi').value + document.getElementById('eqPsi').value + document.getElementById('eqU').value;
+      if (eqTxt.includes('t')) {
+        actualitzarPosicionsVectors();
         actualitzarLecturesFisiques();
       }
 
-      // --- ESCALA DE COLORS (Turbo/Viridis simplificat) ---
-      function getVelocitatColor(valNormalitzat) {
-        const t = Math.max(0, Math.min(1, valNormalitzat));
-        // Blau (0) -> Cyan -> Verd -> Taronja -> Vermell (1)
-        let r = 0, g = 0, b = 0;
-        if (t < 0.25) {
-          const f = t / 0.25;
-          r = 0.2 * (1 - f);
-          g = 0.4 + 0.5 * f;
-          b = 0.9 + 0.1 * f;
-        } else if (t < 0.5) {
-          const f = (t - 0.25) / 0.25;
-          r = 0.1 + 0.2 * f;
-          g = 0.9;
-          b = 1.0 - 0.8 * f;
-        } else if (t < 0.75) {
-          const f = (t - 0.5) / 0.25;
-          r = 0.3 + 0.7 * f;
-          g = 0.9 - 0.3 * f;
-          b = 0.1;
-        } else {
-          const f = (t - 0.75) / 0.25;
-          r = 1.0;
-          g = 0.6 * (1 - f);
-          b = 0.1 * (1 - f);
-        }
-        return new THREE.Color(r, g, b);
+      if (state.mostrarParticules) {
+        actualitzarParticules(dt);
       }
+    }
 
-      // --- ESCENA THREE.JS ---
-      const container = document.getElementById('webgl-container');
-      const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x090d16);
+    controls.update();
+    renderer.render(scene, camera);
+  }
 
-      const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
-      camera.position.set(13, 11, 15);
+  // Inicialització
+  canviarMode('potencial');
+  requestAnimationFrame(loop);
 
-      const renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(container.clientWidth, container.clientHeight);
-      renderer.setPixelRatio(window.devicePixelRatio || 1);
-      container.appendChild(renderer.domElement);
-
-      const controls = new THREE.OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true;
-      controls.dampingFactor = 0.05;
-
-      // Llum
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
-      scene.add(ambientLight);
-      const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-      dirLight.position.set(10, 20, 10);
-      scene.add(dirLight);
-
-      // Eixos i caixa delimitadora
-      const boxGroup = new THREE.Group();
-      const boxGeo = new THREE.BoxGeometry(LIM * 2, LIM * 2, LIM * 2);
-      const boxEdges = new THREE.EdgesGeometry(boxGeo);
-      const boxLine = new THREE.LineSegments(boxEdges, new THREE.LineBasicMaterial({ color: 0x334155, opacity: 0.5, transparent: true }));
-      boxGroup.add(boxLine);
-
-      const axesHelper = new THREE.AxesHelper(LIM + 1);
-      boxGroup.add(axesHelper);
-      scene.add(boxGroup);
-
-      // Pla de tall auxiliar
-      const plaTallGeo = new THREE.PlaneGeometry(LIM * 2, LIM * 2);
-      const plaTallMat = new THREE.MeshBasicMaterial({
-        color: 0x38bdf8,
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0.15,
-        depthWrite: false
-      });
-      const plaTallMesh = new THREE.Mesh(plaTallGeo, plaTallMat);
-      plaTallMesh.rotation.x = -Math.PI / 2; // Horitzontal (XY, a Z constant)
-      plaTallMesh.visible = false;
-      scene.add(plaTallMesh);
-
-      // --- GRUP DE VECTORS ---
-      const vectorsGroup = new THREE.Group();
-      scene.add(vectorsGroup);
-
-      let vectorMeshes = [];
-      let maxVModulGlobal = 1.0;
-
-      function reconstruirGraellaVectors() {
-        // Netejar existents
-        while (vectorsGroup.children.length > 0) {
-          const obj = vectorsGroup.children[0];
-          vectorsGroup.remove(obj);
-        }
-        vectorMeshes = [];
-
-        const n = state.res;
-        const step = (LIM * 2) / (n - 1);
-        const coords = [];
-        for (let i = 0; i < n; i++) coords.push(-LIM + i * step);
-
-        // Con geomètric base compartit
-        const coneGeo = new THREE.ConeGeometry(0.12, 0.45, 8);
-        coneGeo.translate(0, 0.225, 0); // Anclar a la base
-
-        // Línia cos compartit
-        const lineGeo = new THREE.BufferGeometry().setFromPoints([
-          new THREE.Vector3(0, 0, 0),
-          new THREE.Vector3(0, 1, 0)
-        ]);
-
-        // Recórrer graella
-        for (let xi of coords) {
-          for (let yi of coords) {
-            for (let zi of coords) {
-              const arrowObj = new THREE.Group();
-              arrowObj.position.set(xi, yi, zi);
-
-              const matCone = new THREE.MeshLambertMaterial({ color: 0x10b981 });
-              const cone = new THREE.Mesh(coneGeo, matCone);
-              cone.name = "cone";
-
-              const matLine = new THREE.LineBasicMaterial({ color: 0x10b981 });
-              const line = new THREE.Line(lineGeo, matLine);
-              line.name = "line";
-
-              arrowObj.add(line);
-              arrowObj.add(cone);
-              arrowObj.userData = { ox: xi, oy: yi, oz: zi };
-
-              vectorsGroup.add(arrowObj);
-              vectorMeshes.push(arrowObj);
-            }
-          }
-        }
-
-        document.getElementById('infoNumVectors').textContent = vectorMeshes.length;
-        actualitzarPosicionsVectors();
-      }
-
-      function actualitzarPosicionsVectors() {
-        let maxMod = 0.001;
-
-        // Primer pas: calcular màxim mòdul per normalitzar colors
-        for (let i = 0; i < vectorMeshes.length; i++) {
-          const m = vectorMeshes[i];
-          const p = m.userData;
-
-          let u = 0, v = 0, w = 0;
-          try {
-            u = campU(p.ox, p.oy, p.oz, state.t) || 0;
-            v = campV(p.ox, p.oy, p.oz, state.t) || 0;
-            w = campW(p.ox, p.oy, p.oz, state.t) || 0;
-          } catch (e) { }
-
-          const mod = Math.sqrt(u * u + v * v + w * w);
-          if (mod > maxMod) maxMod = mod;
-          m.userData.u = u;
-          m.userData.v = v;
-          m.userData.w = w;
-          m.userData.mod = mod;
-        }
-
-        maxVModulGlobal = maxMod;
-        document.getElementById('legMax').textContent = maxMod.toFixed(2);
-        document.getElementById('readVMax').textContent = maxMod.toFixed(2);
-
-        // Segon pas: orientar, escalar i acolorir
-        const zTall = state.tallZ;
-        const filtrarTall = state.filtrarTall;
-        const tolTall = (LIM * 2) / (state.res - 1) * 0.55;
-
-        for (let i = 0; i < vectorMeshes.length; i++) {
-          const m = vectorMeshes[i];
-          const p = m.userData;
-          const mod = p.mod;
-
-          // Filtre per pla de tall
-          if (filtrarTall && Math.abs(p.oz - zTall) > tolTall) {
-            m.visible = false;
-            continue;
-          }
-          m.visible = state.mostrarVectors;
-
-          if (mod < 0.0001) {
-            m.scale.set(0.001, 0.001, 0.001);
-            continue;
-          }
-
-          // Orientació: Three.js per defecte apunta en +Y
-          const dir = new THREE.Vector3(p.u, p.v, p.w).normalize();
-          const up = new THREE.Vector3(0, 1, 0);
-          m.quaternion.setFromUnitVectors(up, dir);
-
-          // Longitud regulable segons mòdul i slider
-          const lenNorm = (mod / maxMod);
-          const len = Math.max(0.2, lenNorm * state.escala * 1.8);
-          m.scale.set(1, len, 1);
-
-          // Posicionar la punta del con al final de la línia
-          const cone = m.getObjectByName("cone");
-          if (cone) cone.position.y = 1.0;
-
-          // Color
-          const col = getVelocitatColor(lenNorm);
-          cone.material.color = col;
-          m.getObjectByName("line").material.color = col;
-        }
-      }
-
-      // --- TRAÇADORS DE PARTÍCULES (STREAM TRACERS) ---
-      const NUM_PART = 1500;
-      const partGeo = new THREE.BufferGeometry();
-      const partPos = new Float32Array(NUM_PART * 3);
-      const partCol = new Float32Array(NUM_PART * 3);
-      const partVides = new Float32Array(NUM_PART);
-
-      function resetParticula(i) {
-        partPos[i * 3 + 0] = (Math.random() - 0.5) * LIM * 1.95;
-        partPos[i * 3 + 1] = (Math.random() - 0.5) * LIM * 1.95;
-        partPos[i * 3 + 2] = (Math.random() - 0.5) * LIM * 1.95;
-        partVides[i] = Math.random() * 200 + 50; // frames de vida
-      }
-
-      for (let i = 0; i < NUM_PART; i++) {
-        resetParticula(i);
-      }
-
-      partGeo.setAttribute('position', new THREE.BufferAttribute(partPos, 3));
-      partGeo.setAttribute('color', new THREE.BufferAttribute(partCol, 3));
-
-      const partMat = new THREE.PointsMaterial({
-        size: 0.16,
-        vertexColors: true,
-        transparent: true,
-        opacity: 0.85
-      });
-      const partPoints = new THREE.Points(partGeo, partMat);
-      scene.add(partPoints);
-
-      function actualitzarParticules(dt) {
-        const pos = partGeo.attributes.position.array;
-        const col = partGeo.attributes.color.array;
-        const step = dt * state.velPart * 2.5;
-
-        for (let i = 0; i < NUM_PART; i++) {
-          const idx = i * 3;
-          let px = pos[idx + 0];
-          let py = pos[idx + 1];
-          let pz = pos[idx + 2];
-
-          partVides[i]--;
-
-          // Sortida de límits o fi de vida -> Respawn
-          if (partVides[i] <= 0 || Math.abs(px) > LIM || Math.abs(py) > LIM || Math.abs(pz) > LIM) {
-            resetParticula(i);
-            px = pos[idx + 0];
-            py = pos[idx + 1];
-            pz = pos[idx + 2];
-          }
-
-          // Càlcul de velocitat al punt actual (Euler Integration)
-          let u = 0, v = 0, w = 0;
-          try {
-            u = campU(px, py, pz, state.t) || 0;
-            v = campV(px, py, pz, state.t) || 0;
-            w = campW(px, py, pz, state.t) || 0;
-          } catch (e) { }
-
-          pos[idx + 0] += u * step;
-          pos[idx + 1] += v * step;
-          pos[idx + 2] += w * step;
-
-          // Color segons mòdul
-          const mod = Math.sqrt(u * u + v * v + w * w);
-          const c = getVelocitatColor(mod / (maxVModulGlobal || 1));
-          col[idx + 0] = c.r;
-          col[idx + 1] = c.g;
-          col[idx + 2] = c.b;
-        }
-
-        partGeo.attributes.position.needsUpdate = true;
-        partGeo.attributes.color.needsUpdate = true;
-      }
-
-      // --- CÀLCULS FÍSICS (DIVERGÈNCIA I ROTACIONAL) ---
-      function actualitzarLecturesFisiques() {
-        const x0 = 0, y0 = 0, z0 = 0;
-        const h = 0.05; // pas centrat
-        const t = state.t;
-
-        // Velocitats al centre
-        const u0 = campU(x0, y0, z0, t) || 0;
-        const v0 = campV(x0, y0, z0, t) || 0;
-        const w0 = campW(x0, y0, z0, t) || 0;
-        const mod0 = Math.sqrt(u0 * u0 + v0 * v0 + w0 * w0);
-
-        // Derivades parcials centrades
-        const du_dx = (campU(x0 + h, y0, z0, t) - campU(x0 - h, y0, z0, t)) / (2 * h);
-        const dv_dy = (campV(x0, y0 + h, z0, t) - campV(x0, y0 - h, z0, t)) / (2 * h);
-        const dw_dz = (campW(x0, y0, z0 + h, t) - campW(x0, y0, z0 - h, t)) / (2 * h);
-
-        const dw_dy = (campW(x0, y0 + h, z0, t) - campW(x0, y0 - h, z0, t)) / (2 * h);
-        const dv_dz = (campV(x0, y0, z0 + h, t) - campV(x0, y0, z0 - h, t)) / (2 * h);
-        const du_dz = (campU(x0, y0, z0 + h, t) - campU(x0, y0, z0 - h, t)) / (2 * h);
-        const dw_dx = (campW(x0 + h, y0, z0, t) - campW(x0 - h, y0, z0, t)) / (2 * h);
-        const dv_dx = (campV(x0 + h, y0, z0, t) - campV(x0 - h, y0, z0, t)) / (2 * h);
-        const du_dy = (campU(x0, y0 + h, z0, t) - campU(x0, y0 - h, z0, t)) / (2 * h);
-
-        // Divergència: div(v) = du/dx + dv/dy + dw/dz
-        const div = du_dx + dv_dy + dw_dz;
-
-        // Rotacional: curl(v) = (dw/dy - dv/dz, du/dz - dw/dx, dv/dx - du/dy)
-        const rotX = dw_dy - dv_dz;
-        const rotY = du_dz - dw_dx;
-        const rotZ = dv_dx - du_dy;
-        const rotMod = Math.sqrt(rotX * rotX + rotY * rotY + rotZ * rotZ);
-
-        // UI Updates
-        document.getElementById('readVMod').textContent = mod0.toFixed(2);
-        document.getElementById('readDiv').textContent = div.toFixed(2);
-        document.getElementById('readRot').textContent = rotMod.toFixed(2);
-
-        const divBadge = document.getElementById('readDivTipus');
-        if (Math.abs(div) < 0.08) {
-          divBadge.innerHTML = '<span class="badge badge-success">Incompressible (∇·v = 0)</span>';
-        } else if (div > 0) {
-          divBadge.innerHTML = '<span class="badge badge-warning">Font / Expansió (∇·v > 0)</span>';
-        } else {
-          divBadge.innerHTML = '<span class="badge badge-info">Embornal / Compressió (∇·v < 0)</span>';
-        }
-
-        const rotBadge = document.getElementById('readRotTipus');
-        if (rotMod < 0.08) {
-          rotBadge.innerHTML = '<span class="badge badge-info">Irrotacional (∇×v = 0)</span>';
-        } else {
-          rotBadge.innerHTML = '<span class="badge badge-warning">Remolí / Vorticitat</span>';
-        }
-      }
-
-      // --- GESTIÓ D'EVENTS I CONTROLS ---
-      document.getElementById('selPreset').addEventListener('change', e => {
-        const val = e.target.value;
-        if (val !== 'custom' && PRESETS[val]) {
-          document.getElementById('eqU').value = PRESETS[val].u;
-          document.getElementById('eqV').value = PRESETS[val].v;
-          document.getElementById('eqW').value = PRESETS[val].w;
-          actualitzarFuncionsCamp();
-        }
-      });
-
-      document.getElementById('btnActualitzar').addEventListener('click', () => {
-        document.getElementById('selPreset').value = 'custom';
-        actualitzarFuncionsCamp();
-      });
-
-      document.getElementById('slRes').addEventListener('input', e => {
-        state.res = parseInt(e.target.value);
-        document.getElementById('valRes').textContent = state.res;
-        reconstruirGraellaVectors();
-      });
-
-      document.getElementById('slEscala').addEventListener('input', e => {
-        state.escala = parseFloat(e.target.value);
-        document.getElementById('valEscala').textContent = state.escala.toFixed(1);
-        actualitzarPosicionsVectors();
-      });
-
-      document.getElementById('slVelPart').addEventListener('input', e => {
-        state.velPart = parseFloat(e.target.value);
-        document.getElementById('valVelPart').textContent = state.velPart.toFixed(1);
-      });
-
-      document.getElementById('slTall').addEventListener('input', e => {
-        state.tallZ = parseFloat(e.target.value);
-        document.getElementById('valTall').textContent = state.tallZ.toFixed(1);
-        plaTallMesh.position.y = state.tallZ;
-        actualitzarPosicionsVectors();
-      });
-
-      document.getElementById('chkPlaTall').addEventListener('change', e => {
-        state.filtrarTall = e.target.checked;
-        plaTallMesh.visible = state.filtrarTall;
-        actualitzarPosicionsVectors();
-      });
-
-      document.getElementById('chkParticules').addEventListener('change', e => {
-        state.mostrarParticules = e.target.checked;
-        partPoints.visible = state.mostrarParticules;
-      });
-
-      document.getElementById('chkVectors').addEventListener('change', e => {
-        state.mostrarVectors = e.target.checked;
-        vectorsGroup.visible = state.mostrarVectors;
-      });
-
-      document.getElementById('chkCaixa').addEventListener('change', e => {
-        state.mostrarCaixa = e.target.checked;
-        boxGroup.visible = state.mostrarCaixa;
-      });
-
-      document.getElementById('btnPlay').addEventListener('click', e => {
-        state.animant = !state.animant;
-        e.target.textContent = state.animant ? 'Pausa Animació' : 'Reprendre Animació';
-      });
-
-      document.getElementById('btnResetCam').addEventListener('click', () => {
-        camera.position.set(13, 11, 15);
-        camera.lookAt(0, 0, 0);
-        controls.target.set(0, 0, 0);
-      });
-
-      window.addEventListener('resize', () => {
-        camera.aspect = container.clientWidth / container.clientHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(container.clientWidth, container.clientHeight);
-      });
-
-      // --- BUCLE PRINCIPAL D'ANIMACIÓ (requestAnimationFrame) ---
-      let lastTime = performance.now();
-      function loop(currentTime) {
-        requestAnimationFrame(loop);
-
-        const dt = Math.min(0.05, (currentTime - lastTime) / 1000);
-        lastTime = currentTime;
-
-        if (state.animant) {
-          state.t += dt;
-          document.getElementById('infoTemps').textContent = state.t.toFixed(2);
-
-          // Si el camp depèn del temps 't', actualitzem els vectors
-          const eqText = document.getElementById('eqU').value + document.getElementById('eqV').value + document.getElementById('eqW').value;
-          if (eqText.includes('t')) {
-            actualitzarPosicionsVectors();
-            actualitzarLecturesFisiques();
-          }
-
-          if (state.mostrarParticules) {
-            actualitzarParticules(dt);
-          }
-        }
-
-        controls.update();
-        renderer.render(scene, camera);
-      }
-
-      // Inicialització
-      actualitzarFuncionsCamp();
-      requestAnimationFrame(loop);
-
-    })();
-  </script>
+})();
+</script>
 </body>
-
 </html>
