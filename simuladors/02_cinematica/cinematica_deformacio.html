@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador — Cinemàtica: Streamlines, Pathlines, Streaklines i Tensor S_ij (UAB)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
+<link rel="stylesheet" href="../estil_comu.css">
+<link rel="stylesheet" href="../simuladors_comu.css">
+<link rel="stylesheet" href="../caixes_plegables.css">
+</head>
+<body>
+<header class="capcalera-uab">
+  <div class="cap-esq">
+    <a class="cap-logo" href="../../" title="Portada del curs"><img src="../imatges/logotip-versio-3-verd.png" alt="Universitat Autònoma de Barcelona"></a>
+    <a class="cap-marca" href="../../">Fluids i Superfluids<small>Grau en Física · UAB</small></a>
+  </div>
+  <div class="cap-pagina">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 8 C8 4, 16 12, 21 8"/><path d="M3 13 C8 9, 16 17, 21 13"/><path d="M3 18 C8 14, 16 22, 21 18"/></svg>
+    Tema 2: Cinemàtica dels fluids
+  </div>
+  <nav class="cap-nav" aria-label="Seccions del curs">
+    <a href="../../#index">Índex del curs</a>
+    <a href="../../mapa/index.html">Mapa del curs</a>
+    <a class="actiu" href="../index.html">Simuladors</a>
+    <a href="../../visualitzador_camps.html">Laboratori 3D</a>
+  </nav>
+</header>
+
+<div class="intro-sim">
+  <h1>Línies de corrent, trajectòries, línies de traçat i tensor de deformació $S_{ij}$</h1>
+  <p class="sub">Quan el camp de velocitats $\vec{u}(\vec{r},t)$ depèn del temps, la línia de corrent instantània (<em>streamline</em>), la trajectòria d'una partícula (<em>pathline</em>) i el deixant d'un colorant injectat (<em>streakline</em>) es separen. A la dreta pots veure com qualsevol element de fluid es deforma i gira segons la descomposició del tensor gradient de velocitats $\vec{\nabla}\vec{u} = \mathbf{S} + \mathbf{R}$ (Problemes 12–16 i Exàmens Parcials).</p>
+</div>
+
+<main class="main-content">
+
+  <!-- ═══ Esquerra: Controls ═══ -->
+  <aside class="controls-panel">
+    <div class="card">
+      <div class="card-title">1. Corbes cinemàtiques (Problema 15 i Teoria)</div>
+      <div class="control-group">
+        <select class="sel-input" id="selFluxCorbes">
+          <option value="p15a">Probl. 15 i): u = 1/(1+t), v = 1 (no estacionari)</option>
+          <option value="p15b">Probl. 15 ii): u = x(1+2t), v = y (no estacionari)</option>
+          <option value="teoria">Apunts T2: u = 1, v = x·t (no estacionari)</option>
+          <option value="osc">Flux oscil·lant: u = 1, v = cos(2t)</option>
+          <option value="p12">Probl. 12: u = a·x, v = −a·y (estacionari: coincideixen!)</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label class="control-label">Instant de temps t <span class="val" id="valT">1.40 s</span></label>
+        <input type="range" class="slider" id="slT" min="0.05" max="3.0" step="0.05" value="1.40">
+      </div>
+      <button type="button" class="btn primari" id="btnPlayT">▶ Anima l'evolució temporal t</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">2. Deformació i vorticitat (∇u = S + R)</div>
+      <div class="control-group">
+        <label class="control-label">Exemples dels problemes</label>
+        <select class="sel-input" id="selPresetDef">
+          <option value="p16_gen">Probl. 16a (general): u = αx + 2y, v = βx − 3y</option>
+          <option value="p16_pot">Probl. 16b–c (potencial i incomp.): α = 3, β = 2</option>
+          <option value="p12">Probl. 12 (estirament pur): u = 2x, v = −2y</option>
+          <option value="p13">Probl. 13 (rotació rígida): u = −3y, v = 3x</option>
+          <option value="cis">Teoria T2 (cisallament simple): u = γ̇ y, v = 0</option>
+        </select>
+      </div>
+      <div class="control-row">
+        <div class="control-group">
+          <label class="control-label">∂u/∂x (α) <span class="val" id="valA">3.0</span></label>
+          <input type="range" class="slider" id="slA" min="-4" max="4" step="0.2" value="3.0">
+        </div>
+        <div class="control-group">
+          <label class="control-label">∂u/∂y <span class="val" id="valB">2.0</span></label>
+          <input type="range" class="slider" id="slB" min="-4" max="4" step="0.2" value="2.0">
+        </div>
+      </div>
+      <div class="control-row">
+        <div class="control-group">
+          <label class="control-label">∂v/∂x (β) <span class="val" id="valC">2.0</span></label>
+          <input type="range" class="slider" id="slC" min="-4" max="4" step="0.2" value="2.0">
+        </div>
+        <div class="control-group">
+          <label class="control-label">∂v/∂y <span class="val" id="valD">-3.0</span></label>
+          <input type="range" class="slider" id="slD" min="-4" max="4" step="0.2" value="-3.0">
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label"> Deformació acumulada Δt <span class="val" id="valDt">0.12 s</span></label>
+        <input type="range" class="slider" id="slDt" min="0" max="0.28" step="0.01" value="0.12">
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══ Centre: Visualitzacions ═══ -->
+  <div class="center-panel">
+    <div class="fila-canvas">
+      <div class="bloc-canvas">
+        <div class="plot-title">Streamline vs Pathline vs Streakline des de (1, 1)</div>
+        <canvas id="cvCorbes" width="420" height="360"></canvas>
+        <div class="llegenda">
+          <span><i class="punt" style="background:#009639"></i>Línia de corrent (Streamline)</span>
+          <span><i class="punt" style="background:#2563eb"></i>Trajectòria (Pathline)</span>
+          <span><i class="punt" style="background:#dc2626"></i>Línia de traçat (Streakline)</span>
+        </div>
+      </div>
+      <div class="bloc-canvas">
+        <div class="plot-title">Deformació d'un element de fluid i eixos principals de S_ij</div>
+        <canvas id="cvDef" width="420" height="360"></canvas>
+        <p class="plot-desc">En verd l'element deformat per ∇u; en taronja discontinu les direccions principals d'estirament de S_ij.</p>
+      </div>
+    </div>
+
+    <div class="fila-canvas">
+      <div class="card formules">
+        <div class="card-title">Solucions analítiques exactes (Problemes 15 i 16)</div>
+        <div id="formulesCinematica"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Dreta: Valors i explicació ═══ -->
+  <aside class="right-panel">
+    <div class="card">
+      <div class="card-title">Tensor ∇u, vorticitat i circulació</div>
+      <div class="lectura" id="lectura"></div>
+      <div class="estat" id="estat"></div>
+    </div>
+
+    <div class="card theory-box">
+      <div class="card-title">Què calcula aquest simulador</div>
+      <p><strong>1. Tres famílies de corbes:</strong> A l'instant $t$, la <em>línia de corrent</em> integra $dx/u(x,y,t) = dy/v(x,y,t)$ amb $t$ congelat; la <em>trajectòria</em> integra $d\vec{r}/dt' = \vec{u}(\vec{r},t')$ des de $t'=0$; i la <em>streakline</em> connecta la posició actual a l'instant $t$ de totes les partícules que han passat pel punt d'injecció $(1,1)$ en instants $\tau \in [0, t]$.</p>
+      <p><strong>2. Descomposició de Cauchy-Stokes:</strong> El gradient de velocitats $\partial_j u_i$ es divideix en la part simètrica $S_{ij}$ (deformació) i l'antisimètrica $R_{ij}$ (rotació amb $\vec{\Omega} = \frac{1}{2}\vec{\omega}$).</p>
+      <details class="obs" open>
+        <summary>Què has d'observar (Problema 16)</summary>
+        <div class="obs-body">
+          <p><strong>1. Circulació de Stokes (Probl. 16a):</strong> Pel cercle $(x-1)^2 + (y-6)^2 = 4$ (radi $R=2$, àrea $4\pi$), la circulació és $\Gamma = \omega_z \cdot \pi R^2 = 4\pi(\beta - 2)$ independentment d'$\alpha$.</p>
+          <p><strong>2. Condició d'incompressibilitat i irrotacionalitat (Probl. 16b–c):</strong> Selecciona el segon preset ($\alpha=3, \beta=2$): veuràs que $\vec{\nabla}\cdot\vec{u} = \alpha - 3 = 0$ (l'àrea de l'element quadrat es conserva!) i $\omega_z = \beta - 2 = 0$ (no gira, només s'estira sobre els eixos principals!). Aleshores existeixen tant $\phi = \frac{3}{2}(x^2-y^2)+2xy$ com $\psi = 3xy + y^2 - x^2$.</p>
+          <p><strong>3. Cisallament simple (Simple shear):</strong> Tria el preset de cisallament ($u = \dot{\gamma}y, v=0$). Sovint pensem que com les línies són rectes no hi ha rotació, però $\omega_z = -\dot{\gamma} \neq 0$: és la suma d'una deformació pura a $45^\circ$ i una rotació rígida!</p>
+        </div>
+      </details>
+    </div>
+  </aside>
+
+</main>
+
+<div class="peu-uab">
+  <strong>Joan Puertas Buscallà</strong> — Fluids i Superfluids · Grau en Física · UAB · Basat en l'estil dels simuladors del prof. F. Xavier Àlvarez (<a href="https://github.com/xalvarezc/estat_solid" target="_blank" rel="noopener">estat_solid</a>)
+</div>
+
+<script src="../caixes_plegables.js"></script>
+<script>
+(function(){
+  const selFluxCorbes = document.getElementById('selFluxCorbes');
+  const slT = document.getElementById('slT');
+  const btnPlayT = document.getElementById('btnPlayT');
+
+  const selPresetDef = document.getElementById('selPresetDef');
+  const slA = document.getElementById('slA');
+  const slB = document.getElementById('slB');
+  const slC = document.getElementById('slC');
+  const slD = document.getElementById('slD');
+  const slDt = document.getElementById('slDt');
+
+  const cvCorbes = document.getElementById('cvCorbes');
+  const ctxC = cvCorbes.getContext('2d');
+  const cvDef = document.getElementById('cvDef');
+  const ctxD = cvDef.getContext('2d');
+
+  let playing = false;
+
+  selPresetDef.addEventListener('change', () => {
+    const v = selPresetDef.value;
+    if (v === 'p16_gen') { slA.value = 1.0; slB.value = 2.0; slC.value = -1.0; slD.value = -3.0; }
+    else if (v === 'p16_pot') { slA.value = 3.0; slB.value = 2.0; slC.value = 2.0; slD.value = -3.0; }
+    else if (v === 'p12') { slA.value = 2.0; slB.value = 0.0; slC.value = 0.0; slD.value = -2.0; }
+    else if (v === 'p13') { slA.value = 0.0; slB.value = -3.0; slC.value = 3.0; slD.value = 0.0; }
+    else if (v === 'cis') { slA.value = 0.0; slB.value = 2.5; slC.value = 0.0; slD.value = 0.0; }
+    dibuixa();
+  });
+
+  [selFluxCorbes, slT, slA, slB, slC, slD, slDt].forEach(el => el.addEventListener('input', dibuixa));
+
+  btnPlayT.addEventListener('click', () => {
+    playing = !playing;
+    btnPlayT.textContent = playing ? "❚❚ Pausa l'animació temporal" : "▶ Anima l'evolució temporal t";
+    if (playing) requestAnimationFrame(loop);
+  });
+
+  function loop() {
+    if (!playing) return;
+    let t = parseFloat(slT.value) + 0.015;
+    if (t > 3.0) t = 0.05;
+    slT.value = t;
+    dibuixa();
+    requestAnimationFrame(loop);
+  }
+
+  function evalVel(mode, x, y, t) {
+    if (mode === 'p15a') return [1 / (1 + t), 1];
+    if (mode === 'p15b') return [x * (1 + 2 * t), y];
+    if (mode === 'teoria') return [1, x * t];
+    if (mode === 'osc') return [1, 1.2 * Math.cos(2 * t)];
+    return [0.8 * x, -0.8 * y];
+  }
+
+  function integraRK2(mode, x0, y0, tStart, tEnd, steps, freezeT) {
+    const dt = (tEnd - tStart) / steps;
+    let x = x0, y = y0;
+    const pts = [[x, y]];
+    for (let i = 0; i < steps; i++) {
+      const t = freezeT !== null ? freezeT : tStart + i * dt;
+      const [u1, v1] = evalVel(mode, x, y, t);
+      const xm = x + 0.5 * dt * u1, ym = y + 0.5 * dt * v1;
+      const tm = freezeT !== null ? freezeT : t + 0.5 * dt;
+      const [u2, v2] = evalVel(mode, xm, ym, tm);
+      x += dt * u2;
+      y += dt * v2;
+      pts.push([x, y]);
+    }
+    return pts;
+  }
+
+  function filaLectura(etiq, val) {
+    return `<div class="fila"><span class="etiqueta">${etiq}</span><span class="valor">${val}</span></div>`;
+  }
+
+  function dibuixa() {
+    const tNow = parseFloat(slT.value);
+    const modeC = selFluxCorbes.value;
+    const a11 = parseFloat(slA.value);
+    const a12 = parseFloat(slB.value);
+    const a21 = parseFloat(slC.value);
+    const a22 = parseFloat(slD.value);
+    const dtDef = parseFloat(slDt.value);
+
+    document.getElementById('valT').textContent = tNow.toFixed(2) + ' s';
+    document.getElementById('valA').textContent = a11.toFixed(1);
+    document.getElementById('valB').textContent = a12.toFixed(1);
+    document.getElementById('valC').textContent = a21.toFixed(1);
+    document.getElementById('valD').textContent = a22.toFixed(1);
+    document.getElementById('valDt').textContent = dtDef.toFixed(2) + ' s';
+
+    // --- CANVAS 1: STREAMLINE, PATHLINE, STREAKLINE ---
+    ctxC.clearRect(0, 0, cvCorbes.width, cvCorbes.height);
+    const maxCoord = modeC === 'p15b' ? 8.5 : 4.2;
+    const ox = 45, oy = cvCorbes.height - 38;
+    const esc = (cvCorbes.width - 70) / maxCoord;
+    const toPx = (x, y) => [ox + x * esc, oy - y * esc];
+
+    // Graella i camp vectorial instantani a t = tNow
+    ctxC.strokeStyle = '#e2e8f0';
+    ctxC.lineWidth = 1;
+    for (let g = 0; g <= maxCoord; g += (maxCoord > 5 ? 2 : 1)) {
+      const [gx, gy] = toPx(g, g);
+      ctxC.beginPath(); ctxC.moveTo(gx, 15); ctxC.lineTo(gx, oy); ctxC.stroke();
+      ctxC.beginPath(); ctxC.moveTo(ox, gy); ctxC.lineTo(cvCorbes.width - 15, gy); ctxC.stroke();
+    }
+    ctxC.strokeStyle = '#475569';
+    ctxC.lineWidth = 1.5;
+    ctxC.beginPath(); ctxC.moveTo(ox, 15); ctxC.lineTo(ox, oy); ctxC.lineTo(cvCorbes.width - 15, oy); ctxC.stroke();
+
+    // Camp de fletxes de fons en tNow
+    ctxC.strokeStyle = 'rgba(100, 116, 139, 0.35)';
+    ctxC.lineWidth = 1.2;
+    const stepGrid = maxCoord / 7;
+    for (let gx = stepGrid * 0.5; gx < maxCoord; gx += stepGrid) {
+      for (let gy = stepGrid * 0.5; gy < maxCoord; gy += stepGrid) {
+        const [u, v] = evalVel(modeC, gx, gy, tNow);
+        const m = Math.hypot(u, v) || 1;
+        const len = Math.min(16, 6 + 3 * Math.log1p(m));
+        const [px, py] = toPx(gx, gy);
+        ctxC.beginPath();
+        ctxC.moveTo(px, py);
+        ctxC.lineTo(px + (u / m) * len, py - (v / m) * len);
+        ctxC.stroke();
+      }
+    }
+
+    // 1. Streamline que passa per (1,1) en l'instant t = tNow (i en t=0 com a referència suau)
+    const streamNowFwd = integraRK2(modeC, 1, 1, 0, 1.8, 70, tNow);
+    const streamNowBwd = integraRK2(modeC, 1, 1, 0, -0.8, 40, tNow).reverse();
+    const streamPts = streamNowBwd.concat(streamNowFwd.slice(1));
+
+    // 2. Pathline de la partícula que en t=0 era a (1,1), des de t'=0 fins a t'=tNow
+    const pathPts = integraRK2(modeC, 1, 1, 0, tNow, 80, null);
+
+    // 3. Streakline a l'instant t=tNow de totes les partícules que van passar per (1,1) en tau in [0, tNow]
+    const streakPts = [];
+    const Ntau = 45;
+    for (let k = 0; k <= Ntau; k++) {
+      const tau = (k / Ntau) * tNow;
+      const tr = integraRK2(modeC, 1, 1, tau, tNow, 35, null);
+      streakPts.push(tr[tr.length - 1]);
+    }
+
+    function drawCurve(pts, color, dash, width) {
+      ctxC.save();
+      ctxC.strokeStyle = color;
+      ctxC.lineWidth = width || 2.5;
+      if (dash) ctxC.setLineDash(dash);
+      ctxC.beginPath();
+      pts.forEach((p, i) => {
+        const [px, py] = toPx(p[0], p[1]);
+        if (i === 0) ctxC.moveTo(px, py); else ctxC.lineTo(px, py);
+      });
+      ctxC.stroke();
+      ctxC.restore();
+    }
+
+    drawCurve(streamPts, '#009639', [5, 3], 2.3);
+    drawCurve(pathPts, '#2563eb', null, 2.6);
+    drawCurve(streakPts, '#dc2626', null, 2.6);
+
+    // Punt d'injecció (1,1) i posició actual de la partícula t=0
+    const [p1x, p1y] = toPx(1, 1);
+    ctxC.fillStyle = '#0f172a';
+    ctxC.beginPath(); ctxC.arc(p1x, p1y, 4.5, 0, Math.PI * 2); ctxC.fill();
+    ctxC.font = 'bold 11px Segoe UI, sans-serif';
+    ctxC.fillText('(1, 1)', p1x + 6, p1y + 13);
+
+    const lastPath = pathPts[pathPts.length - 1];
+    const [lpx, lpy] = toPx(lastPath[0], lastPath[1]);
+    ctxC.fillStyle = '#2563eb';
+    ctxC.beginPath(); ctxC.arc(lpx, lpy, 5, 0, Math.PI * 2); ctxC.fill();
+
+    // --- CANVAS 2: DEFORMACIÓ ELEMENT DE FLUID (∇u = S + R) ---
+    ctxD.clearRect(0, 0, cvDef.width, cvDef.height);
+    const cx = cvDef.width / 2, cy = cvDef.height / 2, escD = 92;
+
+    // Eixos
+    ctxD.strokeStyle = '#cbd5e1';
+    ctxD.lineWidth = 1;
+    ctxD.beginPath();
+    ctxD.moveTo(20, cy); ctxD.lineTo(cvDef.width - 20, cy);
+    ctxD.moveTo(cx, 20); ctxD.lineTo(cx, cvDef.height - 20);
+    ctxD.stroke();
+
+    // Càlcul del tensor S_ij i R_ij
+    const Sxx = a11, Syy = a22, Sxy = 0.5 * (a12 + a21);
+    const omega_z = a21 - a12;
+    const Omega_rot = 0.5 * omega_z;
+    const divU = a11 + a22;
+
+    // Autovalors i autovectors de S_ij
+    const trHalf = 0.5 * (Sxx + Syy);
+    const diffHalf = 0.5 * (Sxx - Syy);
+    const rad = Math.hypot(diffHalf, Sxy);
+    const lam1 = trHalf + rad, lam2 = trHalf - rad;
+    const angPrin = 0.5 * Math.atan2(2 * Sxy, Sxx - Syy);
+
+    // Eixos principals d'estirament de S_ij
+    ctxD.save();
+    ctxD.strokeStyle = '#ea580c';
+    ctxD.setLineDash([5, 4]);
+    ctxD.lineWidth = 1.6;
+    for (let k = 0; k < 2; k++) {
+      const th = angPrin + k * Math.PI / 2;
+      ctxD.beginPath();
+      ctxD.moveTo(cx - 145 * Math.cos(th), cy + 145 * Math.sin(th));
+      ctxD.lineTo(cx + 145 * Math.cos(th), cy - 145 * Math.sin(th));
+      ctxD.stroke();
+    }
+    ctxD.restore();
+
+    // Quadrat inicial [-1, 1]^2
+    const corners = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
+    ctxD.strokeStyle = '#94a3b8';
+    ctxD.setLineDash([4, 3]);
+    ctxD.lineWidth = 1.6;
+    ctxD.strokeRect(cx - escD, cy - escD, 2 * escD, 2 * escD);
+    ctxD.setLineDash([]);
+
+    // Quadrat deformat x' = x + u*dt
+    const defCorners = corners.map(([x, y]) => {
+      const nx = x + dtDef * (a11 * x + a12 * y);
+      const ny = y + dtDef * (a21 * x + a22 * y);
+      return [cx + nx * escD, cy - ny * escD];
+    });
+
+    ctxD.fillStyle = 'rgba(0, 150, 57, 0.16)';
+    ctxD.strokeStyle = '#009639';
+    ctxD.lineWidth = 2.5;
+    ctxD.beginPath();
+    defCorners.forEach((p, i) => { if (i === 0) ctxD.moveTo(p[0], p[1]); else ctxD.lineTo(p[0], p[1]); });
+    ctxD.closePath();
+    ctxD.fill();
+    ctxD.stroke();
+
+    // Cercle inscrit deformat en el·lipse
+    ctxD.strokeStyle = '#00722b';
+    ctxD.lineWidth = 1.8;
+    ctxD.beginPath();
+    for (let i = 0; i <= 72; i++) {
+      const th = (i / 72) * Math.PI * 2;
+      const x = 0.7 * Math.cos(th), y = 0.7 * Math.sin(th);
+      const nx = x + dtDef * (a11 * x + a12 * y);
+      const ny = y + dtDef * (a21 * x + a22 * y);
+      const px = cx + nx * escD, py = cy - ny * escD;
+      if (i === 0) ctxD.moveTo(px, py); else ctxD.lineTo(px, py);
+    }
+    ctxD.stroke();
+
+    // Circulació Problema 16 (cercle de radi R=2)
+    const gammaP16 = omega_z * Math.PI * 4;
+
+    document.getElementById('lectura').innerHTML =
+      filaLectura('Divergència ∇·u = S_xx + S_yy', divU.toFixed(2) + ' s⁻¹') +
+      filaLectura('Vorticitat ω_z = ∂v/∂x − ∂u/∂y', omega_z.toFixed(2) + ' s⁻¹') +
+      filaLectura('Velocitat angular Ω_z = ½ω_z', Omega_rot.toFixed(2) + ' rad/s') +
+      filaLectura('Tensor simètric S_xx, S_yy', `${Sxx.toFixed(2)}, ${Syy.toFixed(2)}`) +
+      filaLectura('Deformació angular S_xy = S_yx', Sxy.toFixed(2) + ' s⁻¹') +
+      filaLectura('Autovalors principals λ₁, λ₂', `${lam1.toFixed(2)}, ${lam2.toFixed(2)}`) +
+      filaLectura('Circulació Probl. 16 (R=2)', `${gammaP16.toFixed(2)} (${(4*(a21-a12)).toFixed(1)}π)`);
+
+    const estatEl = document.getElementById('estat');
+    const incomp = Math.abs(divU) < 1e-5;
+    const irrot = Math.abs(omega_z) < 1e-5;
+    if (incomp && irrot) {
+      estatEl.className = 'estat si';
+      estatEl.textContent = '✓ Flux INCOMPRESSIBLE (∇·u = 0) i IRROTACIONAL (ω_z = 0): admet tant funció potencial ϕ com funció de corrent ψ!';
+    } else if (incomp) {
+      estatEl.className = 'estat info';
+      estatEl.textContent = 'Flux incompressible (∇·u = 0, conserva l\'àrea) amb rotació ω_z ≠ 0: admet funció de corrent ψ però no potencial ϕ.';
+    } else if (irrot) {
+      estatEl.className = 'estat info';
+      estatEl.textContent = 'Flux irrotacional (ω_z = 0) però compressible (∇·u ≠ 0): admet potencial de velocitats ϕ però no funció de corrent ψ.';
+    } else {
+      estatEl.className = 'estat no';
+      estatEl.textContent = 'Flux general compressible i rotacional (∇·u ≠ 0 i ω_z ≠ 0).';
+    }
+
+    document.getElementById('formulesCinematica').innerHTML = `
+      <div class="formula">
+        <div class="formula-nom">1. Solucions analítiques del Problema 15 per a punt inicial (1, 1)</div>
+        <div class="formula-eq">Cas i) u = 1/(1+t), v = 1:  Streamline (t=0): y = x | Pathline: y = e^(x−1) | Streakline: y = 1 + (1+t)(1 − e^(1−x))</div>
+        <div class="formula-eq">Cas ii) u = x(1+2t), v = y: Streamline (t=0): y = x | Pathline: x = y·e^(ln² y) | Streakline: x = y·exp(t² − (t − ln y)²)</div>
+      </div>
+      <div class="formula">
+        <div class="formula-nom">2. Descomposició del Tensor Gradient de Velocitats i Problema 16 (u = αx + 2y, v = βx − 3y)</div>
+        <div class="formula-eq">S_ij = ½ (∂_j u_i + ∂_i u_j) = [ [ ${Sxx.toFixed(1)}, ${Sxy.toFixed(1)} ], [ ${Sxy.toFixed(1)}, ${Syy.toFixed(1)} ] ],   ω_z = β − 2 = ${omega_z.toFixed(1)},   Γ_cercle = ∮ u·dl = 4π(β − 2)</div>
+        <div class="formula-nota">Per a α = 3 i β = 2 (incompressible i irrotacional): ϕ(x,y) = 3/2 (x² − y²) + 2xy   i   ψ(x,y) = 3xy + y² − x².</div>
+      </div>`;
+  }
+
+  dibuixa();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador — Flux Potencial, Potencial Complex w(z) i Teorema de Kutta-Zhukovsky (UAB)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
+<link rel="stylesheet" href="../estil_comu.css">
+<link rel="stylesheet" href="../simuladors_comu.css">
+<link rel="stylesheet" href="../caixes_plegables.css">
+</head>
+<body>
+<header class="capcalera-uab">
+  <div class="cap-esq">
+    <a class="cap-logo" href="../../" title="Portada del curs"><img src="../imatges/logotip-versio-3-verd.png" alt="Universitat Autònoma de Barcelona"></a>
+    <a class="cap-marca" href="../../">Fluids i Superfluids<small>Grau en Física · UAB</small></a>
+  </div>
+  <div class="cap-pagina">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M2 8 Q7 8 9 5.5 Q12 3 15 5.5 Q17 8 22 8"/><path d="M2 16 Q7 16 9 18.5 Q12 21 15 18.5 Q17 16 22 16"/></svg>
+    Tema 3B: Flux potencial i sustentació
+  </div>
+  <nav class="cap-nav" aria-label="Seccions del curs">
+    <a href="../../#index">Índex del curs</a>
+    <a href="../../mapa/index.html">Mapa del curs</a>
+    <a class="actiu" href="../index.html">Simuladors</a>
+    <a href="../../visualitzador_camps.html">Laboratori 3D</a>
+  </nav>
+</header>
+
+<div class="intro-sim">
+  <h1>Flux potencial, potencial complex $w(z) = \phi + i\psi$ i sustentació de Kutta-Zhukovsky</h1>
+  <p class="sub">Explora el flux potencial al voltant d'un cilindre amb circulació $\Gamma$ (Problemes 21 i 22, Efecte Magnus), l'esfera tridimensional amb dipol i massa afegida (Exàmens Parcials Nov 2019 i Nov 2023 Ex. 3), l'òval de Rankine font + embornal (Problema 24) i els fluxos en diedres $w(z) = A z^n$ (Problemes 20 i 27).</p>
+</div>
+
+<main class="main-content">
+
+  <!-- ═══ Esquerra: Controls ═══ -->
+  <aside class="controls-panel">
+    <div class="card">
+      <div class="card-title">Configuració potencial</div>
+      <div class="control-group">
+        <select class="sel-input" id="selConfig">
+          <option value="cilindre">1. Cilindre 2D amb circulació Γ (Problemes 21 i 22)</option>
+          <option value="esfera">2. Esfera 3D amb dipol i massa afegida (Parcials 2019 / 2023)</option>
+          <option value="rankine_oval">3. Corrent U + Font + Embornal: Òval de Rankine (Probl. 24)</option>
+          <option value="diedre">4. Flux en un diedre / cantonada w(z) = A z^n (Probl. 20 i 27)</option>
+        </select>
+      </div>
+      <div class="grup-btn" id="btnsAlpha">
+        <button type="button" class="btn-opcio" data-a="0">α = 0 (d'Alembert)</button>
+        <button type="button" class="btn-opcio actiu" data-a="1.2">α = 1.2 (2 punts)</button>
+        <button type="button" class="btn-opcio" data-a="2.0">α = 2.0 (Crític)</button>
+        <button type="button" class="btn-opcio" data-a="2.7">α = 2.7 (Desprès)</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Paràmetres del flux</div>
+      <div class="control-group">
+        <label class="control-label">Velocitat incident v₀ (U) <span class="val" id="valU">2.0 m/s</span></label>
+        <input type="range" class="slider" id="slU" min="0.5" max="5.0" step="0.1" value="2.0">
+      </div>
+      <div class="control-group">
+        <label class="control-label">Radi R (o semidistància a) <span class="val" id="valR">1.00 m</span></label>
+        <input type="range" class="slider" id="slR" min="0.5" max="1.5" step="0.05" value="1.00">
+      </div>
+      <div class="control-group">
+        <label class="control-label">Paràmetre de circulació α = k/(Rv₀) <span class="val" id="valAlpha">1.20</span></label>
+        <input type="range" class="slider" id="slAlpha" min="-3.2" max="3.2" step="0.05" value="1.20">
+      </div>
+      <div class="control-group">
+        <label class="control-label">Exponent n del diedre (π/n) <span class="val" id="valExpN">2.0 (90°)</span></label>
+        <input type="range" class="slider" id="slExpN" min="0.5" max="4.0" step="0.25" value="2.0">
+      </div>
+      <label class="check-row"><input type="checkbox" id="chkEqui" checked> Mostra línies equipotencials ϕ = const</label>
+      <label class="check-row"><input type="checkbox" id="chkParts" checked> Anima partícules traçadores sobre ψ</label>
+    </div>
+  </aside>
+
+  <!-- ═══ Centre: Visualitzacions ═══ -->
+  <div class="center-panel">
+    <div class="fila-canvas">
+      <div class="bloc-canvas">
+        <div class="plot-title" id="titolC1">Línies de corrent ψ (verd), equipotencials ϕ (gris) i punts d'estancament</div>
+        <canvas id="cvStream" width="440" height="365"></canvas>
+        <div class="llegenda">
+          <span><i class="punt" style="background:#009639"></i>ψ = const (corrent)</span>
+          <span><i class="punt" style="background:#94a3b8"></i>ϕ = const (potencial)</span>
+          <span><i class="punt" style="background:#dc2626"></i>Punts d'estancament (u = 0)</span>
+        </div>
+      </div>
+      <div class="bloc-canvas">
+        <div class="plot-title" id="titolC2">Coeficient de pressió C_p(θ) sobre la superfície i força neta</div>
+        <canvas id="cvPressio" width="400" height="365"></canvas>
+        <p class="plot-desc">Gràfica de C_p(θ) = (p(θ) − p_∞)/(½ρv₀²) per a θ ∈ [0, 2π]. L'asimetria entre θ = 90° (dalt) i θ = 270° (baix) genera la sustentació.</p>
+      </div>
+    </div>
+
+    <div class="fila-canvas">
+      <div class="card formules">
+        <div class="card-title">Formulació analítica del problema seleccionat</div>
+        <div id="formulesPot"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Dreta: Valors i explicació ═══ -->
+  <aside class="right-panel">
+    <div class="card">
+      <div class="card-title">Valors i forces hidrodinàmiques</div>
+      <div class="lectura" id="lectura"></div>
+      <div class="estat" id="estat"></div>
+    </div>
+
+    <div class="card theory-box">
+      <div class="card-title">Què calcula aquest simulador</div>
+      <p>En un flux plànol incompressible i irrotacional es compleixen les condicions de Cauchy-Riemann ($\partial_x\phi = \partial_y\psi = u$, $\partial_y\phi = -\partial_x\psi = v$), de manera que les corbes $\phi = \text{const}$ i $\psi = \text{const}$ formen una xarxa ortogonal.</p>
+      <details class="obs" open>
+        <summary>Què has d'observar (Problemes 21, 22, 24 i Parcials)</summary>
+        <div class="obs-body">
+          <p><strong>1. Bifurcació dels punts d'estancament (Problema 22b):</strong> A la superfície del cilindre ($r=R$), la velocitat tangencial és $u_\theta = -2v_0\sin\theta - k/R = -v_0(2\sin\theta + \alpha)$. Quan $|\alpha| < 2$ hi ha dos punts d'estancament sobre el cilindre a $\sin\theta = -\alpha/2$. En $\alpha = 2$ es fusionen a sota ($\theta = -\pi/2$), i per a $\alpha > 2$ el punt d'estancament es desprèn cap a l'interior del fluid a $r = \frac{R}{2}(\alpha + \sqrt{\alpha^2-4})$ deixant una regió de fluid atrapat girant amb el cilindre!</p>
+          <p><strong>2. Efecte Magnus i pes aparent (Problema 22d):</strong> Segons el teorema de Kutta-Zhukovsky, $\vec{F}/h = \rho\vec{v}_0\times\vec{\Gamma}$. Si el cilindre gira en sentit horari ($\alpha > 0$), accelera el fluid per dalt ($p$ baixa) i el frena per baix ($p$ puja): apareix una força cap amunt que fa que el cilindre pesi menys!</p>
+          <p><strong>3. Cilindre 2D vs Esfera 3D (Parcial Nov 2023 Ex. 3):</strong> Al cilindre la velocitat màxima a l'equador ($\theta=\pi/2$) és $2U$ ($C_p = -3$), mentre que a l'esfera 3D és $\frac{3}{2}U$ ($C_p = -5/4$).</p>
+        </div>
+      </details>
+    </div>
+  </aside>
+
+</main>
+
+<div class="peu-uab">
+  <strong>Joan Puertas Buscallà</strong> — Fluids i Superfluids · Grau en Física · UAB · Basat en l'estil dels simuladors del prof. F. Xavier Àlvarez (<a href="https://github.com/xalvarezc/estat_solid" target="_blank" rel="noopener">estat_solid</a>)
+</div>
+
+<script src="../caixes_plegables.js"></script>
+<script>
+(function(){
+  const rho = 1000;
+  const selConfig = document.getElementById('selConfig');
+  const slU = document.getElementById('slU');
+  const slR = document.getElementById('slR');
+  const slAlpha = document.getElementById('slAlpha');
+  const slExpN = document.getElementById('slExpN');
+  const chkEqui = document.getElementById('chkEqui');
+  const chkParts = document.getElementById('chkParts');
+
+  const cvS = document.getElementById('cvStream');
+  const ctxS = cvS.getContext('2d');
+  const cvP = document.getElementById('cvPressio');
+  const ctxP = cvP.getContext('2d');
+
+  // Partícules traçadores
+  const parts = [];
+  for (let i = 0; i < 95; i++) {
+    parts.push({ x: -3.2 + Math.random() * 6.4, y: -2.6 + Math.random() * 5.2 });
+  }
+
+  document.querySelectorAll('#btnsAlpha button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#btnsAlpha button').forEach(b => b.classList.remove('actiu'));
+      btn.classList.add('actiu');
+      selConfig.value = 'cilindre';
+      slAlpha.value = parseFloat(btn.dataset.a);
+      dibuixa();
+    });
+  });
+
+  [selConfig, slU, slR, slAlpha, slExpN, chkEqui].forEach(el => el.addEventListener('input', dibuixa));
+
+  function camp(cfg, x, y, U, R, alpha, nExp) {
+    const r2 = x * x + y * y;
+    const r = Math.sqrt(r2);
+    if (cfg === 'cilindre') {
+      if (r < R * 0.98) return [0, 0, 0, 0];
+      const th = Math.atan2(y, x);
+      const k = alpha * R * U;
+      const ur = U * (1 - (R * R) / r2) * Math.cos(th);
+      const uth = -U * (1 + (R * R) / r2) * Math.sin(th) - k / r;
+      const u = ur * Math.cos(th) - uth * Math.sin(th);
+      const v = ur * Math.sin(th) + uth * Math.cos(th);
+      const phi = U * (r + (R * R) / r) * Math.cos(th) - k * th;
+      const psi = U * (r - (R * R) / r) * Math.sin(th) + k * Math.log(r / R);
+      return [u, v, phi, psi];
+    } else if (cfg === 'esfera') {
+      if (r < R * 0.98) return [0, 0, 0, 0];
+      const th = Math.atan2(y, x);
+      const R3 = R * R * R;
+      const ur = U * (1 - R3 / (r2 * r)) * Math.cos(th);
+      const uth = -U * (1 + R3 / (2 * r2 * r)) * Math.sin(th);
+      const u = ur * Math.cos(th) - uth * Math.sin(th);
+      const v = ur * Math.sin(th) + uth * Math.cos(th);
+      const phi = U * (r + R3 / (2 * r2)) * Math.cos(th);
+      // Funció de corrent de Stokes en el pla meridià ( escalada per visualització )
+      const psi = U * (r - R3 / (r2)) * Math.sin(th);
+      return [u, v, phi, psi];
+    } else if (cfg === 'rankine_oval') {
+      const a = R * 0.85;
+      const m = U * R * 1.4;
+      const r1_2 = (x + a) * (x + a) + y * y;
+      const r2_2 = (x - a) * (x - a) + y * y;
+      if (r1_2 < 0.02 || r2_2 < 0.02) return [0, 0, 0, 0];
+      const u = U + (m / (2 * Math.PI)) * ((x + a) / r1_2 - (x - a) / r2_2);
+      const v = (m / (2 * Math.PI)) * (y / r1_2 - y / r2_2);
+      const phi = U * x + (m / (4 * Math.PI)) * Math.log(r1_2 / r2_2);
+      const psi = U * y + (m / (2 * Math.PI)) * (Math.atan2(y, x + a) - Math.atan2(y, x - a));
+      return [u, v, phi, psi];
+    } else {
+      // Diedre w(z) = U z^n
+      const th = Math.atan2(y, x);
+      const maxAng = Math.PI / nExp;
+      if (th < 0 || th > maxAng || r < 0.03) return [0, 0, 0, 0];
+      const rn = Math.pow(r, nExp);
+      const rn1 = nExp * Math.pow(r, nExp - 1);
+      const u = U * rn1 * Math.cos((nExp - 1) * th);
+      const v = -U * rn1 * Math.sin((nExp - 1) * th);
+      const phi = U * rn * Math.cos(nExp * th);
+      const psi = U * rn * Math.sin(nExp * th);
+      return [u, v, phi, psi];
+    }
+  }
+
+  // Isolínies per marching squares ràpid en una malla
+  function traceIsolines(ctx, grid, nx, ny, xMin, xMax, yMin, yMax, levels, color, dash, lw) {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lw || 1.5;
+    if (dash) ctx.setLineDash(dash);
+    const w = cvS.width, h = cvS.height;
+    const dx = (xMax - xMin) / (nx - 1), dy = (yMax - yMin) / (ny - 1);
+    const toPx = (x, y) => [((x - xMin) / (xMax - xMin)) * w, ((yMax - y) / (yMax - yMin)) * h];
+
+    levels.forEach(val => {
+      ctx.beginPath();
+      for (let i = 0; i < nx - 1; i++) {
+        for (let j = 0; j < ny - 1; j++) {
+          const v00 = grid[i][j], v10 = grid[i+1][j], v11 = grid[i+1][j+1], v01 = grid[i][j+1];
+          if (v00 === null || v10 === null || v11 === null || v01 === null) continue;
+          // Evitem salts de branca de theta
+          if (Math.abs(v00 - v10) > 8 || Math.abs(v00 - v01) > 8) continue;
+          const x0 = xMin + i * dx, y0 = yMin + j * dy;
+          const pts = [];
+          if ((v00 - val) * (v10 - val) <= 0 && v00 !== v10) pts.push([x0 + dx * (val - v00) / (v10 - v00), y0]);
+          if ((v10 - val) * (v11 - val) <= 0 && v10 !== v11) pts.push([x0 + dx, y0 + dy * (val - v10) / (v11 - v10)]);
+          if ((v01 - val) * (v11 - val) <= 0 && v01 !== v11) pts.push([x0 + dx * (val - v01) / (v11 - v01), y0 + dy]);
+          if ((v00 - val) * (v01 - val) <= 0 && v00 !== v01) pts.push([x0, y0 + dy * (val - v00) / (v01 - v00)]);
+          if (pts.length >= 2) {
+            const [p1x, p1y] = toPx(pts[0][0], pts[0][1]);
+            const [p2x, p2y] = toPx(pts[1][0], pts[1][1]);
+            ctx.moveTo(p1x, p1y);
+            ctx.lineTo(p2x, p2y);
+          }
+        }
+      }
+      ctx.stroke();
+    });
+    ctx.restore();
+  }
+
+  function filaLectura(etiq, val) {
+    return `<div class="fila"><span class="etiqueta">${etiq}</span><span class="valor">${val}</span></div>`;
+  }
+
+  function dibuixa() {
+    const cfg = selConfig.value;
+    const U = parseFloat(slU.value);
+    const R = parseFloat(slR.value);
+    const alpha = parseFloat(slAlpha.value);
+    const nExp = parseFloat(slExpN.value);
+
+    document.getElementById('valU').textContent = U.toFixed(1) + ' m/s';
+    document.getElementById('valR').textContent = R.toFixed(2) + ' m';
+    document.getElementById('valAlpha').textContent = alpha.toFixed(2);
+    document.getElementById('valExpN').textContent = `${nExp.toFixed(2)} (${(180/nExp).toFixed(0)}°)`;
+
+    ctxS.clearRect(0, 0, cvS.width, cvS.height);
+    ctxP.clearRect(0, 0, cvP.width, cvP.height);
+
+    const xMin = -3.2, xMax = 3.2, yMin = -2.65, yMax = 2.65;
+    const nx = 68, ny = 56;
+    const gridPhi = Array.from({ length: nx }, () => Array(ny).fill(null));
+    const gridPsi = Array.from({ length: nx }, () => Array(ny).fill(null));
+
+    for (let i = 0; i < nx; i++) {
+      const x = xMin + (i / (nx - 1)) * (xMax - xMin);
+      for (let j = 0; j < ny; j++) {
+        const y = yMin + (j / (ny - 1)) * (yMax - yMin);
+        if ((cfg === 'cilindre' || cfg === 'esfera') && (x*x + y*y) < R*R*0.96) continue;
+        const [u, v, phi, psi] = camp(cfg, x, y, U, R, alpha, nExp);
+        if (cfg === 'diedre' && Math.atan2(y, x) < 0) continue;
+        if (cfg === 'diedre' && Math.atan2(y, x) > Math.PI / nExp) continue;
+        gridPhi[i][j] = phi;
+        gridPsi[i][j] = psi;
+      }
+    }
+
+    const psiLevels = [];
+    for (let s = -4.5; s <= 4.5; s += 0.45) psiLevels.push(s * U * 0.5);
+    const phiLevels = [];
+    for (let s = -5.0; s <= 5.0; s += 0.6) phiLevels.push(s * U * 0.5);
+
+    if (chkEqui.checked) {
+      traceIsolines(ctxS, gridPhi, nx, ny, xMin, xMax, yMin, yMax, phiLevels, '#94a3b8', [3, 3], 1.1);
+    }
+    traceIsolines(ctxS, gridPsi, nx, ny, xMin, xMax, yMin, yMax, psiLevels, '#009639', null, 1.7);
+
+    const toPx = (x, y) => [((x - xMin) / (xMax - xMin)) * cvS.width, ((yMax - y) / (yMax - yMin)) * cvS.height];
+    const [cx, cy] = toPx(0, 0);
+    const rPx = (R / (xMax - xMin)) * cvS.width;
+
+    // Dibuix de l'obstacle i punts d'estancament
+    if (cfg === 'cilindre' || cfg === 'esfera') {
+      ctxS.fillStyle = '#1e293b';
+      ctxS.beginPath(); ctxS.arc(cx, cy, rPx, 0, Math.PI * 2); ctxS.fill();
+      ctxS.strokeStyle = '#00722b'; ctxS.lineWidth = 2.2; ctxS.stroke();
+
+      const aEff = cfg === 'esfera' ? 0 : alpha;
+      if (Math.abs(aEff) <= 2) {
+        const sinTh = -aEff / 2;
+        const cosTh = Math.sqrt(Math.max(0, 1 - sinTh * sinTh));
+        [[-cosTh, sinTh], [cosTh, sinTh]].forEach(([ct, st]) => {
+          const [sx, sy] = toPx(R * ct, R * st);
+          ctxS.fillStyle = '#dc2626';
+          ctxS.beginPath(); ctxS.arc(sx, sy, 5.5, 0, Math.PI * 2); ctxS.fill();
+          ctxS.strokeStyle = '#fff'; ctxS.lineWidth = 1.5; ctxS.stroke();
+        });
+      } else {
+        const sgn = Math.sign(aEff);
+        const rStag = 0.5 * R * (Math.abs(aEff) + Math.sqrt(aEff * aEff - 4));
+        const [sx, sy] = toPx(0, -sgn * rStag);
+        ctxS.fillStyle = '#dc2626';
+        ctxS.beginPath(); ctxS.arc(sx, sy, 6, 0, Math.PI * 2); ctxS.fill();
+        ctxS.strokeStyle = '#fff'; ctxS.lineWidth = 1.5; ctxS.stroke();
+      }
+    } else if (cfg === 'rankine_oval') {
+      const a = R * 0.85;
+      const m = U * R * 1.4;
+      const xStag = Math.sqrt(a * a + (m * a) / (Math.PI * U));
+      const [fx, fy] = toPx(-a, 0), [sx, sy] = toPx(a, 0);
+      ctxS.fillStyle = '#2563eb'; ctxS.beginPath(); ctxS.arc(fx, fy, 5, 0, Math.PI * 2); ctxS.fill();
+      ctxS.fillStyle = '#9333ea'; ctxS.beginPath(); ctxS.arc(sx, sy, 5, 0, Math.PI * 2); ctxS.fill();
+      [[-xStag, 0], [xStag, 0]].forEach(([xx, yy]) => {
+        const [px, py] = toPx(xx, yy);
+        ctxS.fillStyle = '#dc2626'; ctxS.beginPath(); ctxS.arc(px, py, 5.5, 0, Math.PI * 2); ctxS.fill();
+      });
+    } else if (cfg === 'diedre') {
+      const ang = Math.PI / nExp;
+      ctxS.strokeStyle = '#1e293b'; ctxS.lineWidth = 3.5;
+      ctxS.beginPath();
+      ctxS.moveTo(cx + 220, cy); ctxS.lineTo(cx, cy);
+      ctxS.lineTo(cx + 220 * Math.cos(ang), cy - 220 * Math.sin(ang));
+      ctxS.stroke();
+    }
+
+    // Gràfica de C_p(θ) a cvPressio
+    const gx = 48, gy = 175, gw = 325, gh = 130;
+    ctxP.strokeStyle = '#94a3b8';
+    ctxP.beginPath();
+    ctxP.moveTo(gx, 25); ctxP.lineTo(gx, 330);
+    ctxP.moveTo(gx, gy); ctxP.lineTo(gx + gw, gy);
+    ctxP.stroke();
+
+    ctxP.strokeStyle = '#009639';
+    ctxP.lineWidth = 2.5;
+    ctxP.beginPath();
+    for (let i = 0; i <= 180; i++) {
+      const th = (i / 180) * Math.PI * 2;
+      let cp = 0;
+      if (cfg === 'cilindre') {
+        const uthNorm = -2 * Math.sin(th) - alpha;
+        cp = 1 - uthNorm * uthNorm;
+      } else if (cfg === 'esfera') {
+        cp = 1 - 2.25 * Math.sin(th) * Math.sin(th);
+      } else {
+        cp = Math.cos(2 * th);
+      }
+      const px = gx + (i / 180) * gw;
+      const py = gy - Math.max(-2.2, Math.min(1.1, cp / 3.5)) * gh;
+      if (i === 0) ctxP.moveTo(px, py); else ctxP.lineTo(px, py);
+    }
+    ctxP.stroke();
+
+    ctxP.fillStyle = '#0f172a';
+    ctxP.font = '11px Segoe UI, sans-serif';
+    ctxP.fillText('θ = 0', gx, gy + 16);
+    ctxP.fillText('π/2 (dalt)', gx + gw * 0.25 - 18, gy + 16);
+    ctxP.fillText('π', gx + gw * 0.5 - 4, gy + 16);
+    ctxP.fillText('3π/2 (baix)', gx + gw * 0.75 - 22, gy + 16);
+    ctxP.fillText('2π', gx + gw - 14, gy + 16);
+    ctxP.fillStyle = '#00722b';
+    ctxP.font = 'bold 11.5px Segoe UI, sans-serif';
+    ctxP.fillText('C_p(θ) = (p(θ) − p_∞) / (½ρv₀²)', gx + 12, 38);
+
+    // Càlculs del panell dret
+    const kVal = alpha * R * U;
+    const Gamma = 2 * Math.PI * kVal;
+    const Fy_unit = rho * U * Gamma; // sustentació per unitat de longitud
+    const Mf_esf = (2 / 3) * Math.PI * Math.pow(R, 3) * rho;
+    const Ec_esf = 0.5 * Mf_esf * U * U;
+
+    document.getElementById('lectura').innerHTML =
+      filaLectura('Constant de circulació k = αRv₀', kVal.toFixed(2) + ' m²/s') +
+      filaLectura('Circulació Γ = −2πk', (-Gamma).toFixed(2) + ' m²/s') +
+      filaLectura('Velocitat a dalt (θ = π/2)', (cfg === 'esfera' ? 1.5 * U : U * (2 + alpha)).toFixed(2) + ' m/s') +
+      filaLectura('Velocitat a baix (θ = −π/2)', (cfg === 'esfera' ? 1.5 * U : U * (2 - alpha)).toFixed(2) + ' m/s') +
+      filaLectura('Força sustentació F_y / h (Magnus)', (cfg === 'cilindre' ? (Fy_unit / 1000).toFixed(2) + ' kN/m' : '0.00 kN/m (simètric)')) +
+      filaLectura('Massa afegida esfera M_f', Mf_esf.toFixed(0) + ' kg') +
+      filaLectura('Energia cinètica fluid ½M_f U²', (Ec_esf / 1000).toFixed(2) + ' kJ');
+
+    const estatEl = document.getElementById('estat');
+    if (cfg === 'cilindre') {
+      if (Math.abs(alpha) < 0.01) {
+        estatEl.className = 'estat info';
+        estatEl.textContent = 'Paradoxa de d\'Alembert (α = 0): Punts d\'estancament a θ = 0° i 180°, distribució de pressió simètrica i força total F = 0.';
+      } else if (Math.abs(alpha) < 2) {
+        const angDeg = Math.asin(-alpha / 2) * 180 / Math.PI;
+        estatEl.className = 'estat si';
+        estatEl.textContent = `Efecte Magnus (|α| < 2): 2 punts d'estancament sobre el cilindre a θ = ${angDeg.toFixed(1)}° i ${(180 - angDeg).toFixed(1)}°. Sustentació F_y/h = ${(Fy_unit/1000).toFixed(2)} kN/m.`;
+      } else {
+        const rSt = 0.5 * R * (Math.abs(alpha) + Math.sqrt(alpha * alpha - 4));
+        estatEl.className = 'estat no';
+        estatEl.textContent = `Règim supercrític (|α| ≥ 2): El punt d'estancament s'ha desprès del cilindre fins a r = ${rSt.toFixed(2)} m!`;
+      }
+    } else if (cfg === 'esfera') {
+      estatEl.className = 'estat si';
+      estatEl.textContent = `Parcials Nov 2019 i 2023 Ex. 3: μ = ½ U a³. Pressió màxima als pols (θ = 0, π) i mínima a l'equador (θ = π/2).`;
+    } else if (cfg === 'rankine_oval') {
+      estatEl.className = 'estat info';
+      estatEl.textContent = `Problema 24 (Òval de Rankine): La línia ψ = 0 tanca la regió entre els dos punts d'estancament.`;
+    } else {
+      estatEl.className = 'estat info';
+      estatEl.textContent = `Problema 20 i 27: Flux potencial en un diedre d'angle α = π/${nExp} = ${(180/nExp).toFixed(0)}° amb |u| = n A r^(n−1).`;
+    }
+
+    document.getElementById('formulesPot').innerHTML = `
+      <div class="formula">
+        <div class="formula-nom">1. Cilindre amb circulació i Efecte Magnus (Problema 22)</div>
+        <div class="formula-eq">ϕ(r,θ) = −kθ + (1 + R²/r²) r v₀ cos θ,    u_r = v₀(1 − R²/r²) cos θ,    u_θ = −v₀(1 + R²/r²) sin θ − k/r</div>
+        <div class="formula-eq">p(R,θ) = p₁ + ½ ρ v₀² (2 + α − α sin θ − sin² θ) (2 − 2 sin θ),    F_y = 2π k ρ v₀ h = −ρ v₀ Γ h</div>
+      </div>
+      <div class="formula">
+        <div class="formula-nom">2. Flux tridimensional al voltant d'una esfera de radi a i Massa Afegida (Parcials Nov 2019 i Nov 2023 Ex. 3)</div>
+        <div class="formula-eq">ϕ(r,θ) = U (r + a³ / 2r²) cos θ   (amb μ = ½ U a³),    p(a,θ) = P₀ + ½ ρ U² (1 − 9/4 sin² θ),    E_cin = ½ (⅔ π a³ ρ) U² = ½ M_f U²</div>
+      </div>`;
+  }
+
+  function animLoop() {
+    if (chkParts.checked) {
+      const cfg = selConfig.value;
+      const U = parseFloat(slU.value);
+      const R = parseFloat(slR.value);
+      const alpha = parseFloat(slAlpha.value);
+      const nExp = parseFloat(slExpN.value);
+      dibuixa();
+      const xMin = -3.2, xMax = 3.2, yMin = -2.65, yMax = 2.65;
+      const toPx = (x, y) => [((x - xMin) / (xMax - xMin)) * cvS.width, ((yMax - y) / (yMax - yMin)) * cvS.height];
+      ctxS.fillStyle = '#00722b';
+      parts.forEach(p => {
+        const [u, v] = camp(cfg, p.x, p.y, U, R, alpha, nExp);
+        p.x += u * 0.014;
+        p.y += v * 0.014;
+        const r2 = p.x * p.x + p.y * p.y;
+        if (p.x > xMax || p.x < xMin || p.y > yMax || p.y < yMin || ((cfg === 'cilindre' || cfg === 'esfera') && r2 < R * R * 1.02)) {
+          p.x = xMin + 0.1;
+          p.y = yMin + Math.random() * (yMax - yMin);
+        }
+        const [px, py] = toPx(p.x, p.y);
+        ctxS.beginPath(); ctxS.arc(px, py, 2.5, 0, Math.PI * 2); ctxS.fill();
+      });
+    }
+    requestAnimationFrame(animLoop);
+  }
+
+  dibuixa();
+  requestAnimationFrame(animLoop);
+})();
+</script>
+</body>
+</html>

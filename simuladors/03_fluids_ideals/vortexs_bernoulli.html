@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador — Dinàmica de Vòrtexs, Parells i Equació de Bernoulli / Torricelli (UAB)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
+<link rel="stylesheet" href="../estil_comu.css">
+<link rel="stylesheet" href="../simuladors_comu.css">
+<link rel="stylesheet" href="../caixes_plegables.css">
+</head>
+<body>
+<header class="capcalera-uab">
+  <div class="cap-esq">
+    <a class="cap-logo" href="../../" title="Portada del curs"><img src="../imatges/logotip-versio-3-verd.png" alt="Universitat Autònoma de Barcelona"></a>
+    <a class="cap-marca" href="../../">Fluids i Superfluids<small>Grau en Física · UAB</small></a>
+  </div>
+  <div class="cap-pagina">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M2 8 Q7 8 9 5.5 Q12 3 15 5.5 Q17 8 22 8"/><path d="M2 16 Q7 16 9 18.5 Q12 21 15 18.5 Q17 16 22 16"/></svg>
+    Tema 3A: Dinàmica de vòrtexs i Bernoulli
+  </div>
+  <nav class="cap-nav" aria-label="Seccions del curs">
+    <a href="../../#index">Índex del curs</a>
+    <a href="../../mapa/index.html">Mapa del curs</a>
+    <a class="actiu" href="../index.html">Simuladors</a>
+    <a href="../../visualitzador_camps.html">Laboratori 3D</a>
+  </nav>
+</header>
+
+<div class="intro-sim">
+  <h1>Dinàmica de vòrtexs (Rankine, Kaufmann, Gaussià), parells de vòrtexs i buidatge de Torricelli</h1>
+  <p class="sub">Explora els models de vòrtex del Tema 3A i l'Examen Parcial de Novembre 2023 (perfil de velocitat $u_\theta(r)$, vorticitat $\omega_z(r)$, pressió $p(r)$ i depressió de la superfície lliure), la interacció de parells de vòrtexs puntuals ($\Gamma_1, \Gamma_2$) i mètode d'imatges, i el buidatge de recipients per la llei de Torricelli (Problema 17).</p>
+</div>
+
+<main class="main-content">
+
+  <!-- ═══ Esquerra: Controls ═══ -->
+  <aside class="controls-panel">
+    <div class="card">
+      <div class="card-title">Laboratori actiu</div>
+      <div class="control-group">
+        <select class="sel-input" id="selLab">
+          <option value="models">1. Models de vòrtex i superfície lliure (Parcial Nov 2023 Ex.2)</option>
+          <option value="parell">2. Interacció de 2 vòrtexs (Γ₁, Γ₂) i paret (Imatges)</option>
+          <option value="torricelli">3. Buidatge de dipòsits: Esfera, Cilindre i Clepsidra (Probl. 17)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card" id="cardVortex">
+      <div class="card-title">Model de vòrtex circular</div>
+      <div class="control-group">
+        <select class="sel-input" id="selModelVortex">
+          <option value="rankine">Vòrtex de Rankine (Parcial Nov 2023)</option>
+          <option value="kaufmann">Vòrtex de Kaufmann (Scully)</option>
+          <option value="gaussia">Vòrtex Gaussià (Lamb-Oseen)</option>
+          <option value="lliure">Vòrtex lliure irrotacional (singular a r=0)</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label class="control-label">Circulació total Γ₀ <span class="val" id="valGamma">4.0 m²/s</span></label>
+        <input type="range" class="slider" id="slGamma" min="1.0" max="8.0" step="0.2" value="4.0">
+      </div>
+      <div class="control-group">
+        <label class="control-label">Radi del nucli a <span class="val" id="valRadiA">0.60 m</span></label>
+        <input type="range" class="slider" id="slRadiA" min="0.25" max="1.20" step="0.05" value="0.60">
+      </div>
+      <label class="check-row"><input type="checkbox" id="chkComparaTots" checked> Superposa els 4 models a la gràfica</label>
+    </div>
+
+    <div class="card" id="cardParell">
+      <div class="card-title">Parell de vòrtexs / Mètode d'imatges</div>
+      <div class="grup-btn">
+        <button type="button" class="btn-opcio actiu" id="btnCoRot">Igual signe (Γ₁ = Γ₂)</button>
+        <button type="button" class="btn-opcio" id="btnAntiRot">Paret / Dipol (Γ₂ = −Γ₁)</button>
+      </div>
+      <div class="control-group">
+        <label class="control-label">Circulació Γ₁ <span class="val" id="valG1">3.0</span></label>
+        <input type="range" class="slider" id="slG1" min="-5" max="5" step="0.5" value="3.0">
+      </div>
+      <div class="control-group">
+        <label class="control-label">Circulació Γ₂ <span class="val" id="valG2">3.0</span></label>
+        <input type="range" class="slider" id="slG2" min="-5" max="5" step="0.5" value="3.0">
+      </div>
+      <div class="control-group">
+        <label class="control-label">Separació d <span class="val" id="valSep">1.60 m</span></label>
+        <input type="range" class="slider" id="slSep" min="0.6" max="2.6" step="0.1" value="1.60">
+      </div>
+    </div>
+
+    <div class="card" id="cardTorr">
+      <div class="card-title">Buidatge de Torricelli (Problema 17)</div>
+      <div class="control-group">
+        <label class="control-label">Radi esfera R <span class="val" id="valResf">40 cm</span></label>
+        <input type="range" class="slider" id="slResf" min="20" max="60" step="2" value="40">
+      </div>
+      <div class="control-group">
+        <label class="control-label">Secció orifici s <span class="val" id="valSorif">1.0 cm²</span></label>
+        <input type="range" class="slider" id="slSorif" min="0.5" max="4.0" step="0.25" value="1.0">
+      </div>
+      <div class="control-group">
+        <label class="control-label">Fracció de temps t / t_s(esfera) <span class="val" id="valFracT">0.35</span></label>
+        <input type="range" class="slider" id="slFracT" min="0" max="1" step="0.01" value="0.35">
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══ Centre: Visualitzacions ═══ -->
+  <div class="center-panel">
+    <div class="fila-canvas">
+      <div class="bloc-canvas">
+        <div class="plot-title" id="titolV1">Perfils radials de velocitat u_θ(r) i vorticitat ω_z(r)</div>
+        <canvas id="cvLeft" width="425" height="360"></canvas>
+        <p class="plot-desc" id="descV1">Dins del nucli r &lt; a el vòrtex de Rankine gira com un sòlid rígid (u_θ ∝ r); a fora decau com 1/r.</p>
+      </div>
+      <div class="bloc-canvas">
+        <div class="plot-title" id="titolV2">Depressió de pressió p(r) i superfície lliure z(r) del remolí</div>
+        <canvas id="cvRight" width="425" height="360"></canvas>
+        <p class="plot-desc" id="descV2">Embut hiperbòlic per r &gt; a i parabòlic per r &lt; a. A baix, partícules girant al voltant de l'eix.</p>
+      </div>
+    </div>
+
+    <div class="fila-canvas">
+      <div class="card formules">
+        <div class="card-title">Equacions analítiques del sistema seleccionat</div>
+        <div id="formulesVortex"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Dreta: Valors i explicació ═══ -->
+  <aside class="right-panel">
+    <div class="card">
+      <div class="card-title">Valors calculats</div>
+      <div class="lectura" id="lectura"></div>
+      <div class="estat info" id="estat"></div>
+    </div>
+
+    <div class="card theory-box">
+      <div class="card-title">Què calcula aquest simulador</div>
+      <p><strong>1. Models de vòrtexs (Tema 3a i Parcial Nov 2023):</strong> En un vòrtex circular estacionari $\vec{u} = u_\theta(r)\vec{e}_\theta$, l'equació radial d'Euler és $\frac{\partial p}{\partial r} = \rho\frac{u_\theta^2}{r}$. Com que al nucli ($r < a$) hi ha vorticitat $\omega_z \neq 0$, <strong>no podem aplicar la mateixa constant de Bernoulli a tot el fluid</strong> si hi ha vorticitat, sinó que hem d'integrar $\partial p/\partial r$ des de $r\to\infty$ cap endins assegurant la continuïtat de $p(r)$ en $r=a$!</p>
+      <details class="obs" open>
+        <summary>Què has d'observar (preguntes d'examen)</summary>
+        <div class="obs-body">
+          <p><strong>1. Profunditat total de l'embut de Rankine (Parcial Nov 2023 Ex. 2d):</strong> La depressió a $r=a$ respecte a l'infinit és $\Delta z(a) = \frac{u_{\max}^2}{2g}$, i del límit del nucli ($r=a$) fins al centre ($r=0$) baixa un altre $\frac{u_{\max}^2}{2g}$. En total, el centre de l'embut baixa el doble: $z(\infty) - z(0) = \frac{u_{\max}^2}{g} = \frac{\omega_0^2 a^2}{4g}$!</p>
+          <p><strong>2. Parell de vòrtexs oposats = Vòrtex prop d'una paret:</strong> Prem el botó «Paret / Dipol ($\Gamma_2 = -\Gamma_1$)»: la línia mediatriu $x=0$ és una línia de corrent recta (paret impenetrable) i els dos vòrtexs avancen paral·lels a la paret amb velocitat $V = \frac{\Gamma}{2\pi d}$.</p>
+          <p><strong>3. Buidatge d'esfera vs cilindre (Problema 17):</strong> Amb el mateix volum inicial $V = \frac{4}{3}\pi R^3$ i el mateix radi $R$, l'esfera triga $t_s^{\text{esf}} = \frac{16\pi R^2}{15 s}\sqrt{\frac{2R}{g}}$ mentre que el cilindre triga $t_s^{\text{cil}} = \frac{4\pi R^2}{3 s}\sqrt{\frac{8R}{3g}}$.</p>
+        </div>
+      </details>
+    </div>
+  </aside>
+
+</main>
+
+<div class="peu-uab">
+  <strong>Joan Puertas Buscallà</strong> — Fluids i Superfluids · Grau en Física · UAB · Basat en l'estil dels simuladors del prof. F. Xavier Àlvarez (<a href="https://github.com/xalvarezc/estat_solid" target="_blank" rel="noopener">estat_solid</a>)
+</div>
+
+<script src="../caixes_plegables.js"></script>
+<script>
+(function(){
+  const g = 9.81;
+  const selLab = document.getElementById('selLab');
+  const selModelVortex = document.getElementById('selModelVortex');
+  const slGamma = document.getElementById('slGamma');
+  const slRadiA = document.getElementById('slRadiA');
+  const chkComparaTots = document.getElementById('chkComparaTots');
+
+  const btnCoRot = document.getElementById('btnCoRot');
+  const btnAntiRot = document.getElementById('btnAntiRot');
+  const slG1 = document.getElementById('slG1');
+  const slG2 = document.getElementById('slG2');
+  const slSep = document.getElementById('slSep');
+
+  const slResf = document.getElementById('slResf');
+  const slSorif = document.getElementById('slSorif');
+  const slFracT = document.getElementById('slFracT');
+
+  const cvL = document.getElementById('cvLeft');
+  const ctxL = cvL.getContext('2d');
+  const cvR = document.getElementById('cvRight');
+  const ctxR = cvR.getContext('2d');
+
+  let tAnim = 0;
+
+  btnCoRot.addEventListener('click', () => {
+    selLab.value = 'parell';
+    btnCoRot.classList.add('actiu'); btnAntiRot.classList.remove('actiu');
+    slG1.value = 3.0; slG2.value = 3.0;
+    dibuixa();
+  });
+  btnAntiRot.addEventListener('click', () => {
+    selLab.value = 'parell';
+    btnAntiRot.classList.add('actiu'); btnCoRot.classList.remove('actiu');
+    slG1.value = 3.0; slG2.value = -3.0;
+    dibuixa();
+  });
+
+  [selLab, selModelVortex, slGamma, slRadiA, chkComparaTots, slG1, slG2, slSep, slResf, slSorif, slFracT].forEach(el => {
+    el.addEventListener('input', dibuixa);
+  });
+
+  function uModel(model, r, Gamma, a) {
+    if (r < 1e-4) return 0;
+    const uFree = Gamma / (2 * Math.PI * r);
+    if (model === 'lliure') return Math.min(uFree, (Gamma / (2 * Math.PI * a)) * 2.2);
+    if (model === 'rankine') return r <= a ? (Gamma * r) / (2 * Math.PI * a * a) : uFree;
+    if (model === 'kaufmann') return (Gamma * r) / (2 * Math.PI * (a * a + r * r));
+    if (model === 'gaussia') return uFree * (1 - Math.exp(-(r * r) / (a * a)));
+    return uFree;
+  }
+
+  function omegaModel(model, r, Gamma, a) {
+    const w0 = Gamma / (Math.PI * a * a);
+    if (model === 'lliure') return r < 0.05 ? w0 * 2 : 0;
+    if (model === 'rankine') return r <= a ? w0 : 0;
+    if (model === 'kaufmann') return w0 / Math.pow(1 + (r * r) / (a * a), 2);
+    if (model === 'gaussia') return w0 * Math.exp(-(r * r) / (a * a));
+    return 0;
+  }
+
+  function filaLectura(etiq, val) {
+    return `<div class="fila"><span class="etiqueta">${etiq}</span><span class="valor">${val}</span></div>`;
+  }
+
+  function dibuixa() {
+    const lab = selLab.value;
+    const Gamma = parseFloat(slGamma.value);
+    const a = parseFloat(slRadiA.value);
+    const G1 = parseFloat(slG1.value);
+    const G2 = parseFloat(slG2.value);
+    const dSep = parseFloat(slSep.value);
+    const Resf_cm = parseFloat(slResf.value);
+    const sOrif_cm2 = parseFloat(slSorif.value);
+    const fracT = parseFloat(slFracT.value);
+
+    document.getElementById('valGamma').textContent = Gamma.toFixed(1) + ' m²/s';
+    document.getElementById('valRadiA').textContent = a.toFixed(2) + ' m';
+    document.getElementById('valG1').textContent = G1.toFixed(1);
+    document.getElementById('valG2').textContent = G2.toFixed(1);
+    document.getElementById('valSep').textContent = dSep.toFixed(2) + ' m';
+    document.getElementById('valResf').textContent = Resf_cm.toFixed(0) + ' cm';
+    document.getElementById('valSorif').textContent = sOrif_cm2.toFixed(2) + ' cm²';
+    document.getElementById('valFracT').textContent = fracT.toFixed(2);
+
+    ctxL.clearRect(0, 0, cvL.width, cvL.height);
+    ctxR.clearRect(0, 0, cvR.width, cvR.height);
+
+    const lecturaEl = document.getElementById('lectura');
+    const estatEl = document.getElementById('estat');
+    const formulesEl = document.getElementById('formulesVortex');
+
+    if (lab === 'models') {
+      document.getElementById('titolV1').textContent = "Perfil radial de velocitat u_θ(r) (dalt) i vorticitat ω_z(r) (baix)";
+      document.getElementById('titolV2').textContent = "Perfil de la superfície lliure z(r) i camp circular del vòrtex";
+
+      const mActiu = selModelVortex.value;
+      const rMax = 2.5;
+      const uRef = Gamma / (2 * Math.PI * a);
+      const w0 = Gamma / (Math.PI * a * a);
+
+      // Gràfica superior a cvL: u_theta(r)
+      const ox = 48, oy1 = 158, oy2 = 328, gw = 350, gh = 125;
+      ctxL.strokeStyle = '#94a3b8';
+      ctxL.beginPath();
+      ctxL.moveTo(ox, oy1 - gh); ctxL.lineTo(ox, oy1); ctxL.lineTo(ox + gw, oy1);
+      ctxL.moveTo(ox, oy2 - gh); ctxL.lineTo(ox, oy2); ctxL.lineTo(ox + gw, oy2);
+      ctxL.stroke();
+
+      // Línia vertical en r = a
+      const xa = ox + (a / rMax) * gw;
+      ctxL.strokeStyle = '#cbd5e1';
+      ctxL.setLineDash([4, 4]);
+      ctxL.beginPath(); ctxL.moveTo(xa, 20); ctxL.lineTo(xa, oy2); ctxL.stroke();
+      ctxL.setLineDash([]);
+      ctxL.fillStyle = '#475569';
+      ctxL.font = '11px Segoe UI, sans-serif';
+      ctxL.fillText('r = a', xa - 12, oy2 + 15);
+
+      const models = chkComparaTots.checked
+        ? [
+            { id: 'rankine', col: '#009639', nom: 'Rankine' },
+            { id: 'kaufmann', col: '#2563eb', nom: 'Kaufmann' },
+            { id: 'gaussia', col: '#9333ea', nom: 'Gaussià' },
+            { id: 'lliure', col: '#dc2626', nom: 'Lliure 1/r' }
+          ]
+        : [{ id: mActiu, col: '#009639', nom: mActiu }];
+
+      models.forEach(m => {
+        const isMain = m.id === mActiu;
+        ctxL.strokeStyle = m.col;
+        ctxL.lineWidth = isMain ? 2.8 : 1.4;
+        ctxL.globalAlpha = isMain ? 1.0 : 0.55;
+        // u_theta
+        ctxL.beginPath();
+        for (let i = 1; i <= 120; i++) {
+          const r = (i / 120) * rMax;
+          const u = uModel(m.id, r, Gamma, a);
+          const px = ox + (r / rMax) * gw;
+          const py = oy1 - Math.min(1.35, u / (uRef * 1.2)) * gh;
+          if (i === 1) ctxL.moveTo(px, py); else ctxL.lineTo(px, py);
+        }
+        ctxL.stroke();
+
+        // omega_z
+        ctxL.beginPath();
+        for (let i = 0; i <= 120; i++) {
+          const r = (i / 120) * rMax;
+          const w = omegaModel(m.id, r, Gamma, a);
+          const px = ox + (r / rMax) * gw;
+          const py = oy2 - Math.min(1.25, w / (w0 * 1.15)) * gh;
+          if (i === 0) ctxL.moveTo(px, py); else ctxL.lineTo(px, py);
+        }
+        ctxL.stroke();
+      });
+      ctxL.globalAlpha = 1.0;
+      ctxL.fillStyle = '#0f172a';
+      ctxL.font = 'bold 11.5px Segoe UI, sans-serif';
+      ctxL.fillText('Velocitat azimutal u_θ(r)', ox + 8, oy1 - gh + 12);
+      ctxL.fillText('Vorticitat ω_z(r) = (1/r) d(r u_θ)/dr', ox + 8, oy2 - gh + 12);
+
+      // Canvas Dret: Embut de la superfície lliure z(r) (dalt) + vista en planta del remolí (baix)
+      const cxR = cvR.width / 2, yTopSurf = 42, escR = 78;
+      const dzTotalRankine = (uRef * uRef) / g; // u_max^2 / g
+      const escZ = Math.min(120, 75 / Math.max(0.05, dzTotalRankine));
+
+      function zDepressio(r) {
+        const rr = Math.abs(r);
+        if (mActiu === 'rankine') {
+          return rr <= a
+            ? dzTotalRankine * (1 - 0.5 * (rr * rr) / (a * a))
+            : 0.5 * dzTotalRankine * (a * a) / (rr * rr);
+        } else if (mActiu === 'kaufmann') {
+          return 0.5 * dzTotalRankine / (1 + (rr * rr) / (a * a));
+        } else if (mActiu === 'gaussia') {
+          return 0.65 * dzTotalRankine / (1 + 1.2 * (rr * rr) / (a * a));
+        } else {
+          const rSafe = Math.max(0.32 * a, rr);
+          return 0.5 * dzTotalRankine * (a * a) / (rSafe * rSafe);
+        }
+      }
+
+      // Aigua a l'embut superior
+      ctxR.fillStyle = 'rgba(14, 165, 233, 0.25)';
+      ctxR.beginPath();
+      for (let i = -100; i <= 100; i++) {
+        const r = (i / 100) * 2.3;
+        const px = cxR + r * escR;
+        const py = yTopSurf + zDepressio(r) * escZ;
+        if (i === -100) ctxR.moveTo(px, py); else ctxR.lineTo(px, py);
+      }
+      ctxR.lineTo(cxR + 2.3 * escR, 175);
+      ctxR.lineTo(cxR - 2.3 * escR, 175);
+      ctxR.closePath();
+      ctxR.fill();
+
+      ctxR.strokeStyle = '#0284c7';
+      ctxR.lineWidth = 2.5;
+      ctxR.beginPath();
+      for (let i = -100; i <= 100; i++) {
+        const r = (i / 100) * 2.3;
+        const px = cxR + r * escR;
+        const py = yTopSurf + zDepressio(r) * escZ;
+        if (i === -100) ctxR.moveTo(px, py); else ctxR.lineTo(px, py);
+      }
+      ctxR.stroke();
+
+      // Vista en planta (sota, cy=272)
+      const cyP = 272;
+      ctxR.strokeStyle = 'rgba(0, 150, 57, 0.45)';
+      ctxR.setLineDash([4, 3]);
+      ctxR.beginPath(); ctxR.arc(cxR, cyP, a * 42, 0, Math.PI * 2); ctxR.stroke();
+      ctxR.setLineDash([]);
+
+      for (let rad = 0.25; rad <= 1.85; rad += 0.38) {
+        const Rpx = rad * 42;
+        ctxR.strokeStyle = rad <= a ? '#009639' : '#0284c7';
+        ctxR.lineWidth = 1.4;
+        ctxR.beginPath(); ctxR.arc(cxR, cyP, Rpx, 0, Math.PI * 2); ctxR.stroke();
+      }
+
+      lecturaEl.innerHTML =
+        filaLectura('Velocitat a r = a (u_max Rankine)', uRef.toFixed(3) + ' m/s') +
+        filaLectura('Vorticitat al nucli ω₀ = Γ₀/(πa²)', w0.toFixed(3) + ' s⁻¹') +
+        filaLectura('Velocitat angular nucli Ω = ½ω₀', (0.5 * w0).toFixed(3) + ' rad/s') +
+        filaLectura('Depressió a r = a: Δz(a)', (0.5 * dzTotalRankine * 100).toFixed(2) + ' cm') +
+        filaLectura('Depressió màxima a r = 0: Δz(0)', (dzTotalRankine * 100).toFixed(2) + ' cm');
+
+      estatEl.className = 'estat si';
+      estatEl.textContent = `Parcial Nov 2023 Ex. 2: Dins del nucli r < a la vorticitat és ω₀ = ${w0.toFixed(2)} s⁻¹ i la superfície lliure baixa Δz(0) = ${(dzTotalRankine*100).toFixed(1)} cm.`;
+
+      formulesEl.innerHTML = `
+        <div class="formula">
+          <div class="formula-nom">1. Vòrtex de Rankine: Velocitat, Pressió i Superfície Lliure (Examen Parcial 6 Nov 2023, Ex. 2)</div>
+          <div class="formula-eq">u_θ(r) = ½ ω₀ r  (r &lt; a),    u_θ(r) = (ω₀ a²) / (2r)  (r &gt; a),    amb Γ₀ = π a² ω₀</div>
+          <div class="formula-eq">z(r) = z_∞ − (ω₀² a⁴) / (8 g r²)  (per r &gt; a)    i    z(r) = z_∞ − (ω₀² a²)/(4g) [ 1 − r²/(2a²) ]  (per r &lt; a)</div>
+          <div class="formula-nota">Com que ω_z ≠ 0 per r &lt; a, Bernoulli amb la mateixa constant H només val a la regió irrotacional r &gt; a; per r &lt; a integrem ∂p/∂r = ρ u_θ²/r.</div>
+        </div>
+        <div class="formula">
+          <div class="formula-nom">2. Models de Kaufmann i Gaussià</div>
+          <div class="formula-eq">Kaufmann: u_θ(r) = Γ₀ r / [2π(a² + r²)]     |     Gaussià: u_θ(r) = [Γ₀ / (2πr)] (1 − e^(−r²/a²))</div>
+        </div>`;
+
+    } else if (lab === 'parell') {
+      document.getElementById('titolV1').textContent = "Línies de corrent i camp d'un parell de vòrtexs (Γ₁, Γ₂)";
+      document.getElementById('titolV2').textContent = "Perfil de velocitat sobre l'eix Y i cinemàtica dels centres";
+
+      const x1 = -dSep / 2, y1 = 0;
+      const x2 = dSep / 2, y2 = 0;
+      const cx = cvL.width / 2, cy = cvL.height / 2, esc = 72;
+
+      // Mapa de línies de corrent ψ = - (Γ1/4π) ln r1² - (Γ2/4π) ln r2²
+      ctxL.lineWidth = 1.2;
+      for (let ix = -2.6; ix <= 2.6; ix += 0.28) {
+        for (let iy = -2.2; iy <= 2.2; iy += 0.28) {
+          const r1_2 = (ix - x1)*(ix - x1) + (iy - y1)*(iy - y1);
+          const r2_2 = (ix - x2)*(ix - x2) + (iy - y2)*(iy - y2);
+          if (r1_2 < 0.04 || r2_2 < 0.04) continue;
+          const u = -(G1 / (2 * Math.PI)) * (iy - y1) / r1_2 - (G2 / (2 * Math.PI)) * (iy - y2) / r2_2;
+          const v =  (G1 / (2 * Math.PI)) * (ix - x1) / r1_2 + (G2 / (2 * Math.PI)) * (ix - x2) / r2_2;
+          const m = Math.hypot(u, v) || 1;
+          const len = Math.min(14, 5 + 3.5 * Math.log1p(m));
+          const px = cx + ix * esc, py = cy - iy * esc;
+          ctxL.strokeStyle = 'rgba(0, 114, 43, 0.55)';
+          ctxL.beginPath();
+          ctxL.moveTo(px, py);
+          ctxL.lineTo(px + (u / m) * len, py - (v / m) * len);
+          ctxL.stroke();
+        }
+      }
+
+      // Si G1 = -G2, dibuixem la paret mediatriu x = 0 (mètode d'imatges)
+      if (Math.abs(G1 + G2) < 1e-3) {
+        ctxL.strokeStyle = '#0f172a';
+        ctxL.lineWidth = 3;
+        ctxL.beginPath(); ctxL.moveTo(cx, 15); ctxL.lineTo(cx, cvL.height - 15); ctxL.stroke();
+        ctxL.fillStyle = '#0f172a';
+        ctxL.font = 'bold 11.5px Segoe UI, sans-serif';
+        ctxL.fillText('Paret plana x = 0 (Mètode d\'imatges)', cx + 8, 28);
+      }
+
+      // Nuclis dels dos vòrtexs
+      [[x1, y1, G1, '#2563eb', 'Γ₁'], [x2, y2, G2, '#dc2626', 'Γ₂']].forEach(([vx, vy, Gv, col, nom]) => {
+        const px = cx + vx * esc, py = cy - vy * esc;
+        ctxL.fillStyle = col;
+        ctxL.beginPath(); ctxL.arc(px, py, 7, 0, Math.PI * 2); ctxL.fill();
+        ctxL.font = 'bold 12px Segoe UI, sans-serif';
+        ctxL.fillText(`${nom} = ${Gv.toFixed(1)}`, px - 22, py - 12);
+      });
+
+      // Velocitat induïda sobre cada vòrtex
+      const v1y = (G2 / (2 * Math.PI * dSep)); // sobre 1 (a l'esquerra)
+      const v2y = -(G1 / (2 * Math.PI * dSep)); // sobre 2 (a la dreta)
+
+      // Canvas Dret: Esquema de moviment del parell
+      const cxR = cvR.width / 2, cyR = cvR.height / 2;
+      ctxR.strokeStyle = '#cbd5e1';
+      ctxR.beginPath(); ctxR.moveTo(cxR, 25); ctxR.lineTo(cxR, cvR.height - 25); ctxR.moveTo(25, cyR); ctxR.lineTo(cvR.width - 25, cyR); ctxR.stroke();
+
+      if (Math.abs(G1 + G2) < 0.05) {
+        // Translació rectilínia
+        const Vtrans = G1 / (2 * Math.PI * dSep);
+        ctxR.strokeStyle = '#009639';
+        ctxR.setLineDash([5, 4]);
+        ctxR.beginPath();
+        ctxR.moveTo(cxR - 70, 40); ctxR.lineTo(cxR - 70, 320);
+        ctxR.moveTo(cxR + 70, 40); ctxR.lineTo(cxR + 70, 320);
+        ctxR.stroke();
+        ctxR.setLineDash([]);
+        ctxR.fillStyle = '#0f172a';
+        ctxR.font = 'bold 12px Segoe UI, sans-serif';
+        ctxR.fillText(`Translació paral·lela amb V_y = ${Vtrans.toFixed(3)} m/s`, 65, 42);
+      } else {
+        const xCM = (G1 * x1 + G2 * x2) / (G1 + G2);
+        const OmegaParell = (G1 + G2) / (2 * Math.PI * dSep * dSep);
+        const pxCM = cxR + xCM * esc;
+        ctxR.fillStyle = '#009639';
+        ctxR.beginPath(); ctxR.arc(pxCM, cyR, 5, 0, Math.PI * 2); ctxR.fill();
+        ctxR.strokeStyle = '#009639';
+        ctxR.setLineDash([4, 4]);
+        ctxR.beginPath(); ctxR.arc(pxCM, cyR, Math.abs(x1 - xCM) * esc, 0, Math.PI * 2); ctxR.stroke();
+        ctxR.beginPath(); ctxR.arc(pxCM, cyR, Math.abs(x2 - xCM) * esc, 0, Math.PI * 2); ctxR.stroke();
+        ctxR.setLineDash([]);
+        ctxR.fillStyle = '#0f172a';
+        ctxR.font = 'bold 12px Segoe UI, sans-serif';
+        ctxR.fillText(`Gir al voltant de x_c = ${xCM.toFixed(2)} m amb Ω = ${OmegaParell.toFixed(3)} rad/s`, 45, 42);
+      }
+
+      lecturaEl.innerHTML =
+        filaLectura('Velocitat induïda sobre vòrtex 1 (v₁_y)', (-v1y).toFixed(3) + ' m/s') +
+        filaLectura('Velocitat induïda sobre vòrtex 2 (v₂_y)', (-v2y).toFixed(3) + ' m/s') +
+        filaLectura('Circulació total Γ₁ + Γ₂', (G1 + G2).toFixed(2) + ' m²/s') +
+        (Math.abs(G1 + G2) > 0.05
+          ? filaLectura('Centre de vorticitat x_c', ((G1 * x1 + G2 * x2) / (G1 + G2)).toFixed(3) + ' m') +
+            filaLectura('Freqüència de gir Ω', ((G1 + G2) / (2 * Math.PI * dSep * dSep)).toFixed(3) + ' rad/s')
+          : filaLectura('Velocitat de translació del parell V', (G1 / (2 * Math.PI * dSep)).toFixed(3) + ' m/s'));
+
+      estatEl.className = 'estat info';
+      estatEl.textContent = Math.abs(G1 + G2) < 0.05
+        ? `Parell antiparal·lel (Γ₂ = −Γ₁): equivale a un vòrtex a distància d/2 = ${(dSep/2).toFixed(2)} m d'una paret plana!`
+        : `Els dos vòrtexs giren al voltant del centre de vorticitat conservant la seva distància d = ${dSep.toFixed(2)} m.`;
+
+      formulesEl.innerHTML = `
+        <div class="formula">
+          <div class="formula-nom">1. Dinàmica d'un parell de vòrtexs puntuals (Tema 3a)</div>
+          <div class="formula-eq">Centre de vorticitat: r⃗_c = (Γ₁ r⃗₁ + Γ₂ r⃗₂) / (Γ₁ + Γ₂),     Ω_gir = (Γ₁ + Γ₂) / (2π d²)</div>
+          <div class="formula-nota">Si Γ₁ = −Γ₂ = Γ, el centre de gir s'allunya a l'infinit i tots dos es mouen en línia recta amb V = Γ / (2π d).</div>
+        </div>`;
+
+    } else {
+      // LAB 3: Buidatge de dipòsits de Torricelli (Problema 17)
+      document.getElementById('titolV1').textContent = "Buidatge comparat: Esfera vs Cilindre de mateix volum (Probl. 17a–b)";
+      document.getElementById('titolV2').textContent = "Corbes d'evolució del nivell z(t) i clepsidra r = a z^(1/4) (Probl. 17c)";
+
+      const R = Resf_cm / 100;
+      const s = sOrif_cm2 * 1e-4;
+      // Problema 17a: Esfera plena inicialment (z0 = 2R)
+      // Temps total de buidatge esfera: t_s_esf = (16 * pi * R^2) / (15 * s) * sqrt(2*R / g)
+      const ts_esf = ((16 * Math.PI * R * R) / (15 * s)) * Math.sqrt((2 * R) / g);
+      // Temps per buidar la meitat del volum (z passa de 2R a R):
+      // Integral de R a 2R de (2R z^(1/2) - z^(3/2)) dz = R^(5/2) [ 4/3 (2*sqrt(2) - 1) - 2/5 (4*sqrt(2) - 1) ] = R^(5/2) * (8*sqrt(2) - 14)/15
+      const ratio_t12_esf = (8 * Math.SQRT2 - 7) / 8; // = 1 - 7/(8*sqrt(2))? Comprovem: int_R^{2R} (2R z^{1/2} - z^{3/2}) dz = [4/3 R z^{3/2} - 2/5 z^{5/2}]_R^{2R} = R^{5/2} ( (8/3 sqrt(2) - 4/3) - (8/5 sqrt(2) - 2/5) ) = R^{5/2} ( 16/15 sqrt(2) - 14/15 ). Dividit pel total (16/15 sqrt(2) R^{5/2}) dona: 1 - 7/(8*sqrt(2)) = 0.3813!
+
+      // Problema 17b: Cilindre amb el mateix volum V = 4/3 pi R^3 i mateix radi R -> alçada inicial H_cil = 4/3 R
+      const H_cil = (4 / 3) * R;
+      const ts_cil = ((Math.PI * R * R) / s) * Math.sqrt((2 * H_cil) / g);
+      const ratio_t12_cil = 1 - 1 / Math.SQRT2; // 0.2929
+
+      // Dibuix de l'esfera i del cilindre a cvL en l'instant t = fracT * ts_esf
+      const tCur = fracT * ts_esf;
+      // Nivell actual al cilindre:
+      const zCil = tCur < ts_cil ? H_cil * Math.pow(1 - tCur / ts_cil, 2) : 0;
+      // Nivell actual a l'esfera per inversió numèrica de t(z)
+      let zEsf = 0;
+      for (let zz = 2 * R; zz >= 0; zz -= 0.005 * R) {
+        const u = zz / R; // 0..2
+        const intRem = (4 / 3) * Math.pow(u, 1.5) - (2 / 5) * Math.pow(u, 2.5);
+        const intTot = (16 / 15) * Math.SQRT2;
+        const tAtZ = ts_esf * (1 - intRem / intTot);
+        if (tAtZ >= tCur) { zEsf = zz; break; }
+      }
+
+      const escPx = 95 / R;
+      const cxEsf = 115, cyBot = 305, cxCil = 310;
+
+      // Aigua a l'esfera
+      ctxL.save();
+      ctxL.beginPath();
+      ctxL.arc(cxEsf, cyBot - R * escPx, R * escPx, 0, Math.PI * 2);
+      ctxL.clip();
+      ctxL.fillStyle = 'rgba(14, 165, 233, 0.45)';
+      ctxL.fillRect(cxEsf - R * escPx, cyBot - zEsf * escPx, 2 * R * escPx, zEsf * escPx);
+      ctxL.restore();
+      ctxL.strokeStyle = '#1e293b';
+      ctxL.lineWidth = 2.5;
+      ctxL.beginPath();
+      ctxL.arc(cxEsf, cyBot - R * escPx, R * escPx, 0, Math.PI * 2);
+      ctxL.stroke();
+
+      // Aigua al cilindre
+      ctxL.fillStyle = 'rgba(0, 150, 57, 0.35)';
+      ctxL.fillRect(cxCil - R * escPx * 0.85, cyBot - zCil * escPx, 2 * R * escPx * 0.85, zCil * escPx);
+      ctxL.strokeRect(cxCil - R * escPx * 0.85, cyBot - H_cil * escPx, 2 * R * escPx * 0.85, H_cil * escPx);
+
+      ctxL.fillStyle = '#0f172a';
+      ctxL.font = 'bold 12px Segoe UI, sans-serif';
+      ctxL.fillText(`Esfera (z = ${(zEsf*100).toFixed(1)} cm)`, cxEsf - 58, 45);
+      ctxL.fillText(`Cilindre (z = ${(zCil*100).toFixed(1)} cm)`, cxCil - 62, 45);
+
+      // Gràfica z(t) a cvR
+      const gx = 52, gy = 308, gw = 340, gh = 250;
+      ctxR.strokeStyle = '#475569';
+      ctxR.beginPath(); ctxR.moveTo(gx, gy - gh); ctxR.lineTo(gx, gy); ctxR.lineTo(gx + gw, gy); ctxR.stroke();
+
+      const tMaxPlot = Math.max(ts_esf, ts_cil) * 1.05;
+      // Corba cilindre
+      ctxR.strokeStyle = '#009639';
+      ctxR.lineWidth = 2.4;
+      ctxR.beginPath();
+      for (let i = 0; i <= 100; i++) {
+        const tt = (i / 100) * ts_cil;
+        const zz = H_cil * Math.pow(1 - tt / ts_cil, 2);
+        const px = gx + (tt / tMaxPlot) * gw;
+        const py = gy - (zz / (2 * R)) * gh;
+        if (i === 0) ctxR.moveTo(px, py); else ctxR.lineTo(px, py);
+      }
+      ctxR.stroke();
+
+      // Corba esfera
+      ctxR.strokeStyle = '#0284c7';
+      ctxR.lineWidth = 2.5;
+      ctxR.beginPath();
+      for (let i = 0; i <= 100; i++) {
+        const u = 2 * (1 - i / 100);
+        const intRem = (4 / 3) * Math.pow(u, 1.5) - (2 / 5) * Math.pow(u, 2.5);
+        const tt = ts_esf * (1 - intRem / ((16 / 15) * Math.SQRT2));
+        const px = gx + (tt / tMaxPlot) * gw;
+        const py = gy - (u / 2) * gh;
+        if (i === 0) ctxR.moveTo(px, py); else ctxR.lineTo(px, py);
+      }
+      ctxR.stroke();
+
+      // Corba Clepsidra (Probl 17c: dz/dt = const => recta!)
+      ctxR.strokeStyle = '#dc2626';
+      ctxR.setLineDash([5, 4]);
+      ctxR.beginPath();
+      ctxR.moveTo(gx, gy - gh);
+      ctxR.lineTo(gx + (ts_esf / tMaxPlot) * gw, gy);
+      ctxR.stroke();
+      ctxR.setLineDash([]);
+
+      lecturaEl.innerHTML =
+        filaLectura('Temps buidatge esfera t_s(esf)', (ts_esf / 60).toFixed(2) + ' min (' + ts_esf.toFixed(0) + ' s)') +
+        filaLectura('Fracció mig volum esfera t_{1/2}/t_s', ratio_t12_esf.toFixed(4) + ' (38.1%)') +
+        filaLectura('Temps buidatge cilindre t_s(cil)', (ts_cil / 60).toFixed(2) + ' min (' + ts_cil.toFixed(0) + ' s)') +
+        filaLectura('Fracció mig volum cilindre t_{1/2}/t_s', ratio_t12_cil.toFixed(4) + ' (29.3%)') +
+        filaLectura('Exponent clepsidra r = a z^n (Probl. 17c)', 'n = 1/4 = 0.25');
+
+      estatEl.className = 'estat si';
+      estatEl.textContent = `Problema 17: Per a R = ${Resf_cm} cm i s = ${sOrif_cm2} cm², l'esfera triga ${(ts_esf/60).toFixed(1)} min i el cilindre ${(ts_cil/60).toFixed(1)} min.`;
+
+      formulesEl.innerHTML = `
+        <div class="formula">
+          <div class="formula-nom">1. Equació diferencial del buidatge per Torricelli (Problema 17a–b)</div>
+          <div class="formula-eq">A(z) dz/dt = −s √(2gz)   ⇒   Esfera: π(2Rz − z²) dz/dt = −s √(2gz)   ⇒   t_s(esf) = (16πR² / 15s) √(2R/g)</div>
+          <div class="formula-eq">t_{1/2}(esf) / t_s(esf) = 1 − 7/(8√2) ≈ 0.3813     |     t_{1/2}(cil) / t_s(cil) = 1 − 1/√2 ≈ 0.2929</div>
+        </div>
+        <div class="formula">
+          <div class="formula-nom">2. Clepsidra (rellotge d'aigua amb descens uniforme |dz/dt| = v₀ = 6 cm/min, Problema 17c)</div>
+          <div class="formula-eq">π (a z^n)² v₀ = s √(2gz)   ⇒   2n = 1/2   ⇒   n = 1/4,     a = √[ s √(2g) / (π v₀) ]</div>
+        </div>`;
+    }
+  }
+
+  dibuixa();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,764 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fluids i Superfluids — Simuladors de Camps Vectorials i Mecànica de Fluids (UAB)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap">
+<link rel="stylesheet" href="simuladors/estil_comu.css">
+<style>
+  *{ box-sizing:border-box; }
+  html, body{ margin:0; padding:0; }
+  body{
+    font-family:system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color:var(--ink);
+    background:var(--bg);
+    line-height:1.55;
+  }
+  main{
+    max-width:1100px;
+    margin:0 auto;
+    padding:28px 20px 64px;
+  }
+
+  /* Portada */
+  .portada{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:34px 36px 30px;
+    margin-bottom:32px;
+    display:grid;
+    grid-template-columns:1.15fr 1fr;
+    gap:32px;
+    align-items:center;
+  }
+  @media (max-width:860px){
+    .portada{ grid-template-columns:1fr; padding:26px 22px; }
+  }
+  .portada .etiqueta-grau{
+    display:inline-block;
+    font-size:.74rem;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--uab-dark);
+    background:var(--uab-light);
+    padding:4px 10px;
+    border-radius:4px;
+    margin-bottom:12px;
+  }
+  .portada h1{
+    font-family:"Source Serif 4", Georgia, serif;
+    font-size:2.15rem;
+    line-height:1.15;
+    margin:0 0 10px;
+    color:var(--ink);
+    letter-spacing:-.01em;
+  }
+  .portada .autor{
+    font-size:1rem;
+    color:var(--muted);
+    margin:0 0 14px;
+  }
+  .portada .autor strong{ color:var(--ink); font-weight:600; }
+  .portada .autor a{ color:var(--uab-dark); text-decoration:none; font-weight:600; }
+  .portada .autor a:hover{ text-decoration:underline; }
+  .portada .resum{
+    font-size:.94rem;
+    color:var(--ink);
+    margin:0 0 18px;
+  }
+  .portada .accions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .boto{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 16px;
+    border-radius:6px;
+    font-weight:600;
+    font-size:.9rem;
+    text-decoration:none;
+    border:1px solid var(--uab);
+    transition:background .12s, color .12s, border-color .12s;
+  }
+  .boto-primari{
+    background:var(--uab);
+    color:#fff;
+  }
+  .boto-primari:hover{ background:var(--uab-dark); border-color:var(--uab-dark); }
+  .boto-secundari{
+    background:#fff;
+    color:var(--uab-dark);
+  }
+  .boto-secundari:hover{ background:var(--uab-light); }
+
+  /* Figura de portada */
+  .figura-portada{
+    background:linear-gradient(180deg, #f9fbf9 0%, #eef5f0 100%);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:16px 16px 12px;
+    text-align:center;
+  }
+  .figura-portada svg{
+    width:100%;
+    height:auto;
+    max-height:260px;
+    display:block;
+    margin:0 auto;
+  }
+  .figura-portada figcaption{
+    font-size:.76rem;
+    color:var(--muted);
+    margin-top:8px;
+    line-height:1.35;
+  }
+
+  /* Destacat del mapa */
+  .destacat-mapa{
+    display:grid;
+    grid-template-columns:auto 1fr auto;
+    gap:18px;
+    align-items:center;
+    background:linear-gradient(90deg, var(--uab-light) 0%, #ffffff 70%);
+    border:1px solid #b9dec6;
+    border-left:5px solid var(--uab);
+    border-radius:10px;
+    padding:18px 22px;
+    margin:0 0 24px;
+    text-decoration:none;
+    color:inherit;
+    transition:border-color .12s, box-shadow .12s, transform .12s;
+  }
+  .destacat-mapa:hover{
+    border-color:var(--uab);
+    box-shadow:0 4px 16px rgba(0, 114, 43, .10);
+    transform:translateY(-1px);
+  }
+  .destacat-mapa .dm-ico{
+    width:52px; height:52px;
+    border-radius:10px;
+    background:#fff;
+    border:1px solid #b9dec6;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--uab-dark);
+    flex-shrink:0;
+  }
+  .destacat-mapa .dm-etiqueta{
+    display:inline-block;
+    font-size:.68rem;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--uab-dark);
+    margin-bottom:2px;
+  }
+  .destacat-mapa h2{
+    font-family:"Source Serif 4", Georgia, serif;
+    font-size:1.18rem;
+    margin:0 0 3px;
+    color:var(--ink);
+  }
+  .destacat-mapa p{
+    margin:0;
+    font-size:.86rem;
+    color:var(--muted);
+  }
+  .destacat-mapa .dm-cta{
+    font-weight:700;
+    font-size:.88rem;
+    color:var(--uab-dark);
+    white-space:nowrap;
+    padding:8px 14px;
+    border-radius:6px;
+    background:#fff;
+    border:1px solid var(--uab);
+  }
+  .destacat-mapa:hover .dm-cta{
+    background:var(--uab);
+    color:#fff;
+  }
+  @media (max-width:720px){
+    .destacat-mapa{ grid-template-columns:auto 1fr; }
+    .destacat-mapa .dm-cta{ grid-column:1 / -1; justify-self:start; }
+  }
+
+  /* Targetes de seccions principals */
+  .seccions{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:16px;
+    margin-bottom:36px;
+  }
+  @media (max-width:820px){
+    .seccions{ grid-template-columns:1fr; }
+  }
+  .targeta-seccio{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-top:3px solid var(--uab);
+    border-radius:8px;
+    padding:18px 20px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+  }
+  .targeta-seccio h2{
+    font-family:"Source Serif 4", Georgia, serif;
+    font-size:1.12rem;
+    margin:0 0 6px;
+    color:var(--ink);
+  }
+  .targeta-seccio p{
+    font-size:.86rem;
+    color:var(--muted);
+    margin:0 0 14px;
+  }
+  .targeta-seccio a.enllac-seccio{
+    font-size:.85rem;
+    font-weight:600;
+    color:var(--uab-dark);
+    text-decoration:none;
+    align-self:flex-start;
+  }
+  .targeta-seccio a.enllac-seccio:hover{ text-decoration:underline; }
+
+  /* Índex de temes */
+  .titol-index{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:12px;
+    margin:8px 0 14px;
+    padding-bottom:8px;
+    border-bottom:2px solid var(--uab);
+  }
+  .titol-index h2{
+    font-family:"Source Serif 4", Georgia, serif;
+    font-size:1.35rem;
+    margin:0;
+    color:var(--ink);
+  }
+  .titol-index span{
+    font-size:.82rem;
+    color:var(--muted);
+  }
+  .llista-temes{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:10px;
+  }
+  .fila-tema{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-left:4px solid var(--uab);
+    border-radius:6px;
+    padding:13px 16px;
+    display:grid;
+    grid-template-columns:62px 1fr auto;
+    align-items:center;
+    gap:14px;
+  }
+  @media (max-width:720px){
+    .fila-tema{ grid-template-columns:52px 1fr; }
+    .fila-tema .accions-tema{ grid-column:1 / -1; justify-self:start; margin-top:4px; }
+  }
+  .fila-tema .num-tema{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    font-family:"Source Serif 4", Georgia, serif;
+    font-weight:700;
+    font-size:1.05rem;
+    color:var(--uab-dark);
+    background:var(--uab-light);
+    border-radius:5px;
+    padding:6px 9px;
+    justify-content:center;
+  }
+  .fila-tema .num-tema svg{
+    width:20px;
+    height:20px;
+    flex-shrink:0;
+    color:var(--uab);
+  }
+  .fila-tema.repas{ border-left-color:#7a8b80; }
+  .fila-tema.repas .num-tema{
+    background:#eef1ee;
+    color:#425247;
+    font-size:.76rem;
+    letter-spacing:.05em;
+  }
+  .fila-tema .cos-tema h3{
+    margin:0 0 2px;
+    font-size:1rem;
+    color:var(--ink);
+  }
+  .fila-tema .cos-tema p{
+    margin:0;
+    font-size:.82rem;
+    color:var(--muted);
+  }
+  .accions-tema{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    align-items:center;
+  }
+  .accions-tema a,
+  .accions-tema button.boto-sims-tema{
+    font-size:.8rem;
+    font-weight:600;
+    text-decoration:none;
+    padding:6px 11px;
+    border-radius:5px;
+    border:1px solid var(--border);
+    color:var(--ink);
+    background:#fbfcfb;
+    white-space:nowrap;
+    font-family:inherit;
+    cursor:pointer;
+  }
+  .accions-tema a:hover,
+  .accions-tema button.boto-sims-tema:hover{
+    border-color:var(--uab);
+    color:var(--uab-dark);
+    background:var(--uab-light);
+  }
+  .accions-tema a.prim{
+    background:var(--uab);
+    border-color:var(--uab);
+    color:#fff;
+  }
+  .accions-tema a.prim:hover{
+    background:var(--uab-dark);
+    border-color:var(--uab-dark);
+    color:#fff;
+  }
+  .accions-tema button.boto-sims-tema{
+    color:var(--uab-dark);
+    border-color:#b9d8c4;
+    background:var(--uab-light);
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+  }
+  .accions-tema button.boto-sims-tema .fletxa{
+    display:inline-block;
+    font-size:.66rem;
+    transition:transform .15s;
+  }
+  .fila-tema.obert button.boto-sims-tema .fletxa{ transform:rotate(90deg); }
+
+  .calaix-sims{
+    display:none;
+    grid-column:1 / -1;
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px dashed var(--border);
+  }
+  .fila-tema.obert .calaix-sims{ display:block; }
+  .calaix-sims ul{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(290px, 1fr));
+    gap:8px;
+  }
+  .calaix-sims li a{
+    display:block;
+    padding:9px 12px;
+    border:1px solid var(--border);
+    border-radius:5px;
+    background:#fbfcfb;
+    text-decoration:none;
+    color:var(--ink);
+    font-size:.84rem;
+    font-weight:600;
+    line-height:1.35;
+  }
+  .calaix-sims li a:hover{
+    border-color:var(--uab);
+    background:var(--uab-light);
+    color:var(--uab-dark);
+  }
+  .calaix-sims li a span.desc-curta{
+    display:block;
+    font-weight:400;
+    font-size:.76rem;
+    color:var(--muted);
+    margin-top:3px;
+  }
+
+  /* Nota de l'autor i crèdits */
+  .nota-autor{
+    margin-top:36px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-left:4px solid var(--uab);
+    border-radius:8px;
+    padding:18px 22px;
+  }
+  .nota-autor h3{
+    font-family:"Source Serif 4", Georgia, serif;
+    font-size:1.08rem;
+    margin:0 0 8px;
+    color:var(--ink);
+  }
+  .nota-autor p{
+    font-size:.86rem;
+    color:var(--muted);
+    margin:0 0 8px;
+  }
+  .nota-autor p:last-child{ margin-bottom:0; }
+  .nota-autor a{
+    color:var(--uab-dark);
+    font-weight:600;
+    text-decoration:none;
+  }
+  .nota-autor a:hover{ text-decoration:underline; }
+
+  footer{
+    max-width:1100px;
+    margin:0 auto;
+    padding:18px 20px 36px;
+    border-top:1px solid var(--border);
+    color:var(--muted);
+    font-size:.8rem;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:space-between;
+    gap:10px;
+  }
+  footer a{ color:var(--uab-dark); text-decoration:none; font-weight:600; }
+  footer a:hover{ text-decoration:underline; }
+</style>
+</head>
+<body>
+
+<header class="capcalera-uab">
+  <div class="cap-esq">
+    <a class="cap-logo" href="./" title="Portada del curs"><img src="simuladors/imatges/logotip-versio-3-verd.png" alt="Universitat Autònoma de Barcelona"></a>
+    <a class="cap-marca" href="./">Fluids i Superfluids<small>Grau en Física · UAB</small></a>
+  </div>
+  <div class="cap-pagina">Portada del projecte</div>
+  <nav class="cap-nav" aria-label="Seccions del curs">
+    <a class="actiu" href="#index">Índex del curs</a>
+    <a href="mapa/index.html">Mapa del curs</a>
+    <a href="simuladors/index.html">Simuladors</a>
+    <a href="visualitzador_camps.html">Laboratori 3D</a>
+  </nav>
+</header>
+
+<main>
+
+  <section class="portada">
+    <div>
+      <span class="etiqueta-grau">Grau en Física · 4t curs · UAB</span>
+      <h1>Fluids i Superfluids: Camps Vectorials i Simuladors</h1>
+      <p class="autor">Per <strong>Joan Puertas Buscallà</strong> · Estudiant de 4t de Física a la UAB · <a href="https://www.linkedin.com/in/joan-puertasbuscalla/" target="_blank" rel="noopener">LinkedIn</a></p>
+      <p class="resum">
+        Quan estudies <em>Fluids i Superfluids</em> a quart, moltes vegades et baralles amb equacions diferencials parcials, potencials complexos $w(z) = \phi + i\psi$, tensors de deformació i les equacions d'Euler o Navier-Stokes sobre el paper sense arribar a veure com es mou realment el fluid. He creat aquesta web per visualitzar de manera interactiva tots els camps vectorials, vòrtexs, fluxos potencials i règims viscosos que apareixen als apunts de teoria, als fulls de problemes i als exàmens parcials de l'assignatura.
+      </p>
+      <div class="accions">
+        <a class="boto boto-primari" href="simuladors/index.html">Explora els simuladors →</a>
+        <a class="boto boto-secundari" href="visualitzador_camps.html">Obre el Laboratori 3D de camps</a>
+        <a class="boto boto-secundari" href="mapa/index.html">Mapa conceptual del curs</a>
+      </div>
+    </div>
+
+    <figure class="figura-portada">
+      <svg id="svgPortada" viewBox="0 0 380 230" role="img" aria-label="Flux potencial amb circulació al voltant d'un cilindre i línies de corrent">
+        <defs>
+          <radialGradient id="gradCil" cx="38%" cy="35%" r="65%">
+            <stop offset="0%" stop-color="#3a5a46"/>
+            <stop offset="100%" stop-color="#1b2c21"/>
+          </radialGradient>
+          <marker id="fletxaVerd" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#009639"/>
+          </marker>
+        </defs>
+        <rect x="6" y="6" width="368" height="218" rx="6" fill="#ffffff" stroke="#d8e2da"/>
+        <!-- Equipotencials (discontínues) -->
+        <g id="grupEqui" stroke="#9ec5ab" stroke-width="1" stroke-dasharray="3 3" fill="none" opacity="0.65"></g>
+        <!-- Línies de corrent -->
+        <g id="grupStream" stroke="#009639" stroke-width="1.5" fill="none" opacity="0.85"></g>
+        <!-- Partícules traçadores -->
+        <g id="grupParticules"></g>
+        <!-- Cilindre central amb circulació -->
+        <circle cx="190" cy="108" r="34" fill="url(#gradCil)" stroke="#00722b" stroke-width="2"/>
+        <!-- Fletxa de circulació Γ -->
+        <path d="M 172 108 A 18 18 0 1 1 206 116" fill="none" stroke="#a7f3d0" stroke-width="1.8" marker-end="url(#fletxaVerd)"/>
+        <text x="190" y="112" font-size="11" font-family="Georgia, serif" font-style="italic" text-anchor="middle" fill="#ffffff">Γ &gt; 0</text>
+        <!-- Punts d'estancament -->
+        <circle cx="161" cy="126" r="4" fill="#d93829" stroke="#fff" stroke-width="1.2"/>
+        <circle cx="219" cy="126" r="4" fill="#d93829" stroke="#fff" stroke-width="1.2"/>
+        <!-- Vector sustentació Kutta-Zhukovsky -->
+        <line x1="190" y1="74" x2="190" y2="34" stroke="#00722b" stroke-width="2.4" marker-end="url(#fletxaVerd)"/>
+        <text x="200" y="45" font-size="10.5" font-family="Georgia, serif" font-weight="bold" fill="#00722b">F_y = ρUΓ</text>
+        <!-- Etiquetes -->
+        <text x="16" y="24" font-size="10" font-family="Georgia, serif" font-style="italic" fill="#00722b">ψ(r,θ) = const · Efecte Magnus</text>
+        <text x="16" y="214" font-size="9.5" font-family="system-ui, sans-serif" fill="#54635a">Punts d'estancament (vermell) desplaçats per la circulació</text>
+      </svg>
+      <figcaption>
+        Flux potencial al voltant d'un cilindre en rotació ($\phi = -k\theta + (1 + R^2/r^2)rU\cos\theta$, Problema 22). La circulació trenca la simetria dalt-baix i genera la força de sustentació de Kutta-Zhukovsky.
+      </figcaption>
+    </figure>
+  </section>
+
+  <a class="destacat-mapa" href="mapa/index.html">
+    <div class="dm-ico" aria-hidden="true">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="5" cy="6" r="2.2"/><circle cx="19" cy="6" r="2.2"/><circle cx="12" cy="13" r="2.2"/><circle cx="19" cy="20" r="2.2"/>
+        <path d="M7 7l3.3 4.3M17 7l-3.3 4.3M13.6 14.6l3.8 3.8"/>
+      </svg>
+    </div>
+    <div>
+      <span class="dm-etiqueta">Guia d'estudi interactiva</span>
+      <h2>Mapa conceptual de Fluids i Superfluids</h2>
+      <p>Tots els temes, equacions clau, connexions entre conceptes, els 27 exercicis dels fulls de problemes i els exàmens parcials enllaçats amb el seu simulador.</p>
+    </div>
+    <span class="dm-cta">Obre el mapa →</span>
+  </a>
+
+  <section class="seccions" aria-label="Parts del projecte">
+    <div class="targeta-seccio">
+      <div>
+        <h2>Laboratori 3D i 2D de camps</h2>
+        <p>Introdueix qualsevol camp $(u,v,w)$, funció potencial $\phi$ o funció de corrent $\psi$, comprova $\vec{\nabla}\cdot\vec{u}=0$ i $\vec{\omega}=\vec{\nabla}\times\vec{u}$, i carrega directament els exercicis del curs en WebGL.</p>
+      </div>
+      <a class="enllac-seccio" href="visualitzador_camps.html">Obre el visualitzador 3D →</a>
+    </div>
+    <div class="targeta-seccio">
+      <div>
+        <h2>Simuladors per temes</h2>
+        <p>Sis laboratoris interactius dedicats a cada bloc: hidrostàtica no inercial, cinemàtica i deformació, vòrtexs i Bernoulli, potencial complex i Kutta-Zhukovsky, i fluxos viscosos de Navier-Stokes.</p>
+      </div>
+      <a class="enllac-seccio" href="simuladors/index.html">Veure tots els simuladors →</a>
+    </div>
+    <div class="targeta-seccio">
+      <div>
+        <h2>Mapa d'aprenentatge i problemes</h2>
+        <p>Segueix les 4 línies argumentals del curs des de la hipòtesi del continu fins a la difusió viscosa de vorticitat, marcant els conceptes i problemes que ja tens dominats.</p>
+      </div>
+      <a class="enllac-seccio" href="mapa/index.html">Obre el mapa del curs →</a>
+    </div>
+  </section>
+
+  <div class="titol-index" id="index">
+    <h2>Índex de temes i simuladors</h2>
+    <span>4 temes de teoria + bloc base de camps vectorials i EDP</span>
+  </div>
+
+  <div class="llista-temes">
+
+    <div class="fila-tema repas" data-tema="00">
+      <span class="num-tema">BASE</span>
+      <div class="cos-tema">
+        <h3>Camps vectorials, potencial escalar i equacions en derivades parcials</h3>
+        <p>Representació 3D/2D de camps $\vec{u}(x,y,z,t)$, equació de Laplace $\nabla^2\phi = 0$, condicions de Cauchy-Riemann i separació de variables (Full 1, Problemes 1–4).</p>
+      </div>
+      <div class="accions-tema">
+        <a class="prim" href="visualitzador_camps.html">Laboratori 3D</a>
+        <a href="mapa/index.html">Mapa</a>
+      </div>
+    </div>
+
+    <div class="fila-tema" data-tema="01">
+      <span class="num-tema">01</span>
+      <div class="cos-tema">
+        <h3>Medis continus i hidrostàtica</h3>
+        <p>Hipòtesi del continu i nombre de Knudsen, pressió i principi de Pascal, equació $-\vec{\nabla}p + \rho\vec{f} = 0$, atmosfera barotròpica, principi d'Arquimedes, sistemes accelerats i en rotació, i hidroestàtica autogravitant (Full 2, Problemes 5–9).</p>
+      </div>
+      <div class="accions-tema">
+        <a class="prim" href="simuladors/01_medis_continus/hidrostatica_no_inercial.html">Simulador T1</a>
+        <a href="mapa/index.html">Mapa</a>
+      </div>
+    </div>
+
+    <div class="fila-tema" data-tema="02">
+      <span class="num-tema">02</span>
+      <div class="cos-tema">
+        <h3>Cinemàtica dels fluids</h3>
+        <p>Descripció euleriana i lagrangiana, derivada material $D/Dt$, línies de corrent, trajectòries i <em>streaklines</em>, tensor velocitat de deformació $S_{ij}$ i vorticitat $\vec{\omega}$, equació de continuïtat, funció de corrent $\psi$ i circulació $\Gamma$ (Full 4, Problemes 12–16).</p>
+      </div>
+      <div class="accions-tema">
+        <a class="prim" href="simuladors/02_cinematica/cinematica_deformacio.html">Simulador T2</a>
+        <a href="mapa/index.html">Mapa</a>
+      </div>
+    </div>
+
+    <div class="fila-tema" data-tema="03">
+      <span class="num-tema">03</span>
+      <div class="cos-tema">
+        <h3>Fluids ideals: equació d'Euler, vòrtexs i flux potencial</h3>
+        <p>Equació d'Euler, ones acústiques, teorema de Bernoulli (Torricelli, Venturi, Pitot), teorema de Kelvin, vòrtexs de Rankine, Kaufmann i Gaussià, parells de vòrtexs, dipol 2D/3D, cilindre i esfera, massa afegida, potencial complex $w(z)$ i teorema de Kutta-Zhukovsky (Full 5, Problemes 17–27).</p>
+      </div>
+      <div class="accions-tema">
+        <a class="prim" href="simuladors/03_fluids_ideals/potencial_kutta_zhukovsky.html">Simulador Potencial</a>
+        <a href="simuladors/03_fluids_ideals/vortexs_bernoulli.html">Simulador Vòrtexs</a>
+      </div>
+    </div>
+
+    <div class="fila-tema" data-tema="04">
+      <span class="num-tema">04</span>
+      <div class="cos-tema">
+        <h3>Fluids newtonians: viscositat, Navier-Stokes i equacions de balanç</h3>
+        <p>Llei de Newton de la viscositat, fluxos de Couette, Poiseuille pla i Hagen-Poiseuille cilíndric, problemes no estacionaris de Stokes, flux de Taylor-Couette, difusió de vòrtexs, teorema de transport de Reynolds, tensor d'esforços de Cauchy, dissipació viscosa, atenuació del so i fluids no newtonians.</p>
+      </div>
+      <div class="accions-tema">
+        <a class="prim" href="simuladors/04_fluids_newtonians/viscositat_navier_stokes.html">Simulador T4</a>
+        <a href="mapa/index.html">Mapa</a>
+      </div>
+    </div>
+
+  </div>
+
+  <section class="nota-autor" aria-label="Sobre aquest projecte i reconeixements">
+    <h3>Sobre aquest projecte i mencions</h3>
+    <p>
+      Soc en <strong>Joan Puertas Buscallà</strong>, estudiant de 4t del Grau en Física a la Universitat Autònoma de Barcelona (UAB). Aquest repositori va néixer inicialment com un visualitzador 3D de camps vectorials per comprovar els exercicis de funció potencial $\phi$ i funció de corrent $\psi$, i l'he anat ampliant fins a cobrir tot el temari de l'assignatura de <strong>Fluids i Superfluids</strong>.
+    </p>
+    <p>
+      <strong>Mencions i agraïments:</strong> L'arquitectura web d'aquest portal, el disseny visual acadèmic UAB (fulls d'estil, estructura de panells de 3 columnes i caixes plegables) i el motor del <em>Mapa conceptual interactiu</em> estan directament inspirats i adaptats del repositori obert <a href="https://github.com/xalvarezc/estat_solid" target="_blank" rel="noopener"><code>xalvarezc/estat_solid</code></a> (<em>Física de l'Estat Sòlid</em>), desenvolupat pel professor <strong>F. Xavier Àlvarez Calafell</strong> (Departament de Física, UAB). El contingut físic, les demostracions i els enunciats dels problemes segueixen el material docent de l'assignatura <em>Fluids i Superfluids</em> del Grau en Física de la UAB. Per al renderitzat matemàtic i gràfic s'utilitzen <a href="https://threejs.org/" target="_blank" rel="noopener">Three.js</a> (WebGL), HTML5 Canvas i <a href="https://katex.org/" target="_blank" rel="noopener">KaTeX</a>.
+    </p>
+  </section>
+
+</main>
+
+<footer>
+  <span><strong>Joan Puertas Buscallà</strong> · Grau en Física · Universitat Autònoma de Barcelona (<a href="https://www.linkedin.com/in/joan-puertasbuscalla/" target="_blank" rel="noopener">LinkedIn</a> · <a href="https://github.com/Seijo37/Vectors1" target="_blank" rel="noopener">GitHub</a>)</span>
+  <span>Disseny i arquitectura del mapa basats en <a href="https://github.com/xalvarezc/estat_solid" target="_blank" rel="noopener">estat_solid</a> (Prof. F. Xavier Àlvarez, UAB)</span>
+</footer>
+
+<script src="simuladors/temes.js"></script>
+<script>
+(function(){
+  var perNum = {};
+  (window.TEMES || []).forEach(function(t){ perNum[t.num] = t; });
+  var icMap = window.ICONES || {};
+
+  document.querySelectorAll('.fila-tema[data-tema]').forEach(function(fila){
+    var num = fila.getAttribute('data-tema');
+    var badge = fila.querySelector('.num-tema');
+    if (badge && icMap[num]){
+      badge.innerHTML = icMap[num] + '<span>' + badge.textContent + '</span>';
+    }
+    var t = perNum[num];
+    if (!t || !t.simuladors || !t.simuladors.length) return;
+    var n = t.simuladors.length;
+    var txt = n + (n === 1 ? ' simulador' : ' simuladors');
+
+    var accions = fila.querySelector('.accions-tema');
+    var boto = document.createElement('button');
+    boto.type = 'button';
+    boto.className = 'boto-sims-tema';
+    boto.innerHTML = '<span class="fletxa">▸</span>' + txt;
+    accions.appendChild(boto);
+
+    var calaix = document.createElement('div');
+    calaix.className = 'calaix-sims';
+    var ul = document.createElement('ul');
+    t.simuladors.forEach(function(s){
+      var li = document.createElement('li');
+      var a = document.createElement('a');
+      var ruta = s.href.indexOf('../') === 0 ? s.href.slice(3) : 'simuladors/' + s.href;
+      a.href = ruta;
+      a.textContent = s.nom;
+      if (s.desc){
+        var sp = document.createElement('span');
+        sp.className = 'desc-curta';
+        sp.textContent = s.desc;
+        a.appendChild(sp);
+      }
+      li.appendChild(a);
+      ul.appendChild(li);
+    });
+    calaix.appendChild(ul);
+    fila.appendChild(calaix);
+
+    boto.addEventListener('click', function(){
+      fila.classList.toggle('obert');
+    });
+  });
+
+  // Animació SVG de la portada: línies de corrent al voltant del cilindre (cx=190, cy=108, R=34)
+  var gStream = document.getElementById('grupStream');
+  var gPart = document.getElementById('grupParticules');
+  if (gStream && gPart) {
+    var cx = 190, cy = 108, R = 34;
+    // Potencial de corrent reduït: ψ(x,y) = y*(1 - R²/r²) + k*ln(r/R)
+    var kCirc = 18;
+    var psiTargets = [-62, -42, -24, -9.5, 4, 20, 38, 58];
+    var corbes = [];
+
+    psiTargets.forEach(function(psi0) {
+      var pts = [];
+      for (var ix = 14; ix <= 366; ix += 4) {
+        var dx = ix - cx;
+        // Cerquem y per bisecció o secant mantenint el signe
+        var yStart = psi0 >= -10 ? -85 : 85;
+        var bestY = null, bestErr = 1e9;
+        var yMin = -95, yMax = 95;
+        for (var sy = yMin; sy <= yMax; sy += 2) {
+          var r2 = dx*dx + sy*sy;
+          if (r2 < (R+1.5)*(R+1.5)) continue;
+          var r = Math.sqrt(r2);
+          var val = sy * (1 - (R*R)/r2) + kCirc * Math.log(r / R);
+          var err = Math.abs(val - psi0);
+          if (err < bestErr) {
+            bestErr = err;
+            bestY = sy;
+          }
+        }
+        if (bestY !== null && bestErr < 4.5) {
+          pts.push([ix, cy - bestY]);
+        }
+      }
+      if (pts.length > 8) {
+        var d = 'M ' + pts.map(function(p){ return p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' L ');
+        var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', d);
+        gStream.appendChild(path);
+        corbes.push(pts);
+      }
+    });
+
+    var particules = [];
+    corbes.forEach(function(pts, idx) {
+      for (var m = 0; m < 2; m++) {
+        var c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        c.setAttribute('r', '2.7');
+        c.setAttribute('fill', '#00722b');
+        gPart.appendChild(c);
+        particules.push({ el: c, pts: pts, pos: (m * 0.5 + idx * 0.13) % 1 });
+      }
+    });
+
+    function animaPortada() {
+      particules.forEach(function(p) {
+        p.pos = (p.pos + 0.0045) % 1;
+        var fIdx = p.pos * (p.pts.length - 1);
+        var i0 = Math.floor(fIdx);
+        var i1 = Math.min(p.pts.length - 1, i0 + 1);
+        var frac = fIdx - i0;
+        var x = p.pts[i0][0] * (1 - frac) + p.pts[i1][0] * frac;
+        var y = p.pts[i0][1] * (1 - frac) + p.pts[i1][1] * frac;
+        p.el.setAttribute('cx', x.toFixed(1));
+        p.el.setAttribute('cy', y.toFixed(1));
+      });
+      requestAnimationFrame(animaPortada);
+    }
+    requestAnimationFrame(animaPortada);
+  }
+})();
+</script>
+
+</body>
+</html>

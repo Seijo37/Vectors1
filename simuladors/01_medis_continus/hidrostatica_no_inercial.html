@@ -1,0 +1,812 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador — Hidrostàtica, sistemes no inercials i flotació (UAB)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
+<link rel="stylesheet" href="../estil_comu.css">
+<link rel="stylesheet" href="../simuladors_comu.css">
+<link rel="stylesheet" href="../caixes_plegables.css">
+</head>
+<body>
+<header class="capcalera-uab">
+  <div class="cap-esq">
+    <a class="cap-logo" href="../../" title="Portada del curs"><img src="../imatges/logotip-versio-3-verd.png" alt="Universitat Autònoma de Barcelona"></a>
+    <a class="cap-marca" href="../../">Fluids i Superfluids<small>Grau en Física · UAB</small></a>
+  </div>
+  <div class="cap-pagina">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 5 L4 19 L20 19 L20 5"/><path d="M4 10 Q12 17 20 10" stroke-width="1.8"/></svg>
+    Tema 1: Medis continus i hidrostàtica
+  </div>
+  <nav class="cap-nav" aria-label="Seccions del curs">
+    <a href="../../#index">Índex del curs</a>
+    <a href="../../mapa/index.html">Mapa del curs</a>
+    <a class="actiu" href="../index.html">Simuladors</a>
+    <a href="../../visualitzador_camps.html">Laboratori 3D</a>
+  </nav>
+</header>
+
+<div class="intro-sim">
+  <h1>Hidrostàtica en sistemes no inercials, cilindre en rotació i flotació</h1>
+  <p class="sub">En un sistema no inercial l'equació fonamental de l'hidrostàtica $-\vec{\nabla}p + \rho\vec{f}_{\text{ef}} = 0$ inclou les forces d'inèrcia. Aquí pots explorar quatre problemes clàssics de l'assignatura: el dipòsit accelerat amb el globus d'heli lligat al fons (Parcial Nov 2024 i Probl. 5), el cilindre en rotació amb dos líquids immiscibles (Probl. 6), el tub en U amb oscil·lacions (Parcial Nov 2019) i la barrera flotant d'oli (Probl. 8).</p>
+</div>
+
+<main class="main-content">
+
+  <!-- ═══ Esquerra: Controls ═══ -->
+  <aside class="controls-panel">
+    <div class="card">
+      <div class="card-title">Sistema físic / Problema</div>
+      <div class="control-group">
+        <select class="sel-input" id="selMode">
+          <option value="accel">1. Dipòsit accelerat + globus d'heli (Parcial 2024 / Probl. 5)</option>
+          <option value="rot">2. Cilindre en rotació Ω amb 2 líquids (Problema 6)</option>
+          <option value="tubU">3. Tub en U: dos líquids i oscil·lacions (Parcial 2019)</option>
+          <option value="oli">4. Barrera flotant per a vessament d'oli (Problema 8)</option>
+        </select>
+      </div>
+      <div class="grup-btn" id="presetsRapids">
+        <button type="button" class="btn-opcio actiu" data-preset="p24">Parcial Nov 24</button>
+        <button type="button" class="btn-opcio" data-preset="pr6">Problema 6 (2 líq.)</button>
+        <button type="button" class="btn-opcio" data-preset="p19">Parcial Nov 19</button>
+        <button type="button" class="btn-opcio" data-preset="pr8">Problema 8 (Oli)</button>
+      </div>
+    </div>
+
+    <div class="card" id="cardAccel">
+      <div class="card-title">Paràmetres d'acceleració i globus</div>
+      <div class="control-group">
+        <label class="control-label">Acceleració horitzontal a_x <span class="val" id="valAx">5.0 m/s²</span></label>
+        <input type="range" class="slider" id="slAx" min="-8" max="8" step="0.2" value="5.0">
+      </div>
+      <div class="control-group">
+        <label class="control-label">Alçada d'aigua H₀ <span class="val" id="valH0">0.60 m</span></label>
+        <input type="range" class="slider" id="slH0" min="0.30" max="0.80" step="0.02" value="0.60">
+      </div>
+      <div class="control-group">
+        <label class="control-label">Diàmetre del globus D <span class="val" id="valD">10.0 cm</span></label>
+        <input type="range" class="slider" id="slD" min="4" max="18" step="0.5" value="10.0">
+      </div>
+      <div class="control-group">
+        <label class="control-label">Pressió de l'heli P_He <span class="val" id="valPhe">130 kPa</span></label>
+        <input type="range" class="slider" id="slPhe" min="100" max="250" step="5" value="130">
+      </div>
+      <label class="check-row"><input type="checkbox" id="chkIsobares" checked> Mostra superfícies isobàriques</label>
+      <label class="check-row"><input type="checkbox" id="chkForces" checked> Mostra diagrama de forces sobre el globus</label>
+    </div>
+
+    <div class="card" id="cardRot">
+      <div class="card-title">Cilindre en rotació i densitats</div>
+      <div class="control-group">
+        <label class="control-label">Velocitat angular Ω <span class="val" id="valOmega">6.0 rad/s</span></label>
+        <input type="range" class="slider" id="slOmega" min="0" max="14" step="0.2" value="6.0">
+      </div>
+      <div class="control-group">
+        <label class="control-label">Radi del cilindre R <span class="val" id="valRcil">0.25 m</span></label>
+        <input type="range" class="slider" id="slRcil" min="0.12" max="0.40" step="0.01" value="0.25">
+      </div>
+      <div class="control-group">
+        <label class="control-label">Densitat líquid inferior ρ₁ <span class="val" id="valRho1">1000 kg/m³</span></label>
+        <input type="range" class="slider" id="slRho1" min="800" max="13600" step="50" value="1000">
+      </div>
+      <div class="control-group">
+        <label class="control-label">Densitat líquid superior ρ₂ <span class="val" id="valRho2">800 kg/m³</span></label>
+        <input type="range" class="slider" id="slRho2" min="0" max="1000" step="20" value="800">
+      </div>
+      <p class="hint">Nota: posa ρ₂ = 0 per simular un únic líquid o afegeix oli/aigua per veure les dues interfícies parabòliques del Problema 6.</p>
+    </div>
+
+    <div class="card" id="cardExtra">
+      <div class="card-title">Tub en U / Barrera d'oli</div>
+      <div class="control-group">
+        <label class="control-label">Columna afegida h (o Volum V) <span class="val" id="valHcol">0.25 m</span></label>
+        <input type="range" class="slider" id="slHcol" min="0.05" max="0.60" step="0.01" value="0.25">
+      </div>
+      <div class="control-group">
+        <label class="control-label">Longitud de branca L (o Radi R) <span class="val" id="valLtub">0.50 m</span></label>
+        <input type="range" class="slider" id="slLtub" min="0.25" max="1.00" step="0.05" value="0.50">
+      </div>
+      <button type="button" class="btn primari" id="btnOscil">▶ Inicia / pausa oscil·lació del tub en U</button>
+    </div>
+  </aside>
+
+  <!-- ═══ Centre: Visualitzacions ═══ -->
+  <div class="center-panel">
+    <div class="fila-canvas">
+      <div class="bloc-canvas">
+        <div class="plot-title" id="titolCanvas1">Secció física del sistema i superfícies d'igual pressió</div>
+        <canvas id="canvasMain" width="460" height="360"></canvas>
+        <p class="plot-desc" id="descCanvas1">Les línies discontínues són isòbares perpendiculars a la gravetat efectiva g_ef = g − a.</p>
+      </div>
+      <div class="bloc-canvas">
+        <div class="plot-title" id="titolCanvas2">Distribució de pressió i perfil d'equilibri</div>
+        <canvas id="canvasAux" width="390" height="360"></canvas>
+        <p class="plot-desc" id="descCanvas2">Diagrama de vectors de força i perfil hidroestàtic de pressions p(r, z).</p>
+      </div>
+    </div>
+
+    <div class="fila-canvas">
+      <div class="card formules">
+        <div class="card-title">Deducció i equacions clau del problema actiu</div>
+        <div id="formulesBox"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Dreta: Valors i explicació ═══ -->
+  <aside class="right-panel">
+    <div class="card">
+      <div class="card-title">Valors calculats en directe</div>
+      <div class="lectura" id="lectura"></div>
+      <div class="estat info" id="estat"></div>
+    </div>
+
+    <div class="card theory-box">
+      <div class="card-title">Què calcula aquest simulador</div>
+      <p>Quan passem a un sistema de referència no inercial (un dipòsit que accelera amb $\vec{a}$ o un cilindre que gira amb $\vec{\Omega}$), l'equació fonamental de l'hidrostàtica incorpora la força fictícia per unitat de massa:</p>
+      <p style="text-align:center; font-family:Georgia,serif;">$-\vec{\nabla}p + \rho(\vec{g} - \vec{a}_{\text{sist}}) = 0$</p>
+      <p>Les <strong>superfícies isobàriques</strong> ($p = \text{const}$), inclosa la superfície lliure i les superfícies de separació entre líquids immiscibles, són sempre ortogonals a la gravetat efectiva $\vec{g}_{\text{ef}}$.</p>
+      <details class="obs" open>
+        <summary>Què has d'observar (notes d'estudi)</summary>
+        <div class="obs-body">
+          <p><strong>1. El parany del globus d'heli (Parcial Nov 2024):</strong> Si el dipòsit accelera cap a la dreta ($a_x = 5\text{ m/s}^2$), la superfície de l'aigua puja a l'esquerra ($\theta = \arctan(a_x/g) = 27.0^\circ$). Però com que l'empenta $\vec{E} = -\rho_{\text{aigua}}V\vec{g}_{\text{ef}}$ és molt més gran que el pes i la inèrcia de l'heli, <strong>el globus s'inclina el mateix angle $\theta$ cap a la dreta!</strong></p>
+          <p><strong>2. Dos líquids en un cilindre giratori (Problema 6):</strong> Fixa't que la curvatura dels dos paraboloides $z - z_0 = \frac{\Omega^2 r^2}{2g}$ depèn només d'$\Omega$ i $g$, <em>no de les densitats $\rho_1, \rho_2$</em>! En canvi, el gradient radial de pressió $\partial p/\partial r = \rho\Omega^2 r$ sí que fa un colze quan passem del líquid superior a l'inferior.</p>
+          <p><strong>3. Tub en U (Parcial Nov 2019):</strong> Tota la columna total de líquid de longitud $3L$ (més l'aigua afegida $h$) té inèrcia en oscil·lar, mentre que la força restauradora ve de la diferència de pes a les branques verticals ($\omega^2 = \frac{2g}{3L + (\rho_2/\rho_1)h}$).</p>
+          <p><strong>4. Barrera d'oli (Problema 8):</strong> Com que al fons de la capa d'oli la pressió ha d'igualar la de l'aigua exterior ($\rho_o g(h_1 + h_2) = \rho_a g h_2$), la fracció que emergeix és exactament $h_1/(h_1+h_2) = 1 - \rho_o/\rho_a$.</p>
+        </div>
+      </details>
+    </div>
+  </aside>
+
+</main>
+
+<div class="peu-uab">
+  <strong>Joan Puertas Buscallà</strong> — Fluids i Superfluids · Grau en Física · UAB · Basat en l'estil dels simuladors del prof. F. Xavier Àlvarez (<a href="https://github.com/xalvarezc/estat_solid" target="_blank" rel="noopener">estat_solid</a>)
+</div>
+
+<script src="../caixes_plegables.js"></script>
+<script>
+(function(){
+  const g = 9.81;
+  const R_gas = 8.31;
+  const M_He = 0.004; // kg/mol
+  const T_amb = 293.15; // 20 °C
+
+  const selMode = document.getElementById('selMode');
+  const slAx = document.getElementById('slAx');
+  const slH0 = document.getElementById('slH0');
+  const slD = document.getElementById('slD');
+  const slPhe = document.getElementById('slPhe');
+  const chkIsobares = document.getElementById('chkIsobares');
+  const chkForces = document.getElementById('chkForces');
+
+  const slOmega = document.getElementById('slOmega');
+  const slRcil = document.getElementById('slRcil');
+  const slRho1 = document.getElementById('slRho1');
+  const slRho2 = document.getElementById('slRho2');
+
+  const slHcol = document.getElementById('slHcol');
+  const slLtub = document.getElementById('slLtub');
+  const btnOscil = document.getElementById('btnOscil');
+
+  const cvMain = document.getElementById('canvasMain');
+  const ctx1 = cvMain.getContext('2d');
+  const cvAux = document.getElementById('canvasAux');
+  const ctx2 = cvAux.getContext('2d');
+
+  let animOscil = false;
+  let tOscil = 0;
+
+  // Presets ràpids
+  document.querySelectorAll('#presetsRapids button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#presetsRapids button').forEach(b => b.classList.remove('actiu'));
+      btn.classList.add('actiu');
+      const p = btn.dataset.preset;
+      if (p === 'p24') {
+        selMode.value = 'accel';
+        slAx.value = 5.0; slH0.value = 0.60; slD.value = 10.0; slPhe.value = 130;
+      } else if (p === 'pr6') {
+        selMode.value = 'rot';
+        slOmega.value = 7.5; slRcil.value = 0.25; slRho1.value = 1000; slRho2.value = 780;
+      } else if (p === 'p19') {
+        selMode.value = 'tubU';
+        slRho1.value = 13600; slRho2.value = 1000; slHcol.value = 0.35; slLtub.value = 0.45;
+        slAx.value = 0;
+      } else if (p === 'pr8') {
+        selMode.value = 'oli';
+        slRho1.value = 1025; slRho2.value = 850; slHcol.value = 0.30; slLtub.value = 0.80;
+      }
+      dibuixa();
+    });
+  });
+
+  [selMode, slAx, slH0, slD, slPhe, chkIsobares, chkForces, slOmega, slRcil, slRho1, slRho2, slHcol, slLtub].forEach(el => {
+    el.addEventListener('input', dibuixa);
+  });
+
+  btnOscil.addEventListener('click', () => {
+    if (selMode.value !== 'tubU') selMode.value = 'tubU';
+    animOscil = !animOscil;
+    btnOscil.textContent = animOscil ? "❚❚ Pausa oscil·lació del tub en U" : "▶ Inicia oscil·lació del tub en U";
+    if (animOscil) requestAnimationFrame(loopOscil);
+  });
+
+  function loopOscil() {
+    if (!animOscil) return;
+    tOscil += 0.025;
+    dibuixa();
+    requestAnimationFrame(loopOscil);
+  }
+
+  function filaLectura(etiq, val) {
+    return `<div class="fila"><span class="etiqueta">${etiq}</span><span class="valor">${val}</span></div>`;
+  }
+
+  function dibuixafletxa(ctx, x1, y1, x2, y2, color, label) {
+    const dx = x2 - x1, dy = y2 - y1;
+    const len = Math.hypot(dx, dy);
+    if (len < 2) return;
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    const ang = Math.atan2(dy, dx);
+    ctx.beginPath();
+    ctx.moveTo(x2, y2);
+    ctx.lineTo(x2 - 8 * Math.cos(ang - 0.4), y2 - 8 * Math.sin(ang - 0.4));
+    ctx.lineTo(x2 - 8 * Math.cos(ang + 0.4), y2 - 8 * Math.sin(ang + 0.4));
+    ctx.closePath();
+    ctx.fill();
+    if (label) {
+      ctx.font = 'bold 11px Segoe UI, sans-serif';
+      ctx.fillText(label, x2 + 6 * Math.cos(ang), y2 + 6 * Math.sin(ang));
+    }
+    ctx.restore();
+  }
+
+  function dibuixa() {
+    const mode = selMode.value;
+    const ax = parseFloat(slAx.value);
+    const H0 = parseFloat(slH0.value);
+    const D_cm = parseFloat(slD.value);
+    const P_he_kpa = parseFloat(slPhe.value);
+    const omega = parseFloat(slOmega.value);
+    const Rcil = parseFloat(slRcil.value);
+    const rho1 = parseFloat(slRho1.value);
+    const rho2 = parseFloat(slRho2.value);
+    const hCol = parseFloat(slHcol.value);
+    const Ltub = parseFloat(slLtub.value);
+
+    document.getElementById('valAx').textContent = ax.toFixed(1) + ' m/s²';
+    document.getElementById('valH0').textContent = H0.toFixed(2) + ' m';
+    document.getElementById('valD').textContent = D_cm.toFixed(1) + ' cm';
+    document.getElementById('valPhe').textContent = P_he_kpa.toFixed(0) + ' kPa';
+    document.getElementById('valOmega').textContent = omega.toFixed(1) + ' rad/s';
+    document.getElementById('valRcil').textContent = Rcil.toFixed(2) + ' m';
+    document.getElementById('valRho1').textContent = rho1.toFixed(0) + ' kg/m³';
+    document.getElementById('valRho2').textContent = rho2.toFixed(0) + ' kg/m³';
+    document.getElementById('valHcol').textContent = hCol.toFixed(2) + (mode === 'oli' ? ' m³' : ' m');
+    document.getElementById('valLtub').textContent = Ltub.toFixed(2) + ' m';
+
+    ctx1.clearRect(0, 0, cvMain.width, cvMain.height);
+    ctx2.clearRect(0, 0, cvAux.width, cvAux.height);
+
+    const lecturaEl = document.getElementById('lectura');
+    const estatEl = document.getElementById('estat');
+    const formulesEl = document.getElementById('formulesBox');
+
+    if (mode === 'accel') {
+      document.getElementById('titolCanvas1').textContent = "Dipòsit accelerat amb globus d'heli (Parcial Nov 2024)";
+      document.getElementById('titolCanvas2').textContent = "Polígon d'equilibri de forces sobre el globus";
+
+      const R_glob = (D_cm / 100) / 2;
+      const V_glob = (4 / 3) * Math.PI * Math.pow(R_glob, 3);
+      const rho_w = 1000;
+      const rho_he = (P_he_kpa * 1000 * M_He) / (R_gas * T_amb);
+      const m_w = rho_w * V_glob;
+      const m_he = rho_he * V_glob;
+      const g_ef = Math.hypot(g, ax);
+      const theta_rad = Math.atan2(ax, g);
+      const theta_deg = theta_rad * 180 / Math.PI;
+      const T_rep = (m_w - m_he) * g;
+      const T_acc = (m_w - m_he) * g_ef;
+
+      // Dibuix del dipòsit a ctx1
+      const ox = 85, oy = 310, wTank = 290, hTank = 230;
+      const scaleY = hTank / 0.85;
+      const yWaterMid = oy - H0 * scaleY;
+      const dySlope = (wTank / 2) * (ax / g) * 0.48; // escala visual controlada
+
+      // Aigua amb pendent
+      ctx1.fillStyle = 'rgba(14, 165, 233, 0.24)';
+      ctx1.beginPath();
+      ctx1.moveTo(ox, oy);
+      ctx1.lineTo(ox, Math.max(oy - hTank, yWaterMid - dySlope));
+      ctx1.lineTo(ox + wTank, Math.max(oy - hTank, yWaterMid + dySlope));
+      ctx1.lineTo(ox + wTank, oy);
+      ctx1.closePath();
+      ctx1.fill();
+
+      // Superfície lliure
+      ctx1.strokeStyle = '#0284c7';
+      ctx1.lineWidth = 2.5;
+      ctx1.beginPath();
+      ctx1.moveTo(ox, yWaterMid - dySlope);
+      ctx1.lineTo(ox + wTank, yWaterMid + dySlope);
+      ctx1.stroke();
+
+      // Isòbares
+      if (chkIsobares.checked) {
+        ctx1.strokeStyle = 'rgba(2, 132, 199, 0.45)';
+        ctx1.lineWidth = 1.2;
+        ctx1.setLineDash([5, 4]);
+        for (let dh = 40; dh < 190; dh += 40) {
+          const y1 = yWaterMid - dySlope + dh;
+          const y2 = yWaterMid + dySlope + dh;
+          if (y1 < oy && y2 < oy) {
+            ctx1.beginPath();
+            ctx1.moveTo(ox + 4, y1);
+            ctx1.lineTo(ox + wTank - 4, y2);
+            ctx1.stroke();
+          }
+        }
+        ctx1.setLineDash([]);
+      }
+
+      // Parets del dipòsit
+      ctx1.strokeStyle = '#1e293b';
+      ctx1.lineWidth = 3;
+      ctx1.strokeRect(ox, oy - hTank, wTank, hTank);
+
+      // Corda i globus lligat al fons
+      const anchorX = ox + wTank / 2;
+      const anchorY = oy;
+      const L_corda_px = 68;
+      // El globus s'inclina en el mateix sentit que ax!
+      const bx = anchorX + L_corda_px * Math.sin(theta_rad);
+      const by = anchorY - L_corda_px * Math.cos(theta_rad);
+      const rPx = Math.max(14, D_cm * 1.9);
+
+      // Vertical de referència
+      ctx1.strokeStyle = '#94a3b8';
+      ctx1.setLineDash([3, 3]);
+      ctx1.beginPath();
+      ctx1.moveTo(anchorX, anchorY);
+      ctx1.lineTo(anchorX, anchorY - 115);
+      ctx1.stroke();
+      ctx1.setLineDash([]);
+
+      // Corda
+      ctx1.strokeStyle = '#334155';
+      ctx1.lineWidth = 2;
+      ctx1.beginPath();
+      ctx1.moveTo(anchorX, anchorY);
+      ctx1.lineTo(bx, by);
+      ctx1.stroke();
+
+      // Globus
+      const gradG = ctx1.createRadialGradient(bx - rPx*0.3, by - rPx*0.3, 2, bx, by, rPx);
+      gradG.addColorStop(0, '#fde047');
+      gradG.addColorStop(1, '#ca8a04');
+      ctx1.fillStyle = gradG;
+      ctx1.beginPath();
+      ctx1.arc(bx, by, rPx, 0, Math.PI * 2);
+      ctx1.fill();
+      ctx1.strokeStyle = '#854d0e';
+      ctx1.lineWidth = 1.5;
+      ctx1.stroke();
+
+      if (chkForces.checked) {
+        dibuixafletxa(ctx1, bx, by, bx + 48 * Math.sin(theta_rad), by - 48 * Math.cos(theta_rad), '#009639', 'E_total');
+        dibuixafletxa(ctx1, bx, by, bx - 36 * Math.sin(theta_rad), by + 36 * Math.cos(theta_rad), '#dc2626', 'T');
+      }
+
+      // Vector acceleració del carretó
+      dibuixafletxa(ctx1, ox + wTank/2 - 30, oy + 26, ox + wTank/2 - 30 + ax * 11, oy + 26, '#00722b', `a_x = ${ax.toFixed(1)} m/s²`);
+      ctx1.fillStyle = '#334155';
+      ctx1.font = '12px Segoe UI, sans-serif';
+      ctx1.fillText(`Angle corda θ = ${theta_deg.toFixed(1)}°`, anchorX + 12, anchorY - 22);
+
+      // Canvas 2: Diagrama de cos lliure ampliat
+      const cx2 = 195, cy2 = 185;
+      ctx2.strokeStyle = '#cbd5e1';
+      ctx2.setLineDash([4, 4]);
+      ctx2.beginPath();
+      ctx2.moveTo(cx2, 30); ctx2.lineTo(cx2, 330);
+      ctx2.moveTo(40, cy2); ctx2.lineTo(350, cy2);
+      ctx2.stroke();
+      ctx2.setLineDash([]);
+
+      ctx2.fillStyle = '#fde047';
+      ctx2.beginPath(); ctx2.arc(cx2, cy2, 22, 0, Math.PI * 2); ctx2.fill();
+      ctx2.strokeStyle = '#854d0e'; ctx2.stroke();
+
+      const escF = 95 / g_ef;
+      const Ex = m_w * ax * escF * 180, Ey = -m_w * g * escF * 180;
+      dibuixafletxa(ctx2, cx2, cy2, cx2, cy2 - 95, '#0284c7', 'E_z = ρ_a V g');
+      dibuixafletxa(ctx2, cx2, cy2, cx2 + 95 * (ax / g), cy2, '#0ea5e9', 'E_x = ρ_a V a_x');
+      dibuixafletxa(ctx2, cx2, cy2, cx2 + 95 * (ax / g), cy2 - 95, '#009639', 'Empenta neta (−∇p·V)');
+      dibuixafletxa(ctx2, cx2, cy2, cx2 - 88 * (ax / g), cy2 + 88, '#dc2626', 'Tensió T');
+      ctx2.fillStyle = '#475569';
+      ctx2.font = '11.5px Segoe UI, sans-serif';
+      ctx2.fillText(`El gradient −∇p apunta cap a dalt i a la ${ax >= 0 ? 'dreta' : 'esquerra'}!`, 42, 342);
+
+      lecturaEl.innerHTML =
+        filaLectura('Volum del globus V', (V_glob * 1e6).toFixed(1) + ' cm³') +
+        filaLectura('Densitat heli ρ_He', rho_he.toFixed(3) + ' kg/m³') +
+        filaLectura('Massa aigua desallotjada', (m_w * 1000).toFixed(2) + ' g') +
+        filaLectura('Massa d\'heli m_He', (m_he * 1000).toFixed(3) + ' g') +
+        filaLectura('Tensió en repòs T(a=0)', T_rep.toFixed(3) + ' N') +
+        filaLectura('Gravetat efectiva g_ef', g_ef.toFixed(2) + ' m/s²') +
+        filaLectura('Tensió accelerat T(a)', T_acc.toFixed(3) + ' N') +
+        filaLectura('Angle d\'inclinació θ', theta_deg.toFixed(2) + '°');
+
+      estatEl.className = 'estat si';
+      estatEl.textContent = ax > 0
+        ? `El globus es desplaça cap a la DRETA (+x) amb un angle θ = ${theta_deg.toFixed(1)}° respecte a la vertical.`
+        : ax < 0
+        ? `El globus es desplaça cap a l'ESQUERRA (−x) amb un angle |θ| = ${Math.abs(theta_deg).toFixed(1)}°.`
+        : `Dipòsit en repòs (θ = 0°): les isòbares són horitzontals i la corda és vertical.`;
+
+      formulesEl.innerHTML = `
+        <div class="formula">
+          <div class="formula-nom">1. Equació hidrostàtica al sistema no inercial i pendent de les isòbares (Problema 5)</div>
+          <div class="formula-eq">−∇p + ρ(g − a) = 0  ⇒  p(x, z) = p₀ − ρ(a_x x + g z)  ⇒  dz/dx = −a_x / g = −tan θ</div>
+          <div class="formula-nota">La superfície lliure puja a la part posterior del moviment, però el gradient −∇p apunta cap a dalt i endavant (angle θ = arctan(a_x/g) = ${theta_deg.toFixed(2)}°).</div>
+        </div>
+        <div class="formula">
+          <div class="formula-nom">2. Equilibri del globus d'heli submergit (Examen Parcial 4 de novembre de 2024, Ex. 1)</div>
+          <div class="formula-eq">T⃗ + (m_aigua − m_He)(g⃗ − a⃗) = 0  ⇒  |T| = (ρ_aigua − ρ_He) V √(g² + a_x²) = ${T_acc.toFixed(3)} N</div>
+          <div class="formula-nota">Com que ρ_He = P M / (RT) = ${rho_he.toFixed(3)} kg/m³ ≪ ρ_aigua, l'empenta horitzontal −V ∂p/∂x = m_aigua a_x supera de llarg la inèrcia m_He a_x i empeny el globus cap endavant.</div>
+        </div>`;
+
+    } else if (mode === 'rot') {
+      document.getElementById('titolCanvas1').textContent = "Cilindre en rotació Ω amb dos líquids immiscibles (Problema 6)";
+      document.getElementById('titolCanvas2').textContent = "Perfil radial de pressió p(r) al fons i a la interfície";
+
+      const dzMax = (omega * omega * Rcil * Rcil) / (2 * g);
+      // En un cilindre tancat de radi R el volum es conserva: z(r) = h_mitja + (Ω²/2g)(r² - R²/2)
+      const h1_0 = 0.22; // alçada mitjana líquid 1
+      const h2_0 = rho2 > 0 ? 0.14 : 0; // gruix mitjà líquid 2
+
+      const ox = 95, oy = 315, wC = 270, hC = 245;
+      const escZ = hC / 0.55;
+      const cx = ox + wC / 2;
+
+      // Dibuixem el líquid 1 (inferior) i líquid 2 (superior)
+      const N = 60;
+      function zParab(rNorm, hBase) {
+        const r = rNorm * Rcil;
+        const z = hBase + (omega * omega / (2 * g)) * (r * r - (Rcil * Rcil) / 2);
+        return oy - Math.max(0.01, Math.min(0.54, z)) * escZ;
+      }
+
+      if (rho2 > 0) {
+        ctx1.fillStyle = 'rgba(234, 179, 8, 0.35)';
+        ctx1.beginPath();
+        for (let i = 0; i <= N; i++) {
+          const u = -1 + (2 * i) / N;
+          const x = cx + u * (wC / 2);
+          const y = zParab(u, h1_0 + h2_0);
+          if (i === 0) ctx1.moveTo(x, y); else ctx1.lineTo(x, y);
+        }
+        for (let i = N; i >= 0; i--) {
+          const u = -1 + (2 * i) / N;
+          const x = cx + u * (wC / 2);
+          const y = zParab(u, h1_0);
+          ctx1.lineTo(x, y);
+        }
+        ctx1.closePath();
+        ctx1.fill();
+      }
+
+      ctx1.fillStyle = 'rgba(2, 132, 199, 0.32)';
+      ctx1.beginPath();
+      for (let i = 0; i <= N; i++) {
+        const u = -1 + (2 * i) / N;
+        const x = cx + u * (wC / 2);
+        const y = zParab(u, h1_0);
+        if (i === 0) ctx1.moveTo(x, y); else ctx1.lineTo(x, y);
+      }
+      ctx1.lineTo(ox + wC, oy);
+      ctx1.lineTo(ox, oy);
+      ctx1.closePath();
+      ctx1.fill();
+
+      // Traç de les dues superfícies parabòliques
+      ctx1.strokeStyle = '#0369a1';
+      ctx1.lineWidth = 2.4;
+      ctx1.beginPath();
+      for (let i = 0; i <= N; i++) {
+        const u = -1 + (2 * i) / N;
+        const x = cx + u * (wC / 2);
+        const y = zParab(u, h1_0);
+        if (i === 0) ctx1.moveTo(x, y); else ctx1.lineTo(x, y);
+      }
+      ctx1.stroke();
+
+      if (rho2 > 0) {
+        ctx1.strokeStyle = '#b45309';
+        ctx1.lineWidth = 2.4;
+        ctx1.beginPath();
+        for (let i = 0; i <= N; i++) {
+          const u = -1 + (2 * i) / N;
+          const x = cx + u * (wC / 2);
+          const y = zParab(u, h1_0 + h2_0);
+          if (i === 0) ctx1.moveTo(x, y); else ctx1.lineTo(x, y);
+        }
+        ctx1.stroke();
+      }
+
+      // Eix de rotació i cilindre
+      ctx1.strokeStyle = '#64748b';
+      ctx1.setLineDash([5, 4]);
+      ctx1.beginPath(); ctx1.moveTo(cx, 35); ctx1.lineTo(cx, oy + 15); ctx1.stroke();
+      ctx1.setLineDash([]);
+      ctx1.strokeStyle = '#1e293b';
+      ctx1.lineWidth = 3;
+      ctx1.strokeRect(ox, oy - hC, wC, hC);
+
+      ctx1.fillStyle = '#0f172a';
+      ctx1.font = 'bold 12px Segoe UI, sans-serif';
+      ctx1.fillText(`Ω = ${omega.toFixed(1)} rad/s`, cx - 35, 30);
+      ctx1.fillStyle = '#0369a1';
+      ctx1.fillText(`Líquid 1 (ρ₁ = ${rho1} kg/m³)`, ox + 14, oy - 18);
+      if (rho2 > 0) {
+        ctx1.fillStyle = '#92400e';
+        ctx1.fillText(`Líquid 2 (ρ₂ = ${rho2} kg/m³)`, ox + 14, oy - h1_0 * escZ - 14);
+      }
+
+      // Canvas 2: Gràfica de Δp(r) al fons z=0
+      const gx0 = 55, gy0 = 305, gw = 300, gh = 240;
+      ctx2.strokeStyle = '#334155';
+      ctx2.lineWidth = 1.5;
+      ctx2.beginPath();
+      ctx2.moveTo(gx0, gy0 - gh); ctx2.lineTo(gx0, gy0); ctx2.lineTo(gx0 + gw, gy0);
+      ctx2.stroke();
+
+      const dpFonsCentre = Math.max(0, rho1 * g * (h1_0 - dzMax/2) + rho2 * g * h2_0);
+      const dpFonsParet = rho1 * g * (h1_0 + dzMax/2) + rho2 * g * h2_0;
+      const pMaxPlot = Math.max(4000, dpFonsParet * 1.15);
+
+      ctx2.strokeStyle = '#009639';
+      ctx2.lineWidth = 2.6;
+      ctx2.beginPath();
+      for (let i = 0; i <= 50; i++) {
+        const frac = i / 50;
+        const r = frac * Rcil;
+        const z1 = h1_0 + (omega * omega / (2 * g)) * (r * r - Rcil * Rcil / 2);
+        const dp = Math.max(0, rho1 * g * z1 + rho2 * g * h2_0);
+        const px = gx0 + frac * gw;
+        const py = gy0 - (dp / pMaxPlot) * gh;
+        if (i === 0) ctx2.moveTo(px, py); else ctx2.lineTo(px, py);
+      }
+      ctx2.stroke();
+
+      ctx2.fillStyle = '#334155';
+      ctx2.font = '11px Segoe UI, sans-serif';
+      ctx2.fillText('r = 0', gx0 - 10, gy0 + 16);
+      ctx2.fillText(`r = R (${Rcil.toFixed(2)} m)`, gx0 + gw - 55, gy0 + 16);
+      ctx2.fillStyle = '#00722b';
+      ctx2.font = 'bold 11.5px Segoe UI, sans-serif';
+      ctx2.fillText('p_fons(r) − p₀ = p_c + ½ ρ₁ Ω² r²', gx0 + 20, gy0 - gh + 18);
+
+      lecturaEl.innerHTML =
+        filaLectura('Desnivell paraboloide Δz_max', (dzMax * 100).toFixed(2) + ' cm') +
+        filaLectura('Pendent a la paret dz/dr(R)', (omega * omega * Rcil / g).toFixed(3)) +
+        filaLectura('Sobrepressió al centre (z=0)', (dpFonsCentre / 1000).toFixed(2) + ' kPa') +
+        filaLectura('Sobrepressió a la paret (z=0)', (dpFonsParet / 1000).toFixed(2) + ' kPa') +
+        filaLectura('Increment centrífug ½ρ₁Ω²R²', (0.5 * rho1 * omega * omega * Rcil * Rcil / 1000).toFixed(2) + ' kPa');
+
+      estatEl.className = 'estat si';
+      estatEl.textContent = rho2 > 0
+        ? `Tant la superfície lliure com la interfície entre ρ₁ i ρ₂ tenen exactament la mateixa curvatura parabòlica Ω²/(2g).`
+        : `La superfície lliure forma un paraboloide de revolució amb desnivell Δz = ${(dzMax*100).toFixed(1)} cm entre l'eix i la paret.`;
+
+      formulesEl.innerHTML = `
+        <div class="formula">
+          <div class="formula-nom">1. Equilibri en el sistema corotatori i superfície lliure (Problema 6a)</div>
+          <div class="formula-eq">∂p/∂r = ρ Ω² r,   ∂p/∂z = −ρ g  ⇒  p(r,z) = C + ½ ρ Ω² r² − ρ g z  ⇒  z(r) = z₀ + Ω² r² / (2g)</div>
+          <div class="formula-nota">Imposant que el volum total de líquid dins del cilindre de radi R és constant, el vèrtex baixa tant com pugen les vores: z(r) = h̄ + (Ω²/2g)(r² − R²/2).</div>
+        </div>
+        <div class="formula">
+          <div class="formula-nom">2. Dos líquids immiscibles ρ₁ &gt; ρ₂ en rotació (Problema 6b)</div>
+          <div class="formula-eq">p₂(r,z) = p₀ + ρ₂ [½ Ω²(r² − r₀²) − g(z − z₂₀)]   i   z_interfície(r) = z₁₀ + Ω² r² / (2g)</div>
+          <div class="formula-nota">Per continuïtat de la pressió p₁ = p₂ sobre la interfície, els termes amb ½Ω²r² − gz s'anul·len als dos costats i la interfície té el mateix paraboloide que la superfície lliure!</div>
+        </div>`;
+
+    } else if (mode === 'tubU') {
+      document.getElementById('titolCanvas1').textContent = "Tub en U amb dos líquids i oscil·lacions (Parcial Nov 2019 Ex. 2)";
+      document.getElementById('titolCanvas2').textContent = "Evolució temporal z(t) de l'oscil·lació al voltant de l'equilibri";
+
+      const ratio = rho2 / rho1;
+      // En equilibri: el líquid dens puja a l'esquerra i baixa a la dreta
+      // 2 * dz_eq * rho1 = rho2 * hCol  => dz_eq = (rho2 / (2*rho1)) * hCol
+      const dz_eq = 0.5 * ratio * hCol;
+      const zEsq_eq = Ltub + dz_eq;
+      const zDret_hg_eq = Ltub - dz_eq;
+      const zDret_top_eq = zDret_hg_eq + hCol;
+
+      // Freqüència d'oscil·lació: Massa total = S * (3*L*rho1 + h*rho2), Força restauradora = -2 * rho1 * g * S * y
+      const omega_osc = Math.sqrt((2 * g) / (3 * Ltub + ratio * hCol));
+      const T_osc = (2 * Math.PI) / omega_osc;
+      const amp = animOscil ? 0.08 * Math.cos(omega_osc * tOscil) : 0;
+
+      const zEsq = zEsq_eq + amp;
+      const zDretHg = zDret_hg_eq - amp;
+      const zDretTop = zDretHg + hCol;
+
+      // Dibuix del tub en U a ctx1
+      const xL = 135, xR = 315, yBot = 295, wTub = 34, esc = 175 / Math.max(0.7, Ltub + hCol);
+      ctx1.strokeStyle = '#334155';
+      ctx1.lineWidth = 3;
+
+      // Mercuri / líquid pesant (gris blavós)
+      ctx1.fillStyle = 'rgba(71, 85, 105, 0.72)';
+      ctx1.fillRect(xL - wTub/2, yBot - zEsq * esc, wTub, zEsq * esc);
+      ctx1.fillRect(xR - wTub/2, yBot - zDretHg * esc, wTub, zDretHg * esc);
+      ctx1.fillRect(xL - wTub/2, yBot - wTub/2, (xR - xL) + wTub, wTub);
+
+      // Aigua / líquid lleuger a la branca dreta
+      ctx1.fillStyle = 'rgba(14, 165, 233, 0.55)';
+      ctx1.fillRect(xR - wTub/2, yBot - zDretTop * esc, wTub, hCol * esc);
+
+      // Contorns del tub
+      ctx1.strokeRect(xL - wTub/2, yBot - (Ltub + hCol + 0.15)*esc, wTub, (Ltub + hCol + 0.15)*esc);
+      ctx1.strokeRect(xR - wTub/2, yBot - (Ltub + hCol + 0.15)*esc, wTub, (Ltub + hCol + 0.15)*esc);
+
+      // Línia de nivell inicial L
+      ctx1.strokeStyle = '#009639';
+      ctx1.setLineDash([4, 4]);
+      ctx1.beginPath();
+      ctx1.moveTo(85, yBot - Ltub * esc);
+      ctx1.lineTo(370, yBot - Ltub * esc);
+      ctx1.stroke();
+      ctx1.setLineDash([]);
+      ctx1.fillStyle = '#00722b';
+      ctx1.font = '11.5px Segoe UI, sans-serif';
+      ctx1.fillText('Nivell inicial z = L', 78, yBot - Ltub * esc - 6);
+
+      // Gràfica d'oscil·lació a ctx2
+      const gx = 45, gy = 180, gw = 310, gh = 110;
+      ctx2.strokeStyle = '#94a3b8';
+      ctx2.beginPath(); ctx2.moveTo(gx, gy); ctx2.lineTo(gx + gw, gy); ctx2.stroke();
+      ctx2.strokeStyle = '#009639';
+      ctx2.lineWidth = 2.2;
+      ctx2.beginPath();
+      for (let i = 0; i <= 120; i++) {
+        const tt = (i / 120) * 2 * T_osc;
+        const yy = gy - 75 * Math.cos(omega_osc * (tt + tOscil));
+        const xx = gx + (i / 120) * gw;
+        if (i === 0) ctx2.moveTo(xx, yy); else ctx2.lineTo(xx, yy);
+      }
+      ctx2.stroke();
+      ctx2.fillStyle = '#0f172a';
+      ctx2.font = 'bold 12px Segoe UI, sans-serif';
+      ctx2.fillText(`Freqüència angular ω = ${omega_osc.toFixed(2)} rad/s (T = ${T_osc.toFixed(2)} s)`, gx, 45);
+
+      const dz_accel = (ax * Ltub) / (2 * g);
+      lecturaEl.innerHTML =
+        filaLectura('Quocient de densitats ρ₂/ρ₁', ratio.toFixed(4)) +
+        filaLectura('Alçada final branca esquerra z_esq', zEsq_eq.toFixed(3) + ' m') +
+        filaLectura('Alçada final branca dreta z_dret', zDret_top_eq.toFixed(3) + ' m') +
+        filaLectura('Freqüència d\'oscil·lació ω', omega_osc.toFixed(3) + ' rad/s') +
+        filaLectura('Període T = 2π/ω', T_osc.toFixed(3) + ' s') +
+        filaLectura('Desnivell com a acceleròmetre (±Δz)', (dz_accel * 100).toFixed(2) + ' cm');
+
+      estatEl.className = 'estat info';
+      estatEl.textContent = `A l'equilibri: z_esq = L + ½(ρ₂/ρ₁)h = ${zEsq_eq.toFixed(3)} m i z_dret = L + (1 − ½ρ₂/ρ₁)h = ${zDret_top_eq.toFixed(3)} m.`;
+
+      formulesEl.innerHTML = `
+        <div class="formula">
+          <div class="formula-nom">1. Alçades d'equilibri i freqüència d'oscil·lació (Parcial 5 de novembre de 2019, Ex. 2a–b)</div>
+          <div class="formula-eq">z_esq = L + ½ (ρ₂/ρ₁) h,   z_dret = L + (1 − ½ ρ₂/ρ₁) h,   ω = √[ 2g / (3L + (ρ₂/ρ₁)h) ]</div>
+          <div class="formula-nota">Tota la columna de líquid (3L de líquid 1 més h de líquid 2) es mou amb la mateixa velocitat u = ż per incompressibilitat, de manera que E_cin = ½ S (3Lρ₁ + hρ₂) ż².</div>
+        </div>
+        <div class="formula">
+          <div class="formula-nom">2. Tub en U com a acceleròmetre horitzontal (Parcial Nov 2019, Ex. 2c)</div>
+          <div class="formula-eq">z_esq − z_dret = a_x L / g  ⇒  z_esq = L + a_x L / (2g),   z_dret = L − a_x L / (2g)</div>
+          <div class="formula-nota">Sobre el tram horitzontal de longitud L actua una diferència de pressió Δp = ρ₁ a_x L que és compensada pel desnivell hidroestàtic entre les dues branques.</div>
+        </div>`;
+
+    } else {
+      // Mode 4: Barrera flotant d'oli (Problema 8)
+      document.getElementById('titolCanvas1').textContent = "Barrera flotant contenint un vessament d'oli (Problema 8)";
+      document.getElementById('titolCanvas2').textContent = "Vista superior del port (semicercle de radi R) i força sobre el moll";
+
+      const rho_a = Math.max(rho1, 950);
+      const rho_o = Math.min(rho2 > 0 ? rho2 : 850, rho_a - 30);
+      const V_oli = hCol; // m³
+      const R_bar = Ltub; // m
+      const areaSemi = 0.5 * Math.PI * R_bar * R_bar;
+      const H_tot = V_oli / areaSemi; // h1 + h2
+      const h2 = (rho_o / rho_a) * H_tot;
+      const h1 = (1 - rho_o / rho_a) * H_tot;
+      // Força neta sobre el moll per integració de la pressió hidroestàtica de l'oli menys la de l'aigua:
+      // F = 2R * [ int_{-h2}^{h1} rho_o g (h1 - z) dz - int_{-h2}^0 rho_a g (-z) dz ]
+      // F = R g [ rho_o (h1 + h2)^2 - rho_a h2^2 ] = R g rho_o (1 - rho_o/rho_a) H_tot^2
+      const F_moll = R_bar * g * rho_o * (1 - rho_o / rho_a) * H_tot * H_tot;
+
+      // Secció transversal a ctx1
+      const ySea = 175;
+      const escH = 260 / Math.max(0.25, H_tot * 1.6);
+      const h1_px = h1 * escH;
+      const h2_px = h2 * escH;
+
+      // Aigua de mar
+      ctx1.fillStyle = 'rgba(2, 132, 199, 0.28)';
+      ctx1.fillRect(40, ySea, 380, 160);
+      // Oli contingut a l'esquerra de la barrera (x=40..270)
+      ctx1.fillStyle = 'rgba(234, 179, 8, 0.68)';
+      ctx1.fillRect(55, ySea - h1_px, 215, h1_px + h2_px);
+
+      // Paret del moll (esquerra)
+      ctx1.fillStyle = '#475569';
+      ctx1.fillRect(35, 65, 20, 270);
+      // Barrera flotant en x = 270
+      ctx1.fillStyle = '#dc2626';
+      ctx1.fillRect(270, ySea - h1_px - 12, 12, h1_px + h2_px + 28);
+
+      // Cotes h1 i h2
+      ctx1.strokeStyle = '#0f172a';
+      ctx1.lineWidth = 1.4;
+      ctx1.font = 'bold 12px Segoe UI, sans-serif';
+      ctx1.fillStyle = '#92400e';
+      ctx1.fillText(`h₁ = ${(h1*100).toFixed(2)} cm (sobre el nivell de l'aigua)`, 72, ySea - h1_px - 8);
+      ctx1.fillStyle = '#0369a1';
+      ctx1.fillText(`h₂ = ${(h2*100).toFixed(2)} cm (sota el nivell de l'aigua)`, 72, ySea + h2_px + 18);
+
+      // Vista superior semicircular a ctx2
+      const mx = 110, my = 180, rSemi = 125;
+      ctx2.fillStyle = '#475569';
+      ctx2.fillRect(mx - 22, 40, 22, 280);
+      ctx2.fillStyle = 'rgba(2, 132, 199, 0.2)';
+      ctx2.fillRect(mx, 40, 240, 280);
+      ctx2.fillStyle = 'rgba(234, 179, 8, 0.62)';
+      ctx2.beginPath();
+      ctx2.arc(mx, my, rSemi, -Math.PI/2, Math.PI/2);
+      ctx2.closePath();
+      ctx2.fill();
+      ctx2.strokeStyle = '#dc2626';
+      ctx2.lineWidth = 4;
+      ctx2.beginPath();
+      ctx2.arc(mx, my, rSemi, -Math.PI/2, Math.PI/2);
+      ctx2.stroke();
+      dibuixafletxa(ctx2, mx + rSemi, my, mx + rSemi + 65, my, '#00722b', `F = ${F_moll.toFixed(1)} N`);
+
+      lecturaEl.innerHTML =
+        filaLectura('Àrea semicircular ½πR²', areaSemi.toFixed(3) + ' m²') +
+        filaLectura('Gruix total d\'oli h₁ + h₂', (H_tot * 100).toFixed(2) + ' cm') +
+        filaLectura('Elevació superior h₁', (h1 * 100).toFixed(2) + ' cm') +
+        filaLectura('Profunditat inferior h₂', (h2 * 100).toFixed(2) + ' cm') +
+        filaLectura('Relació h₁ / h₂', ((rho_a - rho_o) / rho_o).toFixed(3)) +
+        filaLectura('Força total sobre el moll F', F_moll.toFixed(2) + ' N');
+
+      estatEl.className = 'estat si';
+      estatEl.textContent = `Problema 8: h₁ = ${(h1*100).toFixed(1)} cm, h₂ = ${(h2*100).toFixed(1)} cm i la barrera estira el moll amb F = ${F_moll.toFixed(2)} N.`;
+
+      formulesEl.innerHTML = `
+        <div class="formula">
+          <div class="formula-nom">1. Elevació h₁ i profunditat h₂ del vessament d'oli (Problema 8a)</div>
+          <div class="formula-eq">ρ_o (h₁ + h₂) = ρ_a h₂   i   ½ π R² (h₁ + h₂) = V  ⇒  h₁ = (2V / πR²)(1 − ρ_o/ρ_a),   h₂ = (2V / πR²)(ρ_o/ρ_a)</div>
+          <div class="formula-nota">A la cara inferior de la taca d'oli (z = −h₂) la pressió ha de coincidir amb la de l'aigua del port a la mateixa profunditat.</div>
+        </div>
+        <div class="formula">
+          <div class="formula-nom">2. Força horitzontal exercida per la barrera sobre el moll (Problema 8b)</div>
+          <div class="formula-eq">F = 2R [ ∫ p_oli dz − ∫ p_aigua dz ] = R g [ ρ_o (h₁ + h₂)² − ρ_a h₂² ] = (4 g V² / π² R³) ρ_o (1 − ρ_o / ρ_a)</div>
+          <div class="formula-nota">Integrant sobre la projecció vertical de la barrera semicircular (amplada 2R) s'obté la tensió total que la barrera transmet als ancoratges del moll.</div>
+        </div>`;
+    }
+  }
+
+  dibuixa();
+})();
+</script>
+</body>
+</html>

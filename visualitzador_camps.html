@@ -3,8 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Simulador de Camps Vectorials 3D & Mecànica de Fluids</title>
+<title>Laboratori 3D i 2D de Camps Vectorials — Fluids i Superfluids (UAB)</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
+<link rel="stylesheet" href="simuladors/estil_comu.css">
 <style>
   :root {
     --bg: #f8fafc;
@@ -328,14 +329,18 @@
 </head>
 <body>
 
-<header class="capcalera">
-  <div class="cap-titol">
-    <h1>Simulador Interactiu de Camps Vectorials 3D & Fluids</h1>
-    <span>Estat Sòlid & Mecànica de Fluids</span>
+<header class="capcalera-uab">
+  <div class="cap-esq">
+    <a class="cap-logo" href="./" title="Portada del curs"><img src="simuladors/imatges/logotip-versio-3-verd.png" alt="Universitat Autònoma de Barcelona"></a>
+    <a class="cap-marca" href="./">Fluids i Superfluids<small>Grau en Física · UAB</small></a>
   </div>
-  <div style="font-size: 0.82rem; color: var(--muted);">
-    Control 3D: Clic esquerre (Rotar) · Roda (Zoom) · Clic dret (Desplaçar)
-  </div>
+  <div class="cap-pagina">Laboratori 3D i 2D de Camps Vectorials (u, v, w, φ, ψ)</div>
+  <nav class="cap-nav" aria-label="Seccions del curs">
+    <a href="./#index">Índex del curs</a>
+    <a href="mapa/index.html">Mapa del curs</a>
+    <a href="simuladors/index.html">Simuladors</a>
+    <a class="actiu" href="visualitzador_camps.html">Laboratori 3D</a>
+  </nav>
 </header>
 
 <main class="main-content">
@@ -355,13 +360,18 @@
             <option value="helicoide">5. Flux Helicoidal 3D (Cargol)</option>
             <option value="sella">6. Punt de Sella 3D (u=x, v=-y, w=0)</option>
           </optgroup>
-          <optgroup label="Exercicis i Exemples de Fluids">
-            <option value="ex12">Ex 12: Flux Hiperbòlic u=(ax, -ay, 0)</option>
-            <option value="ex13">Ex 13: Vòrtex rígid u=(-3y, 3x, 0)</option>
-            <option value="ex16_irrot">Ex 16: Flux lineal irrotacional (α=3, β=2)</option>
-            <option value="ex16_rot">Ex 16: Flux lineal amb vorticitat (α=3, β=0)</option>
-            <option value="ex04_cilindre">Ex 4: Cilindre / Protuberància (Polars r, θ)</option>
-            <option value="ex15_t">Ex 15: Flux no estacionari u=x(1+2t), v=y</option>
+          <optgroup label="Exercicis i Exàmens de Fluids (UAB)">
+            <option value="ex12">Probl. 12: Flux Hiperbòlic u=(ax, -ay, 0)</option>
+            <option value="ex13">Probl. 13: Vòrtex rígid u=(-3y, 3x, 0), ψ=-1.5(x²+y²)</option>
+            <option value="ex14_3d">Probl. 14: Flux 3D incompressible u=(-2x, y, z)</option>
+            <option value="ex16_irrot">Probl. 16: Flux lineal irrotacional (α=3, β=2)</option>
+            <option value="ex16_rot">Probl. 16: Flux lineal amb vorticitat (α=3, β=0)</option>
+            <option value="ex04_cilindre">Probl. 4: Cilindre / Protuberància (Polars r, θ)</option>
+            <option value="ex15_t">Probl. 15: Flux no estacionari u=x(1+2t), v=y</option>
+            <option value="ex22_magnus">Probl. 22: Cilindre amb circulació (Efecte Magnus)</option>
+            <option value="ex23a_p24">Probl. 23a / Parcial Nov 2024: ψ = 3x²y − y³</option>
+            <option value="p19_p23_3d">Parcial Nov 2019 i 2023 Ex.1 (3D): u=(y²+z², 2xy, -2xz)</option>
+            <option value="p22_ex2">Parcial Nov 2022 Ex.2: u=2xy, v=4+x²−y²</option>
           </optgroup>
           <optgroup label="Altres Camps de Fluids">
             <option value="font_2d">Font plana 2D (u=∇ln r)</option>
@@ -665,6 +675,39 @@
       u: 'x * (1 + 2*t)', v: 'y', w: '0',
       phi: '', psi: '',
       desc: "Problema 15: Flux no estacionari u=x(1+2t), v=y."
+    },
+    ex14_3d: {
+      is3D: true, mode: 'components',
+      u: '-2*x', v: 'y', w: 'z',
+      phi: '', psi: '',
+      desc: "Problema 14: Flux 3D estacionari i incompressible (∇·u = -2 + 1 + 1 = 0)."
+    },
+    ex22_magnus: {
+      is3D: false, mode: 'ambdues',
+      phi: '2*(r + 4/(r + 0.1))*cos(th) - 3*th',
+      psi: '2*(r - 4/(r + 0.1))*sin(th) + 3*Math.log(r + 0.1)',
+      u: '', v: '', w: '0',
+      desc: "Problema 22: Cilindre amb circulació Γ (Efecte Magnus i sustentació de Kutta-Zhukovsky)."
+    },
+    ex23a_p24: {
+      is3D: false, mode: 'ambdues',
+      phi: 'x*x*x - 3*x*y*y',
+      psi: '3*x*x*y - y*y*y',
+      u: '3*x*x - 3*y*y', v: '-6*x*y', w: '0',
+      desc: "Problema 23a i Parcial Nov 2024 Ex.2: ψ = 3x²y − y³, φ = x³ − 3xy², |u| = 3r²."
+    },
+    p19_p23_3d: {
+      is3D: true, mode: 'components',
+      u: '0.3*(y*y + z*z)', v: '0.6*x*y', w: '-0.6*x*z',
+      phi: '', psi: '',
+      desc: "Parcial Nov 2019 i Nov 2023 Ex.1 (3D): u = c(y²+z², 2xy, -2xz). Incompressible amb línies de vorticitat rectes."
+    },
+    p22_ex2: {
+      is3D: false, mode: 'ambdues',
+      phi: 'x*x*y + 4*y - (y*y*y)/3',
+      psi: '4*x + (x*x*x)/3 - x*y*y',
+      u: '2*x*y', v: '4 + x*x - y*y', w: '0',
+      desc: "Parcial Nov 2022 Ex.2: Flux incompressible i irrotacional u = 2xy, v = a² + x² − y²."
     },
     font_2d: {
       is3D: false, mode: 'ambdues',

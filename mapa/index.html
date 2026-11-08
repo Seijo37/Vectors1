@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mapa del curs — Fluids i Superfluids · UAB</title>
+<meta name="description" content="Mapa interactiu dels conceptes, línies argumentals, problemes i simuladors de Fluids i Superfluids (Grau en Física, UAB).">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&display=swap">
+<link rel="stylesheet" href="mapa.css">
+</head>
+<body>
+
+<header class="capcalera-uab">
+  <div class="cap-esq">
+    <a class="cap-logo" href="../" title="Portada del curs"><img src="../simuladors/imatges/logotip-versio-3-verd.png" alt="Universitat Autònoma de Barcelona"></a>
+    <a class="cap-marca" href="../">Fluids i Superfluids<small>Grau en Física · UAB</small></a>
+  </div>
+  <div class="cap-pagina">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="6" r="2.2"/><circle cx="19" cy="6" r="2.2"/><circle cx="12" cy="13" r="2.2"/><circle cx="19" cy="20" r="2.2"/><path d="M7 7l3.3 4.3M17 7l-3.3 4.3M13.6 14.6l3.8 3.8"/></svg>
+    Mapa del curs
+  </div>
+  <nav class="cap-nav" aria-label="Seccions del curs">
+    <a href="../#index">Índex del curs</a>
+    <a class="actiu" href="./index.html" aria-current="page">Mapa del curs</a>
+    <a href="../simuladors/index.html">Simuladors</a>
+    <a href="../visualitzador_camps.html">Laboratori 3D</a>
+  </nav>
+</header>
+
+<main class="mapa">
+
+  <section class="intro">
+    <p class="avantitol">Guia d'estudi · 4t del Grau en Física</p>
+    <h1>El mapa de Fluids i Superfluids</h1>
+    <p class="subtitol">En mecànica de fluids tot està connectat: l'equació de continuïtat porta a la funció de corrent $\psi$, l'absència de vorticitat permet definir el potencial $\phi$, i afegir el tensor d'esforços viscosos ens porta d'Euler a Navier-Stokes. He organitzat tots els temes, problemes i exàmens del curs en 4 línies argumentals + 1 bloc transversal d'eines matemàtiques i de balanç.</p>
+    <ol class="passos">
+      <li><strong>Desplega una línia o clica una estació del diagrama</strong> i marca cada concepte segons com el portis: <span class="et-estat ok">✓ Ho entenc</span>, <span class="et-estat dubte">? Tinc dubtes</span> o <span class="et-estat perdut">! M'he perdut</span>.</li>
+      <li><strong>Obre qualsevol concepte</strong> per veure de quins conceptes previs depèn, obrir directament el seu <strong>simulador interactiu</strong> i marcar els exercicis dels fulls 1–5 i d'exàmens parcials que ja hagis resolt.</li>
+      <li><strong>Detecta on desencallar-te:</strong> si marques que t'has perdut en un concepte base (per exemple, la funció de corrent $\psi$ o l'equació d'Euler), el mapa t'avisa automàticament quins temes posteriors en depenen.</li>
+    </ol>
+    <p class="privadesa">
+      <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v2H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-1V6a4 4 0 00-4-4zm2 6V6a2 2 0 10-4 0v2h4z" clip-rule="evenodd"/></svg>
+      <span><strong>Emmagatzematge local al navegador:</strong> tot el que marquis, els exercicis fets i les teves notes personals es desen automàticament al <code>localStorage</code> del teu navegador i es poden exportar/importar en un fitxer JSON.</span>
+    </p>
+  </section>
+
+  <section class="situacio" id="situacio" aria-labelledby="titolSituacio">
+    <div class="sit-cap">
+      <h2 id="titolSituacio">La teva situació al curs</h2>
+      <div class="eines" role="toolbar" aria-label="Eines del mapa">
+        <button type="button" id="btnFebles" aria-pressed="false">Mostra només els punts febles</button>
+        <button type="button" id="btnObre">Desplega-ho tot</button>
+        <button type="button" id="btnTanca">Plega-ho tot</button>
+      </div>
+    </div>
+    <div id="sitCos"></div>
+    <div class="sit-peu">
+      <details class="historial" id="historial">
+        <summary>El meu historial</summary>
+        <ol id="historialLlista"></ol>
+      </details>
+      <div class="copia">
+        <button type="button" id="btnDesa">Desa una còpia (JSON)</button>
+        <button type="button" id="btnRecupera">Recupera una còpia</button>
+        <button type="button" id="btnEsborra" class="perill">Esborra-ho tot</button>
+        <input type="file" id="fitxerCopia" accept="application/json,.json" hidden>
+      </div>
+    </div>
+    <p class="missatge" id="missatge" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="vista" aria-labelledby="titolVista">
+    <div class="vista-cap">
+      <h2 id="titolVista">Vista general de les línies argumentals</h2>
+      <p>Cada fila és una línia del curs i cada cercle és una estació. Les corbes de punts mostren on un tema necessita un concepte d'una altra línia (passa el ratolí per sobre d'una estació per ressaltar les connexions, o clica-la per anar-hi).</p>
+    </div>
+    <div class="vista-mapa" id="vistaMapa"></div>
+    <ul class="llegenda" aria-label="Llegenda del mapa">
+      <li><span class="ll-punt"></span> Sense marcar</li>
+      <li><span class="ll-punt parcial"></span> En curs</li>
+      <li><span class="ll-punt ok"></span> Tot entès</li>
+      <li><span class="ll-punt dubte"></span> Amb dubtes</li>
+      <li><span class="ll-punt perdut"></span> M'hi he perdut</li>
+      <li><span class="ll-punt afectat"></span> Depèn d'on m'he perdut</li>
+      <li><span class="ll-clau">★</span> Concepte clau (molts en depenen)</li>
+    </ul>
+  </section>
+
+  <section class="linies" id="linies" aria-label="Línies argumentals del curs"></section>
+
+</main>
+
+<footer class="peu-uab">
+  <strong>Joan Puertas Buscallà</strong> — Fluids i Superfluids · Grau en Física · UAB (<a href="https://www.linkedin.com/in/joan-puertasbuscalla/" target="_blank" rel="noopener">LinkedIn</a>) · Motor i disseny del mapa adaptats del repositori <a href="https://github.com/xalvarezc/estat_solid" target="_blank" rel="noopener">estat_solid</a> del prof. F. Xavier Àlvarez.
+</footer>
+
+<script src="mapa_dades.js"></script>
+<script src="mapa_exercicis.js"></script>
+<script src="mapa.js"></script>
+</body>
+</html>

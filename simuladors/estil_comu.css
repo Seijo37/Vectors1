@@ -1,0 +1,162 @@
+/* Estil comú dels simuladors de Fluids i Superfluids (Grau en Física · UAB)
+   Desenvolupat per Joan Puertas Buscallà.
+   Arquitectura visual i sistema d'estils basats en el repositori "Física de l'Estat Sòlid"
+   del prof. F. Xavier Àlvarez (https://github.com/xalvarezc/estat_solid). */
+:root {
+  --uab:       #009639;
+  --uab-dark:  #00722b;
+  --uab-light: #e8f5ee;
+  --bg:        #f5f7f5;
+  --panel:     #ffffff;
+  --border:    #d8e2da;
+  --ink:       #1b241e;
+  --muted:     #54635a;
+}
+
+/* Capçalera comuna del lloc — compartida entre apunts, índex, mapa i simuladors */
+.capcalera-uab{
+  background:#ffffff;
+  border-bottom:3px solid var(--uab);
+  padding:10px 20px;
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  gap:16px;
+  font-family:"Source Serif 4", Georgia, serif;
+  position:sticky;
+  top:0;
+  z-index:200;
+  box-shadow:0 2px 10px rgba(0, 70, 25, .06);
+}
+.capcalera-uab .cap-esq{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  min-width:0;
+}
+.capcalera-uab .cap-logo{
+  display:inline-flex;
+  align-items:center;
+  text-decoration:none;
+  flex-shrink:0;
+}
+.capcalera-uab .cap-logo img{
+  height:32px;
+  width:auto;
+  display:block;
+}
+.capcalera-uab .cap-marca{
+  color:var(--ink);
+  text-decoration:none;
+  font-weight:700;
+  font-size:1.02rem;
+  line-height:1.15;
+  padding-left:14px;
+  border-left:1px solid var(--border);
+}
+.capcalera-uab .cap-marca small{
+  display:block;
+  font-family:system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-weight:500;
+  font-size:.74rem;
+  color:var(--muted);
+  margin-top:2px;
+}
+.capcalera-uab .cap-pagina{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-family:system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size:.88rem;
+  font-weight:600;
+  color:var(--uab-dark);
+  text-align:center;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:44vw;
+}
+.capcalera-uab .cap-pagina svg{
+  width:20px;
+  height:20px;
+  flex-shrink:0;
+  color:var(--uab);
+}
+.capcalera-uab .cap-nav{
+  display:flex;
+  gap:4px;
+  flex-wrap:wrap;
+  justify-self:end;
+  font-family:system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size:.86rem;
+}
+.capcalera-uab .cap-nav a{
+  color:var(--muted);
+  text-decoration:none;
+  padding:6px 11px;
+  border-radius:6px;
+  font-weight:500;
+}
+.capcalera-uab .cap-nav a:hover{
+  background:var(--uab-light);
+  color:var(--uab-dark);
+}
+.capcalera-uab .cap-nav a.actiu{
+  background:var(--uab-light);
+  color:var(--uab-dark);
+  font-weight:600;
+}
+@media (max-width:760px){
+  .capcalera-uab{ grid-template-columns:1fr auto; }
+  .capcalera-uab .cap-pagina{ display:none; }
+}
+
+.peu-uab {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.78rem;
+  padding: 16px 12px 24px;
+  border-top: 1px solid var(--border);
+  margin-top: 24px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+.peu-uab a {
+  color: var(--uab-dark);
+  text-decoration: none;
+  font-weight: 600;
+}
+.peu-uab a:hover {
+  text-decoration: underline;
+}
+
+/* Targeta amb vora esquerra verda — estil unificat */
+.caixa-uab {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--uab);
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+
+/* Botó en forma de pastilla verd UAB */
+.boto-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--uab-dark);
+  background: var(--uab-light);
+  border: 1px solid var(--border);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.boto-pill:hover {
+  background: var(--uab);
+  border-color: var(--uab);
+  color: #fff;
+}
+.boto-pill svg { flex-shrink: 0; }

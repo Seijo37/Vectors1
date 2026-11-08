@@ -1,44 +1,40 @@
-# Simulador de camps vectorials i mecànica de fluids
+# Fluids i Superfluids — Simuladors de Camps Vectorials i Mapa del Curs
 
-![Simulació 3D de camps vectorials](demo.gif)
+Plataforma web interactiva per visualitzar camps vectorials 3D/2D, línies de corrent, dinàmica de vòrtexs, flux potencial ($\phi, \psi$) i règims viscosos de Navier-Stokes.
 
-Simulador interactiu per visualitzar camps vectorials 3D, línies de corrent i funcions potencial (φ) i de corrent (ψ). Desenvolupat com a eina d'aprenentatge per a l'assignatura de **Mecànica de Fluids** del Grau en Física (UAB).
+Ho he desenvolupat com a eina d'estudi i visualització mentre curso l'assignatura de **Fluids i Superfluids** a **4t del Grau en Física** a la Universitat Autònoma de Barcelona (UAB). Quan fas els fulls de problemes o prepares els parcials, sovint costa veure què representen físicament solucions com el potencial complex $w(z) = \phi + i\psi$, la diferència entre *streamlines*, *pathlines* i *streaklines*, o com es desprèn el punt d'estancament en un cilindre amb circulació. Aquest projecte permet jugar en directe amb totes les equacions del curs.
 
-> **Estat:** projecte en desenvolupament. Properes millores: nous obstacles geomètrics i càlcul simbòlic.
+> **Estat:** operatiu amb els 4 temes del curs, el laboratori 3D de camps vectorials, 5 simuladors específics per temes i el mapa interactiu amb tots els problemes i exàmens parcials.
 
 ## Com executar-lo
 
-No cal instal·lar res. Obre `visualitzador_camps.html` en un navegador modern (Chrome, Edge, Firefox o Safari).
+No cal instal·lar cap dependència: tot funciona directament al navegador. Obre `index.html` (portada general) o `visualitzador_camps.html` (laboratori 3D) en qualsevol navegador modern.
 
-També pots llançar-lo amb Python:
+També pots clonar el repositori i obrir-lo amb Python:
 
     git clone https://github.com/Seijo37/Vectors1.git
     cd Vectors1
     python obrir_simulador.py
 
-## Què fa
+## Estructura del projecte
 
-- Visualització 3D interactiva (rotació, zoom i desplaçament) amb Three.js.
-- Traçadors de partícules que mostren com es mou el fluid en temps real.
-- Vectors orientats i acolorits segons la velocitat local.
-- Mode 3D o mode pla 2D per analitzar fluxos plans.
+- **`index.html` (Portada del curs):** Índex general dels 4 temes de l'assignatura amb accés directe a cada simulador i al mapa conceptual.
+- **`mapa/` (Mapa conceptual interactiu):** Graf de dependències entre tots els conceptes del curs (organitzats en 4 línies argumentals + 1 bloc transversal d'EDP i teoremes de balanç), connectat amb els 27 exercicis dels fulls de problemes i els exàmens parcials. Permet marcar quins conceptes tens clars, on tens dubtes i quins exercicis ja has resolt (desat automàticament al `localStorage` del navegador).
+- **`visualitzador_camps.html` (Laboratori 3D i 2D de camps vectorials):** Motor WebGL amb Three.js per introduir qualsevol camp $(u,v,w)$, funció potencial $\phi$ o funció de corrent $\psi$, comprovar analíticament i numèricament la incompressibilitat ($\vec{\nabla}\cdot\vec{u}=0$), la vorticitat ($\vec{\omega}=\vec{\nabla}\times\vec{u}$) i les condicions de Cauchy-Riemann.
+- **`simuladors/` (Banc de simuladors per temes):**
+  1. **Tema 1 (`01_medis_continus/hidrostatica_no_inercial.html`):** Dipòsit accelerat amb globus d'heli submergit (Parcial Nov 2024 i Probl. 5), cilindre en rotació $\Omega$ amb un o dos líquids immiscibles formant paraboloides (Probl. 6), tub en U amb oscil·lacions i acceleròmetre (Parcial Nov 2019), i barrera flotant de contenció d'oli (Probl. 8).
+  2. **Tema 2 (`02_cinematica/cinematica_deformacio.html`):** Comparació en temps real de *streamlines*, *pathlines* i *streaklines* per a fluxos no estacionaris (Probl. 15) i deformació d'un element de fluid segons el tensor velocitat de deformació $S_{ij}$ i la vorticitat $\vec{\omega}$ (Probl. 12–16 i Parcials 2019/2022/2023).
+  3. **Tema 3A (`03_fluids_ideals/vortexs_bernoulli.html`):** Comparativa dels models de vòrtex (lliure, Rankine del Parcial Nov 2023, Kaufmann i Gaussià) amb el seu perfil de superfície lliure, dinàmica de parells de vòrtexs ($\Gamma_1, \Gamma_2$) i mètode d'imatges, i buidatge de dipòsits per Torricelli (esfèric, cilíndric i clepsidra $r=az^{1/4}$, Probl. 17).
+  4. **Tema 3B (`03_fluids_ideals/potencial_kutta_zhukovsky.html`):** Flux potencial al voltant d'un cilindre amb circulació $\Gamma$, efecte Magnus i teorema de Kutta-Zhukovsky (Probl. 21 i 22), esfera 3D amb dipol i massa afegida $M_f$ (Parcials 2019 i 2023), òval de Rankine font+embornal (Probl. 24) i fluxos en diedres $w(z)=Az^n$ (Probl. 20 i 27).
+  5. **Tema 4 (`04_fluids_newtonians/viscositat_navier_stokes.html`):** Canal pla de Couette-Poiseuille amb escalfament viscós $\Delta T(y)$, conducte cilíndric de Hagen-Poiseuille ($Q \propto a^4$), 1r i 2n problema de Stokes ($\delta \sim \sqrt{\nu t}$ i paret oscil·lant), difusió viscosa d'un vòrtex de Lamb-Oseen i reologia de fluids no newtonians.
 
-## Mètodes d'entrada
+## Mencions, referències i tecnologies
 
-1. Components del camp (u, v, w) com a expressions de x, y, z i t.
-2. Funció potencial φ, amb comprovació de Laplace (flux incompressible i irrotacional).
-3. Funció de corrent ψ, amb càlcul de la vorticitat.
-4. Parell φ i ψ, amb comprovació de les condicions de Cauchy-Riemann.
-
-## Exemples inclosos
-
-Presets dels exercicis del full de Fluids: flux hiperbòlic, vòrtex rígid, flux lineal general, flux al voltant d'un cilindre i flux no estacionari.
-
-## Tecnologies
-
-HTML, CSS i JavaScript, Three.js (WebGL). Python, NumPy i Matplotlib per a eines auxiliars.
+- **Disseny visual i motor del mapa:** L'estètica acadèmica UAB (`estil_comu.css`), l'estructura de panells plegables de tres columnes (`caixes_plegables.js`) i l'arquitectura del *Mapa conceptual del curs* estan directament inspirats i adaptats del repositori obert [`xalvarezc/estat_solid`](https://github.com/xalvarezc/estat_solid) (*Física de l'Estat Sòlid*), creat pel professor **F. Xavier Àlvarez Calafell** (Departament de Física, UAB).
+- **Contingut físic i problemes:** Basat en les notes de teoria, col·leccions de problemes i exàmens parcials de l'assignatura *Fluids i Superfluids* del Grau en Física de la UAB.
+- **Tecnologies:** HTML5, CSS3, JavaScript (ES6), HTML5 Canvas 2D i [Three.js](https://threejs.org/) (WebGL) per a la visualització 3D en temps real. Python per a l'script llançador auxiliar.
 
 ## Autor
 
-Joan Puertas Buscallà, estudiant de Física a la UAB.  
+**Joan Puertas Buscallà**, estudiant de 4t del Grau en Física a la Universitat Autònoma de Barcelona (UAB).  
 [LinkedIn](https://www.linkedin.com/in/joan-puertasbuscalla/)

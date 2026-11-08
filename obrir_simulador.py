@@ -1,29 +1,17 @@
+# -*- coding: utf-8 -*-
+"""
+Llançador local de la plataforma web de Fluids i Superfluids (UAB).
+Autor: Joan Puertas Buscallà
+"""
 import os
-import subprocess
 import webbrowser
 
-def obrir_simulador():
-    """
-    Obre el simulador interactiu de camps vectorials 3D al navegador.
-    """
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    html_file = os.path.join(script_dir, "visualitzador_camps.html")
-    
-    print("=" * 60)
-    print("  SIMULADOR INTERACTIU DE CAMPS VECTORIALS 3D (Estat Sòlid)")
-    print("=" * 60)
-    print(f"Obrint el simulador: {html_file}")
-    
-    try:
-        subprocess.run(f'start "" chrome "{html_file}"', shell=True, check=True)
-    except Exception:
-        print("Chrome no disponible directament. S'obrirà amb el navegador per defecte...")
-        try:
-            os.startfile(html_file)
-        except Exception:
-            webbrowser.open('file://' + html_file)
-            
-    print("Simulador obert amb èxit!")
+def main():
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    index_path = os.path.join(base_dir, "index.html")
+    url = "file:///" + index_path.replace("\\", "/")
+    print(f"Obrint la portada de Fluids i Superfluids: {url}")
+    webbrowser.open(url)
 
 if __name__ == "__main__":
-    obrir_simulador()
+    main()

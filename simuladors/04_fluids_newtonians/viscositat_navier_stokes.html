@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador — Fluids Newtonians, Viscositat, Navier-Stokes i Reologia (UAB)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
+<link rel="stylesheet" href="../estil_comu.css">
+<link rel="stylesheet" href="../simuladors_comu.css">
+<link rel="stylesheet" href="../caixes_plegables.css">
+</head>
+<body>
+<header class="capcalera-uab">
+  <div class="cap-esq">
+    <a class="cap-logo" href="../../" title="Portada del curs"><img src="../imatges/logotip-versio-3-verd.png" alt="Universitat Autònoma de Barcelona"></a>
+    <a class="cap-marca" href="../../">Fluids i Superfluids<small>Grau en Física · UAB</small></a>
+  </div>
+  <div class="cap-pagina">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="3" y1="4" x2="21" y2="4" stroke-width="2"/><line x1="3" y1="20" x2="21" y2="20" stroke-width="2"/><path d="M6 4 Q18 12 6 20" stroke-dasharray="1.5 1.5"/></svg>
+    Tema 4: Fluids newtonians i viscositat
+  </div>
+  <nav class="cap-nav" aria-label="Seccions del curs">
+    <a href="../../#index">Índex del curs</a>
+    <a href="../../mapa/index.html">Mapa del curs</a>
+    <a class="actiu" href="../index.html">Simuladors</a>
+    <a href="../../visualitzador_camps.html">Laboratori 3D</a>
+  </nav>
+</header>
+
+<div class="intro-sim">
+  <h1>Fluids newtonians: Couette, Poiseuille, problemes de Stokes, vòrtex viscós i reologia</h1>
+  <p class="sub">Quan tenim en compte el tensor d'esforços viscosos $\sigma_{ij}$ i la condició de no-lliscament a les parets sòlides, les equacions de Navier-Stokes determinen tant els perfils estacionaris en canals i tubs com la difusió viscosa de la vorticitat ($\delta \sim \sqrt{\nu t}$) i la dissipació tèrmica d'energia (Tema 4A i 4B).</p>
+</div>
+
+<main class="main-content">
+
+  <!-- ═══ Esquerra: Controls ═══ -->
+  <aside class="controls-panel">
+    <div class="card">
+      <div class="card-title">Règim viscós del Tema 4</div>
+      <div class="control-group">
+        <select class="sel-input" id="selModeNS">
+          <option value="couette_pois">1. Canal pla: Couette + Poiseuille i escalfament viscós ΔT(y)</option>
+          <option value="hagen">2. Conducte cilíndric de Hagen-Poiseuille (Q ∝ a⁴)</option>
+          <option value="stokes1">3. 1r Problema de Stokes (paret impulsiva) i làmina de vòrtex</option>
+          <option value="stokes2">4. 2n Problema de Stokes (paret oscil·lant u₀ cos ωt)</option>
+          <option value="lamb">5. Difusió viscosa d'un vòrtex (Lamb-Oseen) i Taylor-Couette</option>
+          <option value="reologia">6. Fluids no newtonians: Dilatant, Pseudoplàstic i Bingham</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Paràmetres físics i de contorn</div>
+      <div class="control-group">
+        <label class="control-label">Velocitat paret superior U <span class="val" id="valU">2.0 m/s</span></label>
+        <input type="range" class="slider" id="slU" min="-3.0" max="4.0" step="0.1" value="2.0">
+      </div>
+      <div class="control-group">
+        <label class="control-label">Gradient de pressió G = ∂p/∂x <span class="val" id="valG">-4.0 Pa/m</span></label>
+        <input type="range" class="slider" id="slG" min="-12.0" max="6.0" step="0.5" value="-4.0">
+      </div>
+      <div class="control-group">
+        <label class="control-label">Viscositat η (o ν) <span class="val" id="valEta">0.50</span></label>
+        <input type="range" class="slider" id="slEta" min="0.10" max="2.50" step="0.05" value="0.50">
+      </div>
+      <div class="control-group">
+        <label class="control-label">Amplada canal h (o radi a) <span class="val" id="valH">1.00 m</span></label>
+        <input type="range" class="slider" id="slH" min="0.40" max="1.50" step="0.05" value="1.00">
+      </div>
+      <div class="control-group">
+        <label class="control-label">Temps de difusió / fase t <span class="val" id="valT">0.80 s</span></label>
+        <input type="range" class="slider" id="slT" min="0.05" max="3.50" step="0.05" value="0.80">
+      </div>
+      <button type="button" class="btn primari" id="btnPlayNS">▶ Anima el temps t</button>
+    </div>
+  </aside>
+
+  <!-- ═══ Centre: Visualitzacions ═══ -->
+  <div class="center-panel">
+    <div class="fila-canvas">
+      <div class="bloc-canvas">
+        <div class="plot-title" id="titolNS1">Perfil de velocitats u(y) i vectors del flux entre parets</div>
+        <canvas id="cvNS1" width="430" height="360"></canvas>
+        <p class="plot-desc" id="descNS1">Condició de no-lliscament: u(0) = 0 a la paret inferior fixa i u(h) = U a la paret superior mòbil.</p>
+      </div>
+      <div class="bloc-canvas">
+        <div class="plot-title" id="titolNS2">Esforç tallant τ(y) = η du/dy i dissipació tèrmica ΔT(y)</div>
+        <canvas id="cvNS2" width="410" height="360"></canvas>
+        <p class="plot-desc" id="descNS2">A les regions amb major gradient du/dy la tensió tallant τ i la potència dissipada per unitat de volum η(du/dy)² són màximes.</p>
+      </div>
+    </div>
+
+    <div class="fila-canvas">
+      <div class="card formules">
+        <div class="card-title">Deducció i equacions de Navier-Stokes del règim actiu</div>
+        <div id="formulesNS"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Dreta: Valors i explicació ═══ -->
+  <aside class="right-panel">
+    <div class="card">
+      <div class="card-title">Magnituds del flux i balanç</div>
+      <div class="lectura" id="lectura"></div>
+      <div class="estat info" id="estat"></div>
+    </div>
+
+    <div class="card theory-box">
+      <div class="card-title">Què calcula aquest simulador</div>
+      <p>En un fluid newtonià incompressible, el tensor d'esforços és $T_{ij} = -p\delta_{ij} + \eta(\partial_j u_i + \partial_i u_j)$ i la segona llei de Newton (equació de Cauchy) dóna l'equació de <strong>Navier-Stokes</strong>:</p>
+      <p style="text-align:center; font-family:Georgia,serif;">$\rho\frac{D\vec{u}}{Dt} = -\vec{\nabla}p + \rho\vec{f} + \eta\nabla^2\vec{u}$</p>
+      <details class="obs" open>
+        <summary>Què has d'observar (Tema 4A i 4B)</summary>
+        <div class="obs-body">
+          <p><strong>1. Inversió de flux en Couette-Poiseuille:</strong> Posa una velocitat $U > 0$ a la paret superior però un gradient de pressió advers $G = \partial p/\partial x > 0$ fort: veuràs com prop de la paret inferior el fluid retrocedeix ($u < 0$) mentre que a dalt avança arrossegat per la paret!</p>
+          <p><strong>2. Dependència quarta del radi en Hagen-Poiseuille:</strong> En un tub cilíndric, el cabal és $Q = -\frac{\pi a^4 G}{8\eta}$. Si redueixes el radi $a$ a la meitat, el cabal cau 16 vegades!</p>
+          <p><strong>3. Difusió de la vorticitat ($\delta \sim \sqrt{\nu t}$):</strong> Tant al 1r problema de Stokes com al decaïment d'un vòrtex de Lamb-Oseen, la vorticitat concentrada a $t=0$ es difon exactament com la calor amb una amplada característica $\sqrt{4\nu t}$.</p>
+          <p><strong>4. Segona llei de la termodinàmica (Tema 4B):</strong> La taxa de producció d'entropia per viscositat és $\frac{1}{T}\left[\zeta(\vec{\nabla}\cdot\vec{u})^2 + \frac{1}{2\eta}\sigma'_{ij}\sigma'_{ij}\right] \ge 0$, cosa que obliga a que $\eta > 0$ i $\zeta > 0$.</p>
+        </div>
+      </details>
+    </div>
+  </aside>
+
+</main>
+
+<div class="peu-uab">
+  <strong>Joan Puertas Buscallà</strong> — Fluids i Superfluids · Grau en Física · UAB · Basat en l'estil dels simuladors del prof. F. Xavier Àlvarez (<a href="https://github.com/xalvarezc/estat_solid" target="_blank" rel="noopener">estat_solid</a>)
+</div>
+
+<script src="../caixes_plegables.js"></script>
+<script>
+(function(){
+  const selModeNS = document.getElementById('selModeNS');
+  const slU = document.getElementById('slU');
+  const slG = document.getElementById('slG');
+  const slEta = document.getElementById('slEta');
+  const slH = document.getElementById('slH');
+  const slT = document.getElementById('slT');
+  const btnPlayNS = document.getElementById('btnPlayNS');
+
+  const cv1 = document.getElementById('cvNS1');
+  const ctx1 = cv1.getContext('2d');
+  const cv2 = document.getElementById('cvNS2');
+  const ctx2 = cv2.getContext('2d');
+
+  let playing = false;
+
+  // Aproximació d'Abramowitz & Stegun per a erf(x)
+  function erf(x) {
+    const sgn = x >= 0 ? 1 : -1;
+    x = Math.abs(x);
+    const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+    const t = 1 / (1 + p * x);
+    const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+    return sgn * y;
+  }
+
+  [selModeNS, slU, slG, slEta, slH, slT].forEach(el => el.addEventListener('input', dibuixa));
+
+  btnPlayNS.addEventListener('click', () => {
+    playing = !playing;
+    btnPlayNS.textContent = playing ? "❚❚ Pausa el temps t" : "▶ Anima el temps t";
+    if (playing) requestAnimationFrame(loop);
+  });
+
+  function loop() {
+    if (!playing) return;
+    let t = parseFloat(slT.value) + 0.025;
+    if (t > 3.5) t = 0.05;
+    slT.value = t;
+    dibuixa();
+    requestAnimationFrame(loop);
+  }
+
+  function filaLectura(etiq, val) {
+    return `<div class="fila"><span class="etiqueta">${etiq}</span><span class="valor">${val}</span></div>`;
+  }
+
+  function dibuixa() {
+    const mode = selModeNS.value;
+    const U = parseFloat(slU.value);
+    const G = parseFloat(slG.value);
+    const eta = parseFloat(slEta.value);
+    const h = parseFloat(slH.value);
+    const t = parseFloat(slT.value);
+
+    document.getElementById('valU').textContent = U.toFixed(1) + ' m/s';
+    document.getElementById('valG').textContent = G.toFixed(1) + ' Pa/m';
+    document.getElementById('valEta').textContent = eta.toFixed(2);
+    document.getElementById('valH').textContent = h.toFixed(2) + ' m';
+    document.getElementById('valT').textContent = t.toFixed(2) + ' s';
+
+    ctx1.clearRect(0, 0, cv1.width, cv1.height);
+    ctx2.clearRect(0, 0, cv2.width, cv2.height);
+
+    const lecturaEl = document.getElementById('lectura');
+    const estatEl = document.getElementById('estat');
+    const formulesEl = document.getElementById('formulesNS');
+
+    if (mode === 'couette_pois' || mode === 'hagen') {
+      const isCyl = mode === 'hagen';
+      document.getElementById('titolNS1').textContent = isCyl
+        ? "Conducte cilíndric de Hagen-Poiseuille: u(r) = −(G/4η)(a² − r²)"
+        : "Canal pla de Couette-Poiseuille: u(y) = U(y/h) − (G/2η)y(h − y)";
+      document.getElementById('titolNS2').textContent = isCyl
+        ? "Esforç tallant lineal τ(r) = ½ G r i comparativa amb canal pla"
+        : "Esforç tallant τ(y) (verd) i escalfament viscós ΔT(y) (vermell)";
+
+      const yTop = 55, yBot = 305, xZero = 175, escX = 48;
+      // Parets superior i inferior
+      ctx1.fillStyle = '#334155';
+      ctx1.fillRect(45, yTop - 10, 340, 10);
+      ctx1.fillRect(45, yBot, 340, 10);
+      ctx1.strokeStyle = '#94a3b8';
+      ctx1.setLineDash([4, 4]);
+      ctx1.beginPath(); ctx1.moveTo(xZero, yTop); ctx1.lineTo(xZero, yBot); ctx1.stroke();
+      ctx1.setLineDash([]);
+
+      // Perfil de velocitat
+      ctx1.strokeStyle = '#009639';
+      ctx1.lineWidth = 2.8;
+      ctx1.beginPath();
+      const N = 60;
+      for (let i = 0; i <= N; i++) {
+        const frac = i / N;
+        let u = 0;
+        if (!isCyl) {
+          const y = frac * h;
+          u = U * (y / h) - (G / (2 * eta)) * y * (h - y);
+        } else {
+          const r = (2 * frac - 1) * h; // r in [-a, a]
+          u = -(G / (4 * eta)) * (h * h - r * r);
+        }
+        const py = yBot - frac * (yBot - yTop);
+        const px = xZero + u * escX;
+        if (i === 0) ctx1.moveTo(px, py); else ctx1.lineTo(px, py);
+      }
+      ctx1.stroke();
+
+      // Vectors de velocitat
+      for (let i = 1; i < 12; i++) {
+        const frac = i / 12;
+        const u = !isCyl
+          ? U * frac - (G / (2 * eta)) * (frac * h) * (h - frac * h)
+          : -(G / (4 * eta)) * (h * h - Math.pow((2 * frac - 1) * h, 2));
+        const py = yBot - frac * (yBot - yTop);
+        const px = xZero + u * escX;
+        ctx1.strokeStyle = 'rgba(0, 150, 57, 0.65)';
+        ctx1.lineWidth = 1.6;
+        ctx1.beginPath(); ctx1.moveTo(xZero, py); ctx1.lineTo(px, py); ctx1.stroke();
+      }
+
+      // Gràfica dreta: Esforç tallant tau(y) i escalfament viscós
+      const gxZero = 195;
+      ctx2.strokeStyle = '#94a3b8';
+      ctx2.beginPath(); ctx2.moveTo(gxZero, yTop); ctx2.lineTo(gxZero, yBot); ctx2.stroke();
+
+      ctx2.strokeStyle = '#009639';
+      ctx2.lineWidth = 2.5;
+      ctx2.beginPath();
+      for (let i = 0; i <= N; i++) {
+        const frac = i / N;
+        const tau = !isCyl
+          ? eta * (U / h) - G * (0.5 * h - frac * h)
+          : 0.5 * G * ((2 * frac - 1) * h);
+        const py = yBot - frac * (yBot - yTop);
+        const px = gxZero + tau * 28;
+        if (i === 0) ctx2.moveTo(px, py); else ctx2.lineTo(px, py);
+      }
+      ctx2.stroke();
+
+      // Perfil de temperatura en Couette: ΔT(y) ∝ (y/h)(1 - y/h)
+      if (!isCyl) {
+        ctx2.strokeStyle = '#dc2626';
+        ctx2.lineWidth = 2.2;
+        ctx2.beginPath();
+        for (let i = 0; i <= N; i++) {
+          const frac = i / N;
+          const dT = 110 * frac * (1 - frac);
+          const py = yBot - frac * (yBot - yTop);
+          const px = gxZero + dT;
+          if (i === 0) ctx2.moveTo(px, py); else ctx2.lineTo(px, py);
+        }
+        ctx2.stroke();
+      }
+
+      const Q_pla = 0.5 * h * (U - (h * h * G) / (6 * eta));
+      const uMitja_pla = Q_pla / h;
+      const Q_cil = -(Math.PI * Math.pow(h, 4) * G) / (8 * eta);
+      const uMax_cil = -(h * h * G) / (4 * eta);
+      const k_aigua = 0.6;
+      const dTm = (eta * U * U) / (8 * k_aigua);
+
+      lecturaEl.innerHTML = !isCyl
+        ? filaLectura('Cabal per unitat d\'amplada Q/L', Q_pla.toFixed(3) + ' m²/s') +
+          filaLectura('Velocitat mitjana ū = Q/(Lh)', uMitja_pla.toFixed(3) + ' m/s') +
+          filaLectura('Esforç paret inferior τ(0)', (eta * U / h - 0.5 * G * h).toFixed(2) + ' Pa') +
+          filaLectura('Esforç paret superior τ(h)', (eta * U / h + 0.5 * G * h).toFixed(2) + ' Pa') +
+          filaLectura('Escalfament màxim ΔT_m (Couette)', dTm.toFixed(3) + ' K')
+        : filaLectura('Cabal total Hagen-Poiseuille Q', Q_cil.toFixed(3) + ' m³/s') +
+          filaLectura('Velocitat màxima a l\'eix U_m = 2ū', uMax_cil.toFixed(3) + ' m/s') +
+          filaLectura('Velocitat mitjana ū = Q/(πa²)', (0.5 * uMax_cil).toFixed(3) + ' m/s') +
+          filaLectura('Esforç a la paret τ(r=a) = ½Ga', (0.5 * G * h).toFixed(2) + ' Pa');
+
+      estatEl.className = 'estat si';
+      estatEl.textContent = !isCyl
+        ? `Canal pla: u(y) combina el perfil lineal de Couette (U = ${U.toFixed(1)} m/s) i la paràbola de Poiseuille (G = ${G.toFixed(1)} Pa/m).`
+        : `Hagen-Poiseuille: Velocitat màxima a l'eix r = 0 igual al doble de la velocitat mitjana (U_m = 2ū = ${uMax_cil.toFixed(2)} m/s).`;
+
+      formulesEl.innerHTML = `
+        <div class="formula">
+          <div class="formula-nom">1. Flux de Couette-Poiseuille en un canal pla i Escalfament Viscós (Tema 4A i 4B)</div>
+          <div class="formula-eq">u(y) = U (y/h) − (G / 2η) y (h − y),     Q/L = ½ h (U − h²G / 6η),     τ(y) = η(U/h) − G(h/2 − y)</div>
+          <div class="formula-eq">Balanç tèrmic en Couette:  ẇ_irr = η (U/h)² = −k d²T/dy²  ⇒  T(y) − T₀ = (ηU² / 2k) (y/h)(1 − y/h),   ΔT_max = ηU² / (8k)</div>
+        </div>
+        <div class="formula">
+          <div class="formula-nom">2. Flux de Hagen-Poiseuille en un conducte cilíndric de radi a (Tema 4A)</div>
+          <div class="formula-eq">u(r) = −(G / 4η)(a² − r²),     Q = −(π a⁴ G) / (8η),     U_max = 2 ū = −a² G / (4η),     F_fricció = (2πaL) τ(a) = π a² Δp</div>
+        </div>`;
+
+    } else if (mode === 'stokes1' || mode === 'stokes2') {
+      const isOsc = mode === 'stokes2';
+      document.getElementById('titolNS1').textContent = isOsc
+        ? "2n Problema de Stokes: Paret oscil·lant u(0,t) = U cos(ωt)"
+        : "1r Problema de Stokes: Paret impulsiva u(y,t) = V₀ [1 − erf(y / 2√(νt))]";
+      document.getElementById('titolNS2').textContent = isOsc
+        ? "Envolupant d'atenuació exp(−y/δ) amb δ = √(2ν/ω)"
+        : "Difusió Gaussiana de la vorticitat ω_z(y,t) des de la paret y = 0";
+
+      const nu = eta * 0.25;
+      const omegaOsc = 4.0;
+      const delta = isOsc ? Math.sqrt((2 * nu) / omegaOsc) : 2 * Math.sqrt(nu * t);
+
+      const ox = 195, oy = 315, hPlot = 260, yMax = 2.5;
+      ctx1.strokeStyle = '#94a3b8';
+      ctx1.beginPath(); ctx1.moveTo(ox, oy - hPlot); ctx1.lineTo(ox, oy); ctx1.moveTo(40, oy); ctx1.lineTo(380, oy); ctx1.stroke();
+
+      ctx1.strokeStyle = '#009639';
+      ctx1.lineWidth = 2.8;
+      ctx1.beginPath();
+      for (let i = 0; i <= 100; i++) {
+        const y = (i / 100) * yMax;
+        const u = !isOsc
+          ? U * (1 - erf(y / (2 * Math.sqrt(nu * t))))
+          : U * Math.exp(-y / delta) * Math.cos(omegaOsc * t - y / delta);
+        const py = oy - (y / yMax) * hPlot;
+        const px = ox + u * 45;
+        if (i === 0) ctx1.moveTo(px, py); else ctx1.lineTo(px, py);
+      }
+      ctx1.stroke();
+
+      // Segona gràfica: vorticitat o envolupant
+      ctx2.strokeStyle = '#94a3b8';
+      ctx2.beginPath(); ctx2.moveTo(195, oy - hPlot); ctx2.lineTo(195, oy); ctx2.stroke();
+      ctx2.strokeStyle = '#dc2626';
+      ctx2.lineWidth = 2.4;
+      ctx2.beginPath();
+      for (let i = 0; i <= 100; i++) {
+        const y = (i / 100) * yMax;
+        const val = !isOsc
+          ? (U / Math.sqrt(Math.PI * nu * t)) * Math.exp(-(y * y) / (4 * nu * t))
+          : U * Math.exp(-y / delta);
+        const py = oy - (y / yMax) * hPlot;
+        const px = 195 + val * 35;
+        if (i === 0) ctx2.moveTo(px, py); else ctx2.lineTo(px, py);
+      }
+      ctx2.stroke();
+
+      lecturaEl.innerHTML =
+        filaLectura('Viscositat cinemàtica ν', nu.toFixed(3) + ' m²/s') +
+        filaLectura('Gruix de difusió / penetració δ', delta.toFixed(3) + ' m') +
+        (!isOsc
+          ? filaLectura('Vorticitat a la paret ω_z(0,t)', (U / Math.sqrt(Math.PI * nu * t)).toFixed(3) + ' s⁻¹')
+          : filaLectura('Velocitat de fase ona c = √(2νω)', Math.sqrt(2 * nu * omegaOsc).toFixed(3) + ' m/s'));
+
+      estatEl.className = 'estat info';
+      estatEl.textContent = !isOsc
+        ? `1r Problema de Stokes: el gruix de capa límit creix amb l'arrel del temps δ = 2√(νt) = ${delta.toFixed(2)} m.`
+        : `2n Problema de Stokes: les ones transversals viscoses s'esmorteixen exponencialment en una distància δ = √(2ν/ω) = ${delta.toFixed(2)} m.`;
+
+      formulesEl.innerHTML = `
+        <div class="formula">
+          <div class="formula-nom">1. Primer Problema de Stokes i Difusió d'una Làmina de Vorticitat (Tema 4A, pàg. 12–15)</div>
+          <div class="formula-eq">∂u/∂t = ν ∂²u/∂y²   ⇒   u(y,t) = V₀ [ 1 − erf( y / (2√(νt)) ) ],     ω_z(y,t) = −∂u/∂y = [V₀ / √(πνt)] exp(−y² / 4νt)</div>
+        </div>
+        <div class="formula">
+          <div class="formula-nom">2. Segon Problema de Stokes: Superfície Oscil·lant (Tema 4A, pàg. 16)</div>
+          <div class="formula-eq">u(y,t) = U exp(−y / δ) cos(ωt − y / δ),     amb longitud d'atenuació δ = √(2ν / ω) i velocitat de fase c = √(2νω)</div>
+        </div>`;
+
+    } else if (mode === 'lamb') {
+      // Decaïment d'un vòrtex de Lamb-Oseen
+      document.getElementById('titolNS1').textContent = "Decaïment viscós d'un vòrtex u_θ(r,t) = (Γ₀/2πr)(1 − e^(−r²/4νt))";
+      document.getElementById('titolNS2').textContent = "Difusió Gaussiana de la vorticitat ω_z(r,t) = (Γ₀/4πνt) e^(−r²/4νt)";
+
+      const nu = eta * 0.2;
+      const rCore = Math.sqrt(4 * nu * t);
+      const ox = 48, oy = 305, gw = 340, gh = 240, rMax = 2.5;
+      ctx1.strokeStyle = '#94a3b8'; ctx1.beginPath(); ctx1.moveTo(ox, oy - gh); ctx1.lineTo(ox, oy); ctx1.lineTo(ox + gw, oy); ctx1.stroke();
+      ctx2.strokeStyle = '#94a3b8'; ctx2.beginPath(); ctx2.moveTo(ox, oy - gh); ctx2.lineTo(ox, oy); ctx2.lineTo(ox + gw, oy); ctx2.stroke();
+
+      // Vòrtex irrotacional inicial (discontinu)
+      ctx1.strokeStyle = '#94a3b8'; ctx1.setLineDash([4, 4]);
+      ctx1.beginPath();
+      for (let i = 4; i <= 100; i++) {
+        const r = (i / 100) * rMax;
+        const u0 = 4.0 / (2 * Math.PI * r);
+        ctx1.lineTo(ox + (r / rMax) * gw, oy - Math.min(1.1, u0 / 2.5) * gh);
+      }
+      ctx1.stroke(); ctx1.setLineDash([]);
+
+      // Perfil de Lamb-Oseen a l'instant t
+      ctx1.strokeStyle = '#009639'; ctx1.lineWidth = 2.8;
+      ctx1.beginPath();
+      for (let i = 1; i <= 100; i++) {
+        const r = (i / 100) * rMax;
+        const u = (4.0 / (2 * Math.PI * r)) * (1 - Math.exp(-(r * r) / (4 * nu * t)));
+        const px = ox + (r / rMax) * gw, py = oy - Math.min(1.1, u / 2.5) * gh;
+        if (i === 1) ctx1.moveTo(px, py); else ctx1.lineTo(px, py);
+      }
+      ctx1.stroke();
+
+      ctx2.strokeStyle = '#dc2626'; ctx2.lineWidth = 2.6;
+      ctx2.beginPath();
+      for (let i = 0; i <= 100; i++) {
+        const r = (i / 100) * rMax;
+        const w = (4.0 / (4 * Math.PI * nu * t)) * Math.exp(-(r * r) / (4 * nu * t));
+        const px = ox + (r / rMax) * gw, py = oy - Math.min(1.1, w / 6.0) * gh;
+        if (i === 0) ctx2.moveTo(px, py); else ctx2.lineTo(px, py);
+      }
+      ctx2.stroke();
+
+      lecturaEl.innerHTML =
+        filaLectura('Radi difusió vòrtex √(4νt)', rCore.toFixed(3) + ' m') +
+        filaLectura('Vorticitat al centre ω_z(0,t)', (4.0 / (4 * Math.PI * nu * t)).toFixed(3) + ' s⁻¹') +
+        filaLectura('Circulació a l\'infinit Γ(∞,t)', '4.00 m²/s (conservada)');
+
+      estatEl.className = 'estat si';
+      estatEl.textContent = `La viscositat afegeix el terme difusiu ν∇²ω a l'equació de la vorticitat i elimina la singularitat en r = 0.`;
+
+      formulesEl.innerHTML = `
+        <div class="formula">
+          <div class="formula-nom">1. Decaïment d'un vòrtex i equació viscosa de la vorticitat (Tema 4A, pàg. 19–20)</div>
+          <div class="formula-eq">Dω⃗/Dt = (ω⃗·∇)u⃗ + ν ∇²ω⃗   ⇒   u_θ(r,t) = (Γ₀ / 2πr)(1 − e^(−r²/4νt)),    ω_z(r,t) = (Γ₀ / 4πνt) e^(−r²/4νt)</div>
+        </div>
+        <div class="formula">
+          <div class="formula-nom">2. Flux estacionari de Taylor-Couette entre dos cilindres concèntrics (Tema 4A, pàg. 18)</div>
+          <div class="formula-eq">r² u'' + r u' − u = 0   ⇒   u_θ(r) = A r + B / r,    amb A = (Ω₂R₂² − Ω₁R₁²)/(R₂² − R₁²),   B = (Ω₁ − Ω₂)R₁²R₂²/(R₂² − R₁²)</div>
+        </div>`;
+
+    } else {
+      // Reologia de fluids no newtonians
+      document.getElementById('titolNS1').textContent = "Corbes d'esforç tallant τ en funció del ritme de deformació γ̇";
+      document.getElementById('titolNS2').textContent = "Viscositat aparent η_a(γ̇) = τ / γ̇";
+
+      const ox = 52, oy = 308, gw = 335, gh = 245;
+      ctx1.strokeStyle = '#94a3b8'; ctx1.beginPath(); ctx1.moveTo(ox, oy - gh); ctx1.lineTo(ox, oy); ctx1.lineTo(ox + gw, oy); ctx1.stroke();
+      ctx2.strokeStyle = '#94a3b8'; ctx2.beginPath(); ctx2.moveTo(ox, oy - gh); ctx2.lineTo(ox, oy); ctx2.lineTo(ox + gw, oy); ctx2.stroke();
+
+      const corbes = [
+        { nom: 'Newtonià (η const)', col: '#009639', fTau: g => eta * g },
+        { nom: 'Dilatant (midó)', col: '#2563eb', fTau: g => eta * Math.pow(g, 1.45) },
+        { nom: 'Pseudoplàstic (pintura)', col: '#9333ea', fTau: g => eta * 1.4 * Math.pow(g, 0.58) },
+        { nom: 'Plàstic de Bingham', col: '#dc2626', fTau: g => 0.8 + eta * 0.85 * g }
+      ];
+
+      corbes.forEach((c, idx) => {
+        ctx1.strokeStyle = c.col; ctx1.lineWidth = 2.4;
+        ctx1.beginPath();
+        for (let i = 0; i <= 80; i++) {
+          const gam = (i / 80) * 3.0;
+          const tau = c.fTau(gam);
+          const px = ox + (gam / 3.0) * gw, py = oy - Math.min(1.1, tau / 4.5) * gh;
+          if (i === 0) ctx1.moveTo(px, py); else ctx1.lineTo(px, py);
+        }
+        ctx1.stroke();
+        ctx1.fillStyle = c.col; ctx1.font = 'bold 11px Segoe UI, sans-serif';
+        ctx1.fillText(c.nom, ox + 14, 42 + idx * 18);
+
+        ctx2.strokeStyle = c.col; ctx2.lineWidth = 2.4;
+        ctx2.beginPath();
+        for (let i = 4; i <= 80; i++) {
+          const gam = (i / 80) * 3.0;
+          const etaAp = c.fTau(gam) / gam;
+          const px = ox + (gam / 3.0) * gw, py = oy - Math.min(1.1, etaAp / 3.2) * gh;
+          if (i === 4) ctx2.moveTo(px, py); else ctx2.lineTo(px, py);
+        }
+        ctx2.stroke();
+      });
+
+      lecturaEl.innerHTML =
+        filaLectura('Fluid newtonià', 'η_a = η = const') +
+        filaLectura('Fluid dilatant (shear thickening)', 'η_a creix amb γ̇') +
+        filaLectura('Fluid pseudoplàstic (shear thinning)', 'η_a disminueix amb γ̇') +
+        filaLectura('Plàstic de Bingham', 'Cal superar τ₀ per fluir') +
+        filaLectura('Model viscoelàstic de Maxwell', 'γ̇ = τ/η + (1/G) dτ/dt');
+
+      estatEl.className = 'estat info';
+      estatEl.textContent = `Tema 4B (pàg. 18–19): Caracterització reològica segons la viscositat aparent η_a = τ / γ̇ i memòria viscoelàstica.`;
+
+      formulesEl.innerHTML = `
+        <div class="formula">
+          <div class="formula-nom">1. Reologia de fluids no newtonians i model viscoelàstic de Maxwell (Tema 4B, pàg. 18–19)</div>
+          <div class="formula-eq">Viscositat aparent: η_a(γ̇) ≡ τ / γ̇     |     Model de Maxwell (polímers): γ̇ = τ / η + (1 / G) dτ/dt</div>
+          <div class="formula-nota">A esforços lents domina el comportament viscós (γ̇ = τ/η); a esforços ràpids domina la resposta elàstica (γ = τ/G).</div>
+        </div>`;
+    }
+  }
+
+  dibuixa();
+})();
+</script>
+</body>
+</html>
