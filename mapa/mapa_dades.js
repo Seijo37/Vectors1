@@ -1,5 +1,5 @@
-// mapa_dades.js — Dades del mapa conceptual de Fluids i Superfluids (Grau en Física · UAB)
-// Autor: Joan Puertas Buscallà — Basat en el sistema de mapa de F. Xavier Àlvarez (estat_solid).
+// mapa_dades.js — Dades del mapa conceptual de Fluids i Superfluids
+// Basat en l'esquema, la distribució i el funcionament de https://github.com/xalvarezc/estat_solid
 
 var MAPA = {
   temes: {

@@ -12,7 +12,7 @@
 ### 1.1. Origen i Evolució
 El projecte va néixer de la necessitat de transcendir els plots estàtics generats per scripts en Python (`plot_vectorial.py`, que utilitzava Matplotlib o exportava figures fixes amb Plotly a `camp_vectorial.html`). En aquest punt inicial no es disposava d'interactivitat en temps real, inspecció dinàmica ni integració contínua de partícules.
 
-Inspirant-se en l'enfocament docent del repositori `estat_solid` (aplicacions web interactives desenvolupades pel professor Xavier Álvarez per a Física de l'Estat Sòlid a la UAB), es va dissenyar una aplicació web autònoma basada en **Three.js** (`visualitzador_camps.html`) amb el llançador auxiliar `obrir_simulador.py`. Aquesta eina aporta:
+Basant l'esquema, la distribució i el funcionament en el repositori `xalvarezc/estat_solid`, es va dissenyar una aplicació web autònoma basada en **Three.js** (`visualitzador_camps.html`) amb el llançador auxiliar `obrir_simulador.py`. Aquesta eina aporta:
 * Renderització a 60 fps amb `requestAnimationFrame`.
 * Control de càmera orbital 3D complet (rotació, zoom i translació).
 * Sistema de **1.500 partícules traçadores** per intuir la dinàmica del flux.

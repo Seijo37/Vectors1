@@ -1,5 +1,5 @@
-// temes.js — Dades compartides dels temes de Fluids i Superfluids (Grau en Física · UAB)
-// Autor: Joan Puertas Buscallà — Basat en l'estructura web del prof. F. Xavier Àlvarez (estat_solid).
+// temes.js — Dades compartides dels temes de Fluids i Superfluids
+// Basat en l'esquema, la distribució i el funcionament de https://github.com/xalvarezc/estat_solid
 
 var ICONES = {
   "00": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 18 L10 12 M8 12 L10 12 L10 14"/><path d="M12 18 L19 9 M16 9 L19 9 L19 12"/><path d="M4 9 L12 6 M10 5 L12 6 L10.5 8"/><circle cx="4" cy="18" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="18" r="1.3" fill="currentColor" stroke="none"/><circle cx="4" cy="9" r="1.3" fill="currentColor" stroke="none"/></svg>`,

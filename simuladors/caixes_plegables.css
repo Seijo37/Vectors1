@@ -11,22 +11,22 @@
   left: 2px;
   top: 50%;
   width: 0; height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 6px solid currentColor;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid currentColor;
   transform: translateY(-60%);
   transition: transform .15s;
 }
 .plegable.plegada > .titol-plegable::before { transform: translateY(-50%) rotate(-90deg); }
 .titol-plegable:hover { opacity: .8; }
-.titol-plegable:focus-visible { outline: 2px solid var(--uab, #009639); outline-offset: 2px; border-radius: 3px; }
+.titol-plegable:focus-visible { outline: 2px solid var(--uab, #2383e2); outline-offset: 2px; border-radius: 3px; }
 
 .plegable.plegada > :not(.titol-plegable) { display: none !important; }
 .card.plegada > .card-title { margin-bottom: 0; border-bottom-color: transparent; padding-bottom: 0; }
 .bloc-canvas.plegada {
-  border: 1px dashed var(--border, #c8e6c9);
+  border: 1px dashed var(--border, #e9e9e7);
   border-radius: 6px;
-  padding: 4px 10px;
+  padding: 5px 10px;
   background: var(--panel, #fff);
   align-self: flex-start;
   width: auto !important;
@@ -36,23 +36,23 @@
 
 .panell-plegable {
   position: sticky;
-  top: 64px;
-  max-height: calc(100vh - 72px);
+  top: 56px;
+  max-height: calc(100vh - 66px);
   overflow-y: auto;
   scrollbar-width: thin;
 }
 .boto-panell {
-  font-size: .70rem;
-  font-weight: 700;
-  color: var(--uab-dark, #00722b);
+  font-size: .71rem;
+  font-weight: 500;
+  color: var(--muted, #787774);
   background: var(--panel, #fff);
-  border: 1px solid var(--border, #c8e6c9);
+  border: 1px solid var(--border, #e9e9e7);
   border-radius: 5px;
   padding: 3px 8px;
   cursor: pointer;
   align-self: flex-end;
 }
-.boto-panell:hover { background: var(--uab-light, #e8f5ee); }
+.boto-panell:hover { background: var(--uab-light, #f1f1ef); color: var(--text, #37352f); }
 .panell-plegable.amagat { width: auto !important; flex-shrink: 0; overflow: visible; }
 .panell-plegable.amagat > :not(.boto-panell) { display: none !important; }
 .panell-plegable.amagat > .boto-panell {
@@ -72,20 +72,20 @@
   align-items: center;
   gap: 8px;
   font-size: .74rem;
-  color: var(--muted, #4a6352);
+  color: var(--muted, #787774);
 }
 .barra-plegables span { margin-right: auto; }
 .barra-plegables button {
   font-size: .72rem;
-  font-weight: 700;
-  color: var(--uab-dark, #00722b);
+  font-weight: 500;
+  color: var(--text, #37352f);
   background: #fff;
-  border: 1px solid var(--uab, #009639);
+  border: 1px solid var(--border, #e9e9e7);
   border-radius: 5px;
   padding: 3px 10px;
   cursor: pointer;
 }
-.barra-plegables button:hover { background: var(--uab-light, #e8f5ee); }
+.barra-plegables button:hover { background: var(--uab-light, #f1f1ef); }
 
 @media (max-width: 1250px) {
   .panell-plegable { position: static; max-height: none; overflow: visible; }

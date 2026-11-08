@@ -1,5 +1,5 @@
-// mapa.js — Lògica del Mapa del curs de Fluids i Superfluids (UAB)
-// Adaptat per Joan Puertas Buscallà a partir del motor de mapa de F. Xavier Àlvarez (estat_solid).
+// mapa.js — Lògica del Mapa del curs de Fluids i Superfluids
+// Basat en l'esquema, la distribució i el funcionament de https://github.com/xalvarezc/estat_solid
 (function () {
   'use strict';
 

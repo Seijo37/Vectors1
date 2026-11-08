@@ -3,22 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fluids i Superfluids — Simuladors de Camps Vectorials i Mecànica de Fluids (UAB)</title>
+<title>Fluids i Superfluids — Simuladors de Camps Vectorials i Mecànica de Fluids</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap">
 <link rel="stylesheet" href="simuladors/estil_comu.css">
 <style>
   *{ box-sizing:border-box; }
   html, body{ margin:0; padding:0; }
   body{
-    font-family:system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family:ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
     color:var(--ink);
     background:var(--bg);
     line-height:1.55;
   }
   main{
-    max-width:1100px;
+    max-width:1080px;
     margin:0 auto;
-    padding:28px 20px 64px;
+    padding:32px 20px 64px;
   }
 
   /* Portada */
@@ -27,79 +27,81 @@
     border:1px solid var(--border);
     border-radius:10px;
     padding:34px 36px 30px;
-    margin-bottom:32px;
+    margin-bottom:28px;
     display:grid;
     grid-template-columns:1.15fr 1fr;
     gap:32px;
     align-items:center;
+    box-shadow:0 1px 2px rgba(15, 15, 15, .03);
   }
   @media (max-width:860px){
     .portada{ grid-template-columns:1fr; padding:26px 22px; }
   }
   .portada .etiqueta-grau{
     display:inline-block;
-    font-size:.74rem;
-    font-weight:700;
-    letter-spacing:.08em;
+    font-size:.73rem;
+    font-weight:600;
+    letter-spacing:.06em;
     text-transform:uppercase;
-    color:var(--uab-dark);
+    color:var(--muted);
     background:var(--uab-light);
     padding:4px 10px;
-    border-radius:4px;
+    border-radius:5px;
     margin-bottom:12px;
   }
   .portada h1{
     font-family:"Source Serif 4", Georgia, serif;
     font-size:2.15rem;
-    line-height:1.15;
+    line-height:1.14;
     margin:0 0 10px;
     color:var(--ink);
-    letter-spacing:-.01em;
+    letter-spacing:-.015em;
   }
   .portada .autor{
-    font-size:1rem;
+    font-size:.95rem;
     color:var(--muted);
     margin:0 0 14px;
   }
   .portada .autor strong{ color:var(--ink); font-weight:600; }
-  .portada .autor a{ color:var(--uab-dark); text-decoration:none; font-weight:600; }
-  .portada .autor a:hover{ text-decoration:underline; }
+  .portada .autor a{ color:var(--ink); text-decoration:underline; text-underline-offset:2px; font-weight:500; }
+  .portada .autor a:hover{ color:var(--uab); }
   .portada .resum{
-    font-size:.94rem;
+    font-size:.93rem;
     color:var(--ink);
     margin:0 0 18px;
   }
   .portada .accions{
     display:flex;
     flex-wrap:wrap;
-    gap:10px;
+    gap:8px;
   }
   .boto{
     display:inline-flex;
     align-items:center;
     gap:8px;
-    padding:10px 16px;
+    padding:8px 15px;
     border-radius:6px;
-    font-weight:600;
-    font-size:.9rem;
+    font-weight:500;
+    font-size:.88rem;
     text-decoration:none;
-    border:1px solid var(--uab);
+    border:1px solid var(--border);
     transition:background .12s, color .12s, border-color .12s;
   }
   .boto-primari{
-    background:var(--uab);
+    background:var(--ink);
+    border-color:var(--ink);
     color:#fff;
   }
-  .boto-primari:hover{ background:var(--uab-dark); border-color:var(--uab-dark); }
+  .boto-primari:hover{ background:#262521; border-color:#262521; }
   .boto-secundari{
     background:#fff;
-    color:var(--uab-dark);
+    color:var(--ink);
   }
-  .boto-secundari:hover{ background:var(--uab-light); }
+  .boto-secundari:hover{ background:var(--uab-light); border-color:#d3d1cb; }
 
   /* Figura de portada */
   .figura-portada{
-    background:linear-gradient(180deg, #f9fbf9 0%, #eef5f0 100%);
+    background:var(--bg);
     border:1px solid var(--border);
     border-radius:8px;
     padding:16px 16px 12px;
@@ -116,7 +118,7 @@
     font-size:.76rem;
     color:var(--muted);
     margin-top:8px;
-    line-height:1.35;
+    line-height:1.38;
   }
 
   /* Destacat del mapa */
@@ -125,42 +127,40 @@
     grid-template-columns:auto 1fr auto;
     gap:18px;
     align-items:center;
-    background:linear-gradient(90deg, var(--uab-light) 0%, #ffffff 70%);
-    border:1px solid #b9dec6;
-    border-left:5px solid var(--uab);
+    background:var(--panel);
+    border:1px solid var(--border);
     border-radius:10px;
     padding:18px 22px;
-    margin:0 0 24px;
+    margin:0 0 22px;
     text-decoration:none;
     color:inherit;
-    transition:border-color .12s, box-shadow .12s, transform .12s;
+    transition:background .12s, border-color .12s;
   }
   .destacat-mapa:hover{
-    border-color:var(--uab);
-    box-shadow:0 4px 16px rgba(0, 114, 43, .10);
-    transform:translateY(-1px);
+    background:#fbfbfa;
+    border-color:#d3d1cb;
   }
   .destacat-mapa .dm-ico{
-    width:52px; height:52px;
-    border-radius:10px;
-    background:#fff;
-    border:1px solid #b9dec6;
+    width:46px; height:46px;
+    border-radius:8px;
+    background:var(--uab-light);
+    border:1px solid var(--border);
     display:flex; align-items:center; justify-content:center;
-    color:var(--uab-dark);
+    color:var(--ink);
     flex-shrink:0;
   }
   .destacat-mapa .dm-etiqueta{
     display:inline-block;
     font-size:.68rem;
-    font-weight:700;
-    letter-spacing:.08em;
+    font-weight:600;
+    letter-spacing:.06em;
     text-transform:uppercase;
-    color:var(--uab-dark);
+    color:var(--muted);
     margin-bottom:2px;
   }
   .destacat-mapa h2{
     font-family:"Source Serif 4", Georgia, serif;
-    font-size:1.18rem;
+    font-size:1.15rem;
     margin:0 0 3px;
     color:var(--ink);
   }
@@ -170,17 +170,19 @@
     color:var(--muted);
   }
   .destacat-mapa .dm-cta{
-    font-weight:700;
-    font-size:.88rem;
-    color:var(--uab-dark);
+    font-weight:500;
+    font-size:.85rem;
+    color:var(--ink);
     white-space:nowrap;
-    padding:8px 14px;
+    padding:7px 13px;
     border-radius:6px;
-    background:#fff;
-    border:1px solid var(--uab);
+    background:var(--uab-light);
+    border:1px solid var(--border);
+    transition:background .12s, color .12s;
   }
   .destacat-mapa:hover .dm-cta{
-    background:var(--uab);
+    background:var(--ink);
+    border-color:var(--ink);
     color:#fff;
   }
   @media (max-width:720px){
@@ -192,8 +194,8 @@
   .seccions{
     display:grid;
     grid-template-columns:repeat(3, 1fr);
-    gap:16px;
-    margin-bottom:36px;
+    gap:14px;
+    margin-bottom:34px;
   }
   @media (max-width:820px){
     .seccions{ grid-template-columns:1fr; }
@@ -201,7 +203,6 @@
   .targeta-seccio{
     background:var(--panel);
     border:1px solid var(--border);
-    border-top:3px solid var(--uab);
     border-radius:8px;
     padding:18px 20px;
     display:flex;
@@ -210,7 +211,7 @@
   }
   .targeta-seccio h2{
     font-family:"Source Serif 4", Georgia, serif;
-    font-size:1.12rem;
+    font-size:1.1rem;
     margin:0 0 6px;
     color:var(--ink);
   }
@@ -220,13 +221,14 @@
     margin:0 0 14px;
   }
   .targeta-seccio a.enllac-seccio{
-    font-size:.85rem;
-    font-weight:600;
-    color:var(--uab-dark);
-    text-decoration:none;
+    font-size:.84rem;
+    font-weight:500;
+    color:var(--ink);
+    text-decoration:underline;
+    text-underline-offset:2px;
     align-self:flex-start;
   }
-  .targeta-seccio a.enllac-seccio:hover{ text-decoration:underline; }
+  .targeta-seccio a.enllac-seccio:hover{ color:var(--uab); }
 
   /* Índex de temes */
   .titol-index{
@@ -236,16 +238,16 @@
     gap:12px;
     margin:8px 0 14px;
     padding-bottom:8px;
-    border-bottom:2px solid var(--uab);
+    border-bottom:1px solid var(--border);
   }
   .titol-index h2{
     font-family:"Source Serif 4", Georgia, serif;
-    font-size:1.35rem;
+    font-size:1.32rem;
     margin:0;
     color:var(--ink);
   }
   .titol-index span{
-    font-size:.82rem;
+    font-size:.81rem;
     color:var(--muted);
   }
   .llista-temes{
@@ -256,16 +258,15 @@
   .fila-tema{
     background:var(--panel);
     border:1px solid var(--border);
-    border-left:4px solid var(--uab);
-    border-radius:6px;
+    border-radius:8px;
     padding:13px 16px;
     display:grid;
-    grid-template-columns:62px 1fr auto;
+    grid-template-columns:64px 1fr auto;
     align-items:center;
     gap:14px;
   }
   @media (max-width:720px){
-    .fila-tema{ grid-template-columns:52px 1fr; }
+    .fila-tema{ grid-template-columns:54px 1fr; }
     .fila-tema .accions-tema{ grid-column:1 / -1; justify-self:start; margin-top:4px; }
   }
   .fila-tema .num-tema{
@@ -273,30 +274,30 @@
     align-items:center;
     gap:7px;
     font-family:"Source Serif 4", Georgia, serif;
-    font-weight:700;
-    font-size:1.05rem;
-    color:var(--uab-dark);
+    font-weight:600;
+    font-size:.98rem;
+    color:var(--ink);
     background:var(--uab-light);
-    border-radius:5px;
+    border:1px solid var(--border);
+    border-radius:6px;
     padding:6px 9px;
     justify-content:center;
   }
   .fila-tema .num-tema svg{
-    width:20px;
-    height:20px;
+    width:18px;
+    height:18px;
     flex-shrink:0;
-    color:var(--uab);
+    color:var(--ink);
   }
-  .fila-tema.repas{ border-left-color:#7a8b80; }
   .fila-tema.repas .num-tema{
-    background:#eef1ee;
-    color:#425247;
-    font-size:.76rem;
-    letter-spacing:.05em;
+    font-size:.74rem;
+    letter-spacing:.04em;
+    color:var(--muted);
   }
   .fila-tema .cos-tema h3{
     margin:0 0 2px;
-    font-size:1rem;
+    font-size:.98rem;
+    font-weight:600;
     color:var(--ink);
   }
   .fila-tema .cos-tema p{
@@ -313,36 +314,34 @@
   .accions-tema a,
   .accions-tema button.boto-sims-tema{
     font-size:.8rem;
-    font-weight:600;
+    font-weight:500;
     text-decoration:none;
     padding:6px 11px;
-    border-radius:5px;
+    border-radius:6px;
     border:1px solid var(--border);
     color:var(--ink);
-    background:#fbfcfb;
+    background:#ffffff;
     white-space:nowrap;
     font-family:inherit;
     cursor:pointer;
+    transition:background .12s, border-color .12s;
   }
   .accions-tema a:hover,
   .accions-tema button.boto-sims-tema:hover{
-    border-color:var(--uab);
-    color:var(--uab-dark);
     background:var(--uab-light);
+    border-color:#d3d1cb;
   }
   .accions-tema a.prim{
-    background:var(--uab);
-    border-color:var(--uab);
+    background:var(--ink);
+    border-color:var(--ink);
     color:#fff;
   }
   .accions-tema a.prim:hover{
-    background:var(--uab-dark);
-    border-color:var(--uab-dark);
+    background:#262521;
+    border-color:#262521;
     color:#fff;
   }
   .accions-tema button.boto-sims-tema{
-    color:var(--uab-dark);
-    border-color:#b9d8c4;
     background:var(--uab-light);
     display:inline-flex;
     align-items:center;
@@ -360,7 +359,7 @@
     grid-column:1 / -1;
     margin-top:10px;
     padding-top:10px;
-    border-top:1px dashed var(--border);
+    border-top:1px solid var(--border);
   }
   .fila-tema.obert .calaix-sims{ display:block; }
   .calaix-sims ul{
@@ -375,18 +374,18 @@
     display:block;
     padding:9px 12px;
     border:1px solid var(--border);
-    border-radius:5px;
-    background:#fbfcfb;
+    border-radius:6px;
+    background:var(--bg);
     text-decoration:none;
     color:var(--ink);
     font-size:.84rem;
-    font-weight:600;
+    font-weight:500;
     line-height:1.35;
+    transition:background .12s, border-color .12s;
   }
   .calaix-sims li a:hover{
-    border-color:var(--uab);
+    border-color:#d3d1cb;
     background:var(--uab-light);
-    color:var(--uab-dark);
   }
   .calaix-sims li a span.desc-curta{
     display:block;
@@ -398,34 +397,36 @@
 
   /* Nota de l'autor i crèdits */
   .nota-autor{
-    margin-top:36px;
-    background:var(--panel);
+    margin-top:32px;
+    background:var(--uab-light);
     border:1px solid var(--border);
-    border-left:4px solid var(--uab);
     border-radius:8px;
-    padding:18px 22px;
+    padding:16px 20px;
   }
   .nota-autor h3{
     font-family:"Source Serif 4", Georgia, serif;
-    font-size:1.08rem;
+    font-size:1.02rem;
     margin:0 0 8px;
     color:var(--ink);
   }
-  .nota-autor p{
-    font-size:.86rem;
+  .nota-autor ul{
+    margin:0;
+    padding-left:18px;
+    font-size:.85rem;
     color:var(--muted);
-    margin:0 0 8px;
   }
-  .nota-autor p:last-child{ margin-bottom:0; }
+  .nota-autor li{ margin-bottom:4px; }
+  .nota-autor li:last-child{ margin-bottom:0; }
   .nota-autor a{
-    color:var(--uab-dark);
-    font-weight:600;
-    text-decoration:none;
+    color:var(--ink);
+    font-weight:500;
+    text-decoration:underline;
+    text-underline-offset:2px;
   }
-  .nota-autor a:hover{ text-decoration:underline; }
+  .nota-autor a:hover{ color:var(--uab); }
 
   footer{
-    max-width:1100px;
+    max-width:1080px;
     margin:0 auto;
     padding:18px 20px 36px;
     border-top:1px solid var(--border);
@@ -436,15 +437,17 @@
     justify-content:space-between;
     gap:10px;
   }
-  footer a{ color:var(--uab-dark); text-decoration:none; font-weight:600; }
-  footer a:hover{ text-decoration:underline; }
+  footer a{ color:var(--ink); text-decoration:underline; text-underline-offset:2px; font-weight:500; }
+  footer a:hover{ color:var(--uab); }
 </style>
 </head>
 <body>
 
 <header class="capcalera-uab">
   <div class="cap-esq">
-    <a class="cap-logo" href="./" title="Portada del curs"><img src="simuladors/imatges/logotip-versio-3-verd.png" alt="Universitat Autònoma de Barcelona"></a>
+    <a class="cap-logo" href="./" title="Portada del curs" aria-label="Portada">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8c4-4 10 4 18 0"/><path d="M3 13c4-4 10 4 18 0"/><path d="M3 18c4-4 10 4 18 0"/></svg>
+    </a>
     <a class="cap-marca" href="./">Fluids i Superfluids<small>Grau en Física · UAB</small></a>
   </div>
   <div class="cap-pagina">Portada del projecte</div>
@@ -477,34 +480,34 @@
       <svg id="svgPortada" viewBox="0 0 380 230" role="img" aria-label="Flux potencial amb circulació al voltant d'un cilindre i línies de corrent">
         <defs>
           <radialGradient id="gradCil" cx="38%" cy="35%" r="65%">
-            <stop offset="0%" stop-color="#3a5a46"/>
-            <stop offset="100%" stop-color="#1b2c21"/>
+            <stop offset="0%" stop-color="#5a5852"/>
+            <stop offset="100%" stop-color="#37352f"/>
           </radialGradient>
           <marker id="fletxaVerd" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#009639"/>
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2383e2"/>
           </marker>
         </defs>
-        <rect x="6" y="6" width="368" height="218" rx="6" fill="#ffffff" stroke="#d8e2da"/>
+        <rect x="6" y="6" width="368" height="218" rx="6" fill="#ffffff" stroke="#e9e9e7"/>
         <!-- Equipotencials (discontínues) -->
-        <g id="grupEqui" stroke="#9ec5ab" stroke-width="1" stroke-dasharray="3 3" fill="none" opacity="0.65"></g>
+        <g id="grupEqui" stroke="#c7c6c1" stroke-width="1" stroke-dasharray="3 3" fill="none" opacity="0.65"></g>
         <!-- Línies de corrent -->
-        <g id="grupStream" stroke="#009639" stroke-width="1.5" fill="none" opacity="0.85"></g>
+        <g id="grupStream" stroke="#2383e2" stroke-width="1.4" fill="none" opacity="0.82"></g>
         <!-- Partícules traçadores -->
         <g id="grupParticules"></g>
         <!-- Cilindre central amb circulació -->
-        <circle cx="190" cy="108" r="34" fill="url(#gradCil)" stroke="#00722b" stroke-width="2"/>
+        <circle cx="190" cy="108" r="34" fill="url(#gradCil)" stroke="#37352f" stroke-width="2"/>
         <!-- Fletxa de circulació Γ -->
-        <path d="M 172 108 A 18 18 0 1 1 206 116" fill="none" stroke="#a7f3d0" stroke-width="1.8" marker-end="url(#fletxaVerd)"/>
+        <path d="M 172 108 A 18 18 0 1 1 206 116" fill="none" stroke="#ebf5fe" stroke-width="1.8" marker-end="url(#fletxaVerd)"/>
         <text x="190" y="112" font-size="11" font-family="Georgia, serif" font-style="italic" text-anchor="middle" fill="#ffffff">Γ &gt; 0</text>
         <!-- Punts d'estancament -->
-        <circle cx="161" cy="126" r="4" fill="#d93829" stroke="#fff" stroke-width="1.2"/>
-        <circle cx="219" cy="126" r="4" fill="#d93829" stroke="#fff" stroke-width="1.2"/>
+        <circle cx="161" cy="126" r="4" fill="#c4322b" stroke="#fff" stroke-width="1.2"/>
+        <circle cx="219" cy="126" r="4" fill="#c4322b" stroke="#fff" stroke-width="1.2"/>
         <!-- Vector sustentació Kutta-Zhukovsky -->
-        <line x1="190" y1="74" x2="190" y2="34" stroke="#00722b" stroke-width="2.4" marker-end="url(#fletxaVerd)"/>
-        <text x="200" y="45" font-size="10.5" font-family="Georgia, serif" font-weight="bold" fill="#00722b">F_y = ρUΓ</text>
+        <line x1="190" y1="74" x2="190" y2="34" stroke="#37352f" stroke-width="2.2" marker-end="url(#fletxaVerd)"/>
+        <text x="200" y="45" font-size="10.5" font-family="Georgia, serif" font-weight="bold" fill="#37352f">F_y = ρUΓ</text>
         <!-- Etiquetes -->
-        <text x="16" y="24" font-size="10" font-family="Georgia, serif" font-style="italic" fill="#00722b">ψ(r,θ) = const · Efecte Magnus</text>
-        <text x="16" y="214" font-size="9.5" font-family="system-ui, sans-serif" fill="#54635a">Punts d'estancament (vermell) desplaçats per la circulació</text>
+        <text x="16" y="24" font-size="10" font-family="Georgia, serif" font-style="italic" fill="#37352f">ψ(r,θ) = const · Efecte Magnus</text>
+        <text x="16" y="214" font-size="9.5" font-family="system-ui, sans-serif" fill="#787774">Punts d'estancament (vermell) desplaçats per la circulació</text>
       </svg>
       <figcaption>
         Flux potencial al voltant d'un cilindre en rotació ($\phi = -k\theta + (1 + R^2/r^2)rU\cos\theta$, Problema 22). La circulació trenca la simetria dalt-baix i genera la força de sustentació de Kutta-Zhukovsky.
@@ -514,7 +517,7 @@
 
   <a class="destacat-mapa" href="mapa/index.html">
     <div class="dm-ico" aria-hidden="true">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="5" cy="6" r="2.2"/><circle cx="19" cy="6" r="2.2"/><circle cx="12" cy="13" r="2.2"/><circle cx="19" cy="20" r="2.2"/>
         <path d="M7 7l3.3 4.3M17 7l-3.3 4.3M13.6 14.6l3.8 3.8"/>
       </svg>
@@ -531,7 +534,7 @@
     <div class="targeta-seccio">
       <div>
         <h2>Laboratori 3D i 2D de camps</h2>
-        <p>Introdueix qualsevol camp $(u,v,w)$, funció potencial $\phi$ o funció de corrent $\psi$, comprova $\vec{\nabla}\cdot\vec{u}=0$ i $\vec{\omega}=\vec{\nabla}\times\vec{u}$, i carrega directament els exercicis del curs en WebGL.</p>
+        <p>Introdueix qualsevol camp $(u,v,w)$, funció potencial $\phi$ o funció de corrent $\psi$, comprova $\vec{\nabla}\cdot\vec{u}=0$ i $\vec{\omega}=\vec{\nabla}\times\vec{u}$, visualitza isolínies i carrega els exercicis del curs en WebGL.</p>
       </div>
       <a class="enllac-seccio" href="visualitzador_camps.html">Obre el visualitzador 3D →</a>
     </div>
@@ -620,21 +623,19 @@
 
   </div>
 
-  <section class="nota-autor" aria-label="Sobre aquest projecte i reconeixements">
-    <h3>Sobre aquest projecte i mencions</h3>
-    <p>
-      Soc en <strong>Joan Puertas Buscallà</strong>, estudiant de 4t del Grau en Física a la Universitat Autònoma de Barcelona (UAB). Aquest repositori va néixer inicialment com un visualitzador 3D de camps vectorials per comprovar els exercicis de funció potencial $\phi$ i funció de corrent $\psi$, i l'he anat ampliant fins a cobrir tot el temari de l'assignatura de <strong>Fluids i Superfluids</strong>.
-    </p>
-    <p>
-      <strong>Mencions i agraïments:</strong> L'arquitectura web d'aquest portal, el disseny visual acadèmic UAB (fulls d'estil, estructura de panells de 3 columnes i caixes plegables) i el motor del <em>Mapa conceptual interactiu</em> estan directament inspirats i adaptats del repositori obert <a href="https://github.com/xalvarezc/estat_solid" target="_blank" rel="noopener"><code>xalvarezc/estat_solid</code></a> (<em>Física de l'Estat Sòlid</em>), desenvolupat pel professor <strong>F. Xavier Àlvarez Calafell</strong> (Departament de Física, UAB). El contingut físic, les demostracions i els enunciats dels problemes segueixen el material docent de l'assignatura <em>Fluids i Superfluids</em> del Grau en Física de la UAB. Per al renderitzat matemàtic i gràfic s'utilitzen <a href="https://threejs.org/" target="_blank" rel="noopener">Three.js</a> (WebGL), HTML5 Canvas i <a href="https://katex.org/" target="_blank" rel="noopener">KaTeX</a>.
-    </p>
+  <section class="nota-autor" aria-label="Mencions">
+    <h3>Mencions</h3>
+    <ul>
+      <li>He utilitzat la teoria i exercicis de l'assignatura de <strong>Fluids i Superfluids</strong> del Grau en Física (UAB).</li>
+      <li>Basant l'esquema, la distribució i el funcionament en el repositori <a href="https://github.com/xalvarezc/estat_solid" target="_blank" rel="noopener"><code>xalvarezc/estat_solid</code></a>.</li>
+    </ul>
   </section>
 
 </main>
 
 <footer>
-  <span><strong>Joan Puertas Buscallà</strong> · Grau en Física · Universitat Autònoma de Barcelona (<a href="https://www.linkedin.com/in/joan-puertasbuscalla/" target="_blank" rel="noopener">LinkedIn</a> · <a href="https://github.com/Seijo37/Vectors1" target="_blank" rel="noopener">GitHub</a>)</span>
-  <span>Disseny i arquitectura del mapa basats en <a href="https://github.com/xalvarezc/estat_solid" target="_blank" rel="noopener">estat_solid</a> (Prof. F. Xavier Àlvarez, UAB)</span>
+  <span><strong>Joan Puertas Buscallà</strong> · Grau en Física · UAB (<a href="https://www.linkedin.com/in/joan-puertasbuscalla/" target="_blank" rel="noopener">LinkedIn</a> · <a href="https://github.com/Seijo37/Vectors1" target="_blank" rel="noopener">GitHub</a>)</span>
+  <span>Esquema, distribució i funcionament basats en <a href="https://github.com/xalvarezc/estat_solid" target="_blank" rel="noopener">xalvarezc/estat_solid</a></span>
 </footer>
 
 <script src="simuladors/temes.js"></script>
@@ -693,7 +694,6 @@
   var gPart = document.getElementById('grupParticules');
   if (gStream && gPart) {
     var cx = 190, cy = 108, R = 34;
-    // Potencial de corrent reduït: ψ(x,y) = y*(1 - R²/r²) + k*ln(r/R)
     var kCirc = 18;
     var psiTargets = [-62, -42, -24, -9.5, 4, 20, 38, 58];
     var corbes = [];
@@ -702,8 +702,6 @@
       var pts = [];
       for (var ix = 14; ix <= 366; ix += 4) {
         var dx = ix - cx;
-        // Cerquem y per bisecció o secant mantenint el signe
-        var yStart = psi0 >= -10 ? -85 : 85;
         var bestY = null, bestErr = 1e9;
         var yMin = -95, yMax = 95;
         for (var sy = yMin; sy <= yMax; sy += 2) {
@@ -734,8 +732,8 @@
     corbes.forEach(function(pts, idx) {
       for (var m = 0; m < 2; m++) {
         var c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        c.setAttribute('r', '2.7');
-        c.setAttribute('fill', '#00722b');
+        c.setAttribute('r', '2.6');
+        c.setAttribute('fill', '#37352f');
         gPart.appendChild(c);
         particules.push({ el: c, pts: pts, pos: (m * 0.5 + idx * 0.13) % 1 });
       }
